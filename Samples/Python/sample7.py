@@ -19,6 +19,15 @@ class WebBrowserExample(QWidget):
         layout.addWidget(self.url_bar)
         layout.addWidget(self.browser)
         
+        self.back_button = QPushButton("Back")
+        self.back_button.clicked.connect(self.browser.back)
+        layout.addWidget(self.back_button)
+        
+        # New feature buttons
+        self.print_button = QPushButton("Print to PDF")
+        self.print_button.clicked.connect(self.print_to_pdf)
+        layout.addWidget(self.print_button)
+        
         self.set_html_button = QPushButton("Set Custom HTML")
         self.set_html_button.clicked.connect(self.set_custom_html)
         layout.addWidget(self.set_html_button)
@@ -30,6 +39,10 @@ class WebBrowserExample(QWidget):
         self.zoom_out_button = QPushButton("Zoom Out")
         self.zoom_out_button.clicked.connect(self.zoom_out)
         layout.addWidget(self.zoom_out_button)
+        
+        self.trigger_action_button = QPushButton("Trigger Page Action (Refresh)")
+        self.trigger_action_button.clicked.connect(self.trigger_page_action)
+        layout.addWidget(self.trigger_action_button)
         
         self.setLayout(layout)
         self.browser.urlChanged.connect(self.update_url_bar)
@@ -58,7 +71,7 @@ class WebBrowserExample(QWidget):
                 <title>CPET8 - SAMPLE</title>
             </head>
             <body>
-                <h1>CPET8 - SAMPLE</h1>
+                <h1>CUSTOM HTML SAMPLEt</h1>
                 <p>This is a custom HTML page set using setHtml()</p>
             </body>
         </html>
