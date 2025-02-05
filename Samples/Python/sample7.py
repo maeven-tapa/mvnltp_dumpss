@@ -19,9 +19,22 @@ class WebBrowserExample(QWidget):
         layout.addWidget(self.url_bar)
         layout.addWidget(self.browser)
         
+        # Original navigation buttons
+        self.reload_button = QPushButton("Reload")
+        self.reload_button.clicked.connect(self.browser.reload)
+        layout.addWidget(self.reload_button)
+        
+        self.stop_button = QPushButton("Stop")
+        self.stop_button.clicked.connect(self.browser.stop)
+        layout.addWidget(self.stop_button)
+        
         self.back_button = QPushButton("Back")
         self.back_button.clicked.connect(self.browser.back)
         layout.addWidget(self.back_button)
+        
+        self.forward_button = QPushButton("Forward")
+        self.forward_button.clicked.connect(self.browser.forward)
+        layout.addWidget(self.forward_button)
         
         # New feature buttons
         self.print_button = QPushButton("Print to PDF")
@@ -39,10 +52,6 @@ class WebBrowserExample(QWidget):
         self.zoom_out_button = QPushButton("Zoom Out")
         self.zoom_out_button.clicked.connect(self.zoom_out)
         layout.addWidget(self.zoom_out_button)
-        
-        self.trigger_action_button = QPushButton("Trigger Page Action (Refresh)")
-        self.trigger_action_button.clicked.connect(self.trigger_page_action)
-        layout.addWidget(self.trigger_action_button)
         
         self.setLayout(layout)
         self.browser.urlChanged.connect(self.update_url_bar)
@@ -71,7 +80,7 @@ class WebBrowserExample(QWidget):
                 <title>CPET8 - SAMPLE</title>
             </head>
             <body>
-                <h1>CUSTOM HTML SAMPLEt</h1>
+                <h1>CPET8 - SAMPLE</h1>
                 <p>This is a custom HTML page set using setHtml()</p>
             </body>
         </html>
