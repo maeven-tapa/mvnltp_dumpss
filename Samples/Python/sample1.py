@@ -3,28 +3,41 @@ from PySide6.QtGui import QPainter
 from PySide6.QtCore import QRectF, Qt
 import sys
 
-class GraphicsViewSetScene(QGraphicsView):
-    def __init__(self):
-        super().__init__()
-        self.setWindowTitle("GraphicsViewSetScene Example")
-        scene = QGraphicsScene()
-        scene.addRect(0, 0, 100, 100)
-        self.setScene(scene)
-        print("Scene set with a rectangle.")
-        self.show()
-
 
 class GraphicsViewSetRenderHint(QGraphicsView):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("GraphicsViewSetRenderHint Example")
-        self.setGeometry(200, 200, 400, 400)
-        scene = QGraphicsScene()
-        scene.addEllipse(20, 20, 60, 60)
-        self.setScene(scene)
-        self.setRenderHint(QPainter.Antialiasing, False)
-        print("Render Hint set to Antialiasing.")
+        self.setWindowTitle("PySide6")
+        
+        # Create scene
+        self.scene = QGraphicsScene()
+        
+        self.status_text = self.scene.addText("Render Hint: Antialiasing DISABLED")
+        self.status_text.setPos(20, 0) 
+        
+        # Add ellipse
+        self.scene.addEllipse(20, 20, 200, 200)  
+        self.setScene(self.scene)
+        
+        # Initial state of antialiasing
+        self.antialiasing_enabled = True
+        self.updateRenderHint()
+        
+        # Set up the view size
+
         self.show()
+    
+    def updateRenderHint(self):
+        if self.antialiasing_enabled:
+            self.setRenderHint(QPainter.Antialiasing, True)
+            self.status_text.setPlainText("Render Hint: Antialiasing ENABLED")
+        else:
+            self.setRenderHint(QPainter.Antialiasing, False)
+            self.status_text.setPlainText("Render Hint: Antialiasing DISABLED")
+    
+    def toggleAntialiasing(self):
+        self.antialiasing_enabled = not self.antialiasing_enabled
+        self.updateRenderHint()
 
 class GraphicsViewSetTransformationAnchor(QGraphicsView):
     def __init__(self):
@@ -100,6 +113,6 @@ class GraphicsViewCenterOn(QGraphicsView):
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     
-    main_window = GraphicsViewSetScene()
+    main_window = GraphicsViewSetInteractive()
     
     sys.exit(app.exec())
