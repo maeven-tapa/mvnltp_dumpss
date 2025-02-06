@@ -34,7 +34,7 @@ class WhatsThisDemo(QWidget):
         self.setLayout(layout)
         
     def toggleWhatsThisMode(self):
-        if QWhatsThis.inWhatsThisMode():  # Corrected method call
+        if QWhatsThis.inWhatsThisMode():  
             QWhatsThis.leaveWhatsThisMode()
         else:
             QWhatsThis.enterWhatsThisMode()
