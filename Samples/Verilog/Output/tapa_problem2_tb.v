@@ -3,6 +3,8 @@ module problem2_tb;
     wire X, AB, AC;
     problem2 dut(X, AB, AC, A, B, C);
     initial begin
+        $dumpfile("simulation.vcd");
+        $dumpvars(0, problem2_tb);
         $display("A B C AB AC X");
         $monitor(A, " ", B, " ", C, " ", AB, " ", AC, " ", X);
         A = 0; B = 0; C = 0;
