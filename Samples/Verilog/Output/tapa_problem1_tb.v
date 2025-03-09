@@ -3,6 +3,8 @@ module problem1_tb;
     wire X;
     problem1 dut(X, A, B, C);
     initial begin
+        $dumpfile("dump.vcd");
+        $dumpvars(0, problem1_tb); 
         $display("A B C X");
         $monitor(A, " ", B, " ", C, " ", X);
         A = 0; B = 0; C = 0;
