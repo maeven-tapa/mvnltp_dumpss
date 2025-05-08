@@ -1,0 +1,86 @@
+$date
+	Fri May 09 04:57:16 2025
+$end
+$version
+	Icarus Verilog
+$end
+$timescale
+	1s
+$end
+$scope module logicgates_tb $end
+$var wire 1 ! C_xor $end
+$var wire 1 " C_xnor $end
+$var wire 1 # C_or $end
+$var wire 1 $ C_nor $end
+$var wire 1 % C_nand $end
+$var wire 1 & C_and $end
+$var reg 1 ' A $end
+$var reg 1 ( B $end
+$scope module u1 $end
+$var wire 1 ' A $end
+$var wire 1 ( B $end
+$var wire 1 & C $end
+$upscope $end
+$scope module u2 $end
+$var wire 1 ' A $end
+$var wire 1 ( B $end
+$var wire 1 # C $end
+$upscope $end
+$scope module u3 $end
+$var wire 1 ' A $end
+$var wire 1 ( B $end
+$var wire 1 ! C $end
+$upscope $end
+$scope module u4 $end
+$var wire 1 ' A $end
+$var wire 1 ( B $end
+$var wire 1 % C $end
+$upscope $end
+$scope module u5 $end
+$var wire 1 ' A $end
+$var wire 1 ( B $end
+$var wire 1 $ C $end
+$upscope $end
+$scope module u6 $end
+$var wire 1 ' A $end
+$var wire 1 ( B $end
+$var wire 1 " C $end
+$upscope $end
+$upscope $end
+$enddefinitions $end
+$comment Show the parameter values. $end
+$dumpall
+$end
+#0
+$dumpvars
+0(
+0'
+0&
+1%
+1$
+0#
+1"
+0!
+$end
+#1
+1#
+1!
+0$
+0"
+1(
+#2
+1'
+0(
+#3
+1&
+0!
+0%
+1"
+1(
+#4
+0&
+0#
+1%
+1$
+0'
+0(
