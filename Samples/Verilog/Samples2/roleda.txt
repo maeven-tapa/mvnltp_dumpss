@@ -1,0 +1,3 @@
+module roleda1 (input wire A, B, C, D, E,  output wire F);
+	assign F = (A + ~B + C) & (~A + D) & (B + ~C + ~E);
+endmodule
