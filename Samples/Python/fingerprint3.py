@@ -4,8 +4,8 @@ from pyzkfp import ZKFP2
 import sys
 from PIL import Image
 import numpy as np
-import threading
 import os
+import sqlite3
 
 class FingerprintApp(QWidget):
     def __init__(self):
@@ -17,8 +17,9 @@ class FingerprintApp(QWidget):
         self.initialize_device()
         self.running = True
         self.image_counter = 1
-        self.capture_thread = threading.Thread(target=self.capture_fingerprint_loop, daemon=True)
-        self.capture_thread.start()
+        # Initialize SQLite DB
+        self.db_path = os.path.join(os.getcwd(), "fingerprints.db")
+        self.init_db()
 
     def init_ui(self):
         self.setWindowTitle("ZKTeco Live 20R GUI")
@@ -62,26 +63,28 @@ class FingerprintApp(QWidget):
         else:
             QMessageBox.warning(self, "Error", "No fingerprint devices found!")
 
-    def capture_fingerprint_loop(self):
-        while self.running:
-            capture = self.zkfp2.AcquireFingerprint()
-            if capture:
-                tmp, img = capture
-                self.log_message("Fingerprint captured successfully.")
-                self.zkfp2.show_image(img)
-                self.save_fingerprint_template(tmp)
+    def init_db(self):
+        self.conn = sqlite3.connect(self.db_path)
+        self.cursor = self.conn.cursor()
+        self.cursor.execute('''
+            CREATE TABLE IF NOT EXISTS fingerprints (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                template BLOB
+            )
+        ''')
+        self.conn.commit()
 
-    def save_fingerprint_template(self, template):
+    def save_template_to_db(self, template):
         try:
-            template_dir = os.path.join(os.getcwd(), "fingerprint_templates")
-            os.makedirs(template_dir, exist_ok=True)
-            file_path = os.path.join(template_dir, f"fingerprint{self.image_counter}.tpl")
-            with open(file_path, "wb") as f:
-                f.write(template)
-            self.log_message(f"Fingerprint template saved to {file_path}")
-            self.image_counter += 1
+            self.cursor.execute("INSERT INTO fingerprints (template) VALUES (?)", (sqlite3.Binary(template),))
+            self.conn.commit()
+            self.log_message("Fingerprint template saved to SQLite DB.")
         except Exception as e:
-            self.log_message(f"Error saving fingerprint template: {e}")
+            self.log_message(f"Error saving to DB: {e}")
+
+    def load_templates_from_db(self):
+        self.cursor.execute("SELECT id, template FROM fingerprints")
+        return self.cursor.fetchall()
 
     def toggle_light(self):
         self.current_light_index = (self.current_light_index + 1) % len(self.light_colors)
@@ -100,24 +103,47 @@ class FingerprintApp(QWidget):
     def register_fingerprint(self):
         templates = []
         for i in range(3):
-            capture = self.zkfp2.AcquireFingerprint()
-            if capture:
-                tmp, img = capture
-                templates.append(tmp)
-                self.log_message(f"Fingerprint sample {i+1} captured.")
-        regTemp, _ = self.zkfp2.DBMerge(*templates)
+            self.log_message(f"Please place your finger for sample {i+1}...")
+            while self.running:
+                capture = self.zkfp2.AcquireFingerprint()
+                if capture:
+                    tmp, img = capture
+                    templates.append(tmp)
+                    self.log_message(f"Fingerprint sample {i+1} captured.")
+                    break
+            if not self.running:
+                self.log_message("Registration aborted.")
+                return
+        if len(templates) < 3:
+            self.log_message("Failed to capture 3 fingerprint samples. Registration aborted.")
+            return
+        regTemp, _ = self.zkfp2.DBMerge(templates[0], templates[1], templates[2])
         finger_id = 1
         self.zkfp2.DBAdd(finger_id, regTemp)
         self.log_message("Fingerprint registered successfully.")
+        # Save to SQLite DB
+        self.save_template_to_db(regTemp)
 
     def compare_fingerprint(self):
         capture = self.zkfp2.AcquireFingerprint()
-        if capture:
-            tmp, _ = capture
-            fingerprint_id, score = self.zkfp2.DBIdentify(tmp)
-            self.log_message(f"Matched Fingerprint ID: {fingerprint_id}, Score: {score}")
+        if not capture:
+            self.log_message("No fingerprint captured.")
+            return
+        tmp, _ = capture
+        # Load all templates from DB and compare
+        matches = []
+        for db_id, db_template in self.load_templates_from_db():
+            try:
+                score = self.zkfp2.DBMatch(tmp, db_template)
+                if score > 0:  # Score > 0 means a match (adjust threshold as needed)
+                    matches.append((db_id, score))
+            except Exception as e:
+                self.log_message(f"Error comparing with DB template {db_id}: {e}")
+        if matches:
+            best_match = max(matches, key=lambda x: x[1])
+            self.log_message(f"Matched DB ID: {best_match[0]}, Score: {best_match[1]}")
         else:
-            self.log_message("No match found.")
+            self.log_message("No match found in database.")
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
