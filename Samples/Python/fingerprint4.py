@@ -1,6 +1,7 @@
 import sys
 import sqlite3
 import os
+import wmi
 from PySide6.QtWidgets import (QApplication, QWidget, QPushButton, QVBoxLayout,
                                QLabel, QFileDialog, QMessageBox)
 from PySide6.QtGui import QPixmap, QImage
@@ -26,6 +27,9 @@ class FingerprintApp(QWidget):
 
         self.status = QLabel("Status: Not initialized")
         layout.addWidget(self.status)
+
+        self.device_name_label = QLabel("Device: Not connected")
+        layout.addWidget(self.device_name_label)
 
         self.image_label = QLabel("Captured Fingerprint")
         layout.addWidget(self.image_label)
@@ -58,16 +62,43 @@ class FingerprintApp(QWidget):
         """)
         self.db_conn.commit()
 
+    def get_fingerprint_device_name(self):
+        """Get the actual fingerprint device name from Windows Device Manager"""
+        try:
+            c = wmi.WMI()
+            # Look for fingerprint devices in various categories
+            for device in c.Win32_PnPEntity():
+                if device.Name and any(keyword in device.Name.lower() for keyword in 
+                    ['zkfp', 'zkteco', 'zk']):
+                    return device.Name
+            
+            # If no specific fingerprint device found, look for USB devices with fingerprint keywords
+            for device in c.Win32_USBHub():
+                if device.Name and any(keyword in device.Name.lower() for keyword in 
+                    ['zk', 'zkfp', 'zkteco']):
+                    return device.Name
+                    
+            return "Unknown Fingerprint Device"
+        except Exception as e:
+            print(f"Error getting device name: {e}")
+            return "Fingerprint Scanner"
+
     def initialize_device(self):
         self.zkfp.Init()
         count = self.zkfp.GetDeviceCount()
         if count > 0:
             self.zkfp.OpenDevice(0)
             self.device_open = True
+            
+            # Get actual device name from Windows Device Manager
+            device_name = self.get_fingerprint_device_name()
+            self.device_name_label.setText(f"Device: {device_name}")
+            
             self.status.setText(f"Device initialized. {count} device(s) found.")
             self.zkfp.Light('white')
         else:
             self.status.setText("No device found.")
+            self.device_name_label.setText("Device: Not connected")
 
     def capture_fingerprint(self):
         if not self.device_open:

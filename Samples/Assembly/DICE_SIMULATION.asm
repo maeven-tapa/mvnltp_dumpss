@@ -1,0 +1,85 @@
+ASSUME CS:CODE, DS:DATA
+
+DATA SEGMENT
+    COUNT DB 0
+    CHOICE DB ?
+    RINT DB ?
+    MSG1 DB 10,13,"1 TO ROLL THE DICE 0 TO STOP$"
+    MSG2 DB 10,13,"ENTER YOUR CHOICE: $"
+    MSG3 DB 10,13,"YOUR NUMBER IS: $"
+    MSG4 DB 10,13,"END PROGRAM$"
+    MSG5 DB 10,13,"BINGO$"
+    REC DB 100 DUP(0)
+DATA ENDS
+
+CODE SEGMENT
+START:
+    MOV AX, DATA
+    MOV DS,AX
+    LEA SI,REC
+    INC SI
+    
+    UP:
+    LEA DX,MSG1
+    MOV AH,09H
+    INT 21H
+    
+    LEA DX,MSG2
+    MOV AH,09H
+    INT 21H
+    
+    MOV AH,01H
+    INT 21H
+    
+    MOV CHOICE,AL
+    CMP AL,'0'
+    JE EXIT
+    
+    LEA DX,MSG3
+    MOV AH,09H
+    INT 21H
+    
+    MOV AH,2CH
+    INT 21H
+    
+    MOV AX, DX
+    MOV DX,0
+    MOV CX,6
+    DIV CX
+    ADD DL,'0'
+    ADD DL,1
+    MOV [SI],DL
+    INC SI
+    
+    MOV AH,02H
+    INT 21H
+    
+    CMP DL,'6'
+    JNE NEXT1
+    INC COUNT;
+    
+NEXT1:
+    MOV BL, [SI]
+    CMP BL, [SI-1]
+    JNE EX
+    CMP BL, [SI-2]
+    JE NEXT
+    EX:
+    CMP COUNT,3
+    JMP UP
+    
+NEXT:
+    LEA DX,MSG5
+    MOV AH,09H
+    INT 21H
+    JMP EXIT
+    
+EXIT:
+    LEA DX,MSG4
+    MOV AH,09H
+    INT 21H
+    MOV AH,4CH
+    INT 21H
+
+CODE ENDS
+END START

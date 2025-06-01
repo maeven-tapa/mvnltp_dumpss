@@ -8,6 +8,9 @@ face_mesh = mp_face.FaceMesh(min_detection_confidence = 0.6, min_tracking_confid
 
 # reading video
 cap = cv2.VideoCapture(0)
+cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)  # Lower resolution
+cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+cap.set(cv2.CAP_PROP_FPS, 30) 
 print('\nCapturing\n')
 
 while cap.isOpened():
