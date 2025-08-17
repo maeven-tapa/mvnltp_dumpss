@@ -1,16 +1,23 @@
 {
   "packages": [
     {
+      "maintainer": "e-Gizmo Mechatronix Central Inc",
       "email": "egizmo.technical@gmail.com",
+      "websiteURL": "https://www.e-gizmo.net",
       "help": {
         "online": "https://www.e-gizmo.net"
       },
-      "maintainer": "e-Gizmo Mechatronix Central Inc",
       "name": "gizDuino",
       "platforms": [
         {
+          "name": "Gizduino AVR Boards",
           "architecture": "avr",
+          "version": "0.9.5",
+          "category": "Contributed",
+          "url": "https://github.com/e-Gizmo/egizmo.github.io/raw/master/gizDuino/gizDuino-0.9.5.zip",
           "archiveFileName": "gizDuino-0.9.5.zip",
+          "checksum": "SHA-256:0AEEE16AF021814944F288B44759166538E5B1DB84D06A1C26116298A192446B",
+          "size": "276529",
           "boards": [
             { "name": "Gizduino X (ATmega1281)" },
             { "name": "Gizduino IOT-644" },
@@ -19,25 +26,16 @@
             { "name": "Gizduino MiniUSB ATmega168P/328P" },
             { "name": "Gizduino+ Mini (Sanguino Mode) 164P/324P/644P" }
           ],
-          "category": "Contributed",
-          "checksum": "SHA-256:0AEEE16AF021814944F288B44759166538E5B1DB84D06A1C26116298A192446B",
-          "help": {
-            "online": "https://www.e-gizmo.net"
-          },
-          "name": "Gizduino AVR Boards",
-          "size": "276529",
           "toolsDependencies": [
             {
-              "name": "avr-gcc",
               "packager": "arduino",
+              "name": "avr-gcc",
               "version": "4.8.1-arduino5"
             }
           ],
-          "url": "https://github.com/e-Gizmo/egizmo.github.io/raw/master/gizDuino/gizDuino-0.9.5.zip",
-          "version": "0.9.5"
+          "package": "gizDuino"
         }
-      ],
-      "websiteURL": "https://www.e-gizmo.net"
+      ]
     }
   ]
 }
