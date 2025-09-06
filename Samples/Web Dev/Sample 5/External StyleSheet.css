@@ -1,0 +1,43 @@
+body {background-color:#a0dfd9}
+h1 {
+    color:blue;
+    text-align:left;
+    font-size:16px;
+    background: #ffffff;
+    width: 600px;
+    }
+h2 {
+    color:red;
+    text-align:center;
+    font-size:16px
+}
+.evenparagraphs {
+    font-family:helvetica;
+    font-size:12px;
+    word-spacing:3px;
+    border:2px dashed blue;
+    width:500px
+    }
+
+.oddparagraphs {
+    margin-left:100px;
+    font-family:helvetica;
+    font-size:12px;
+    word-spacing:3px;
+    border:2px dashed blue;
+    width:500px
+    }
+table {
+    margin-left:100px;
+    width:300px;
+    border-collapse:collapse;
+    background-color: white
+    }
+tr {width:300px}
+td {width:100px;border:2px solid blue}
+/*
+    Title: WEEK 4 - HTML AND CSS - ISDD Page 5/6
+    Made by: Maeven Lirio Tapa
+    Year/Section: BET-COET-3A
+    Date: September 6, 2025
+*/
