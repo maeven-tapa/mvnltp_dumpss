@@ -1,5 +1,87 @@
+.mybtn {
+	background-color: #488fb1;  /* hex color */
+	color: white;               /* text color for contrast */
+	width: 250px;               /* fixed width */
+	height: 50px;               /* optional: set height */
+	border: none;               /* removes default border */
+	border-radius: 8px;         /* rounded corners */
+	font-size: 16px;            /* text size */
+	cursor: pointer;            /* pointer on hover */
+}
+
+.mybtn:hover {
+	background-color: #377b99;  /* slightly darker shade on hover */
+}
+
+.margined-text {
+	margin-left:30px;
+}
+
+.white-text {
+	font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande", "Lucida Sans", Arial, sans-serif;
+	font-size: clamp(15px, 2vw, 15px);
+	color:white;
+}
+
+.text-side {
+	display:flex;
+	flex-direction:column;
+	gap:20px;
+}
+
+.motto-text {
+	font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande", "Lucida Sans", Arial, sans-serif;	
+	display: flex;              /* enables side-by-side layout */
+	align-items: center;        /* vertically center text and image */
+	gap: 30px;                  /* spacing between text and image */
+	justify-content: center;
+}
+
+.motto-text p {
+	font-size: clamp(24px, 5vw, 50px); /* responsive font size */
+	margin: 0;                          /* remove default p spacing */
+}
+
+.email-box {
+	background-color: #533e85;   /* background behind input + button */
+	padding: 20px;
+	text-align: center;          /* center the content */
+}
+
+.email-box input[type="email"] {
+	padding: 12px 15px;          /* inner spacing */
+	font-size: 20px;             /* dynamic text size */
+	border: none;
+	border-radius: 6px 0 0 6px;  /* rounded left side */
+	outline: none;
+	width: clamp(200px, 40%, 400px); /* responsive width */
+}
+
+.email-box button {
+	padding: 12px 20px;
+	font-size: 20px;             /* dynamic text size */
+	background-color: #488fb1;
+	color: white;
+	border: none;
+	border-radius: 0 6px 6px 0;  /* rounded right side */
+	cursor: pointer;
+	transition: background 0.3s ease;
+}
+
+.email-box button:hover {
+	background-color: #377b99;   /* hover effect */
+}
+
+.center-subs {
+	text-align:center;
+}
+
+.center-subs p {
+	font-size:clamp(15px, 2vw, 15px);
+}
+
 .top_bar {
-	background-color: red;
+	background-color: #c1f8cf;
 	display: flex;
 }
 
@@ -13,29 +95,32 @@
 }
 
 .square {
-	background-color: green;
+	background-color: #4fd3c4;
 	flex: 1;
 	grid-column: 1;
 	height: 500px;
+	display: flex;          /* flexbox layout */
+	align-items: center;    /* vertical center */
+	justify-content: center;/* horizontal center */
 }
 
 .square2 {
-	background-color: blue;
+	background-color: #4fd3c4;
 	flex: 1;
 	grid-column: 2/4;
 	height: 500px;
 }
 
 .square3 {
-	background-color: grey;
+	background-color: #488fb1;
 	height: 100px;
 	grid-column: 1 / 4;
 	flex: 1;
 }
 
 .square4 {
-	background-color: blue;
+	background-color: #533e85;
 	flex: 1;
-	height: 350px;
+	height: 400px;
 	grid-column: 1 / 4
 }
