@@ -1,0 +1,41 @@
+.top_bar {
+	background-color: red;
+	display: flex;
+}
+
+.container {
+	display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: auto auto;
+	justify-content: center;
+	gap: 10px;
+	padding-top: 10px;
+}
+
+.square {
+	background-color: green;
+	flex: 1;
+	grid-column: 1;
+	height: 500px;
+}
+
+.square2 {
+	background-color: blue;
+	flex: 1;
+	grid-column: 2/4;
+	height: 500px;
+}
+
+.square3 {
+	background-color: grey;
+	height: 100px;
+	grid-column: 1 / 4;
+	flex: 1;
+}
+
+.square4 {
+	background-color: blue;
+	flex: 1;
+	height: 350px;
+	grid-column: 1 / 4
+}
