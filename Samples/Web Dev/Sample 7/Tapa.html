@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>TOCAF</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f2f5;
+      margin: 0;
+      padding: 20px;
+    }
+
+    header {
+      background-color: #004080;
+      color: white;
+      padding: 15px;
+      text-align: center;
+    }
+
+    h2 {
+      text-align: center;
+      color: #333;
+    }
+
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+
+    input[type="text"], input[type="email"], select {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      border: 1px solid #aaa;
+      border-radius: 4px;
+    }
+
+    .radio-group, .checkbox-group {
+      margin-top: 10px;
+    }
+
+    button {
+      margin-top: 15px;
+      padding: 10px 15px;
+      background-color: #004080;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #003060;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 20px;
+      padding: 10px;
+      background: #eee;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Tapa Online College Admission Form (TOCAF)</h1>
+  </header>
+
+  <h2>Application Form</h2>
+  <form id="admissionForm">
+    <label for="fullname">Full Name:</label>
+    <input type="text" id="fullname" name="fullname" required>
+    <label for="email">Email Address:</label>
+    <input type="email" id="email" name="email" required>
+
+
+    <label>Gender:</label>
+    <div class="radio-group">
+      <input type="radio" id="male" name="gender" value="Male"> Male
+      <input type="radio" id="female" name="gender" value="Female"> Female
+    </div>
+
+    <label>Preferred Courses:</label>
+    <div class="checkbox-group">
+      <input type="checkbox" name="course" value="Computer Science"> Computer Science<br>
+      <input type="checkbox" name="course" value="Business Management"> Business Management<br>
+      <input type="checkbox" name="course" value="Engineering"> Engineering<br>
+      <input type="checkbox" name="course" value="Education"> Education
+    </div>
+
+    <label for="year">Year Level:</label>
+    <select id="year" name="year">
+      <option value="">--Select Year--</option>
+      <option value="1st Year">1st Year</option>
+      <option value="2nd Year">2nd Year</option>
+      <option value="3rd Year">3rd Year</option>
+      <option value="4th Year">4th Year</option>
+    </select>
+
+    <button type="button" onclick="submitForm()">Submit Application</button>
+  </form>
+
+  <footer>
+    &copy; 2025 Tapa Online College Admission System
+  </footer>
+
+  <script>
+    function submitForm() {
+      let name = document.getElementById("fullname").value;
+      let email = document.getElementById("email").value;
+      let year = document.getElementById("year").value;
+      let gender = "";
+      let genderRadios = document.getElementsByName("gender");
+      for (let i = 0; i < genderRadios.length; i++) {
+        if (genderRadios[i].checked) {
+          gender = genderRadios[i].value;
+          break;
+        }
+      }
+      let courses = [];
+      let courseCheckboxes = document.getElementsByName("course");
+      for (let i = 0; i < courseCheckboxes.length; i++) {
+        if (courseCheckboxes[i].checked) {
+          courses.push(courseCheckboxes[i].value);
+        }
+      }
+      if (name === "" || email === "" || year === "") {
+        alert("Please fill in all required fields!");
+      } else {
+        let message = "Application Submitted!\n\n" +
+                      "Full Name: " + name + "\n" +
+                      "Email: " + email + "\n" +
+                      "Gender: " + (gender || "Not specified") + "\n" +
+                      "Year Level: " + year + "\n" +
+                      "Preferred Courses: " + (courses.length > 0 ? courses.join(", ") : "None selected") + "\n\n" +
+                      "Thank you for your application!";
+        alert(message);
+      }
+    }
+  </script>
+</body>
+  <!-- 
+    Title: WEEK 7 - ONLINE ACTIVITY - INDIVIDUAL
+    Made by: Maeven Lirio Tapa
+    Year/Section: BET-COET-3A
+    Date: September 26, 2025 -->
+</html>

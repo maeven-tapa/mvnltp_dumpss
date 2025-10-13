@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <!-- To start we create <head> for settings at resources para sa page. -->
+
+    <title>Dasmariñas Weather Dashboard</title>
+    <!-- Ito po ang title na makikita sa tab ng browser. -->
+
+    <link rel="stylesheet" type="text/css" href="tapa.css">
+    <!-- Line for calling the external CSS file -->
+
+    <!-- Leaflet CSS for map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <!-- This is the stylesheet for Leaflet according to their references. -->
+</head>
+
+<body>
+    <!-- Next we define the <body>. -->
+
+    <h1>Dasmariñas Weather Dashboard</h1>
+    <!-- This is for the big heading sa taas ng page. -->
+
+    <div id="weather-box">
+        <!-- Container po ito para sa weather infos. -->
+
+        <p>Real-time weather for Dasmariñas, Cavite</p>
+
+        <!-- Current Weather -->
+        <div id="current-weather">Loading...</div>
+
+        <!-- Hourly Forecast -->
+        <h3>Hourly Forecast</h3>
+        <div id="hourly-forecast"></div>
+
+        <!-- Refresh Button -->
+        <button onclick="getWeather()">Refresh Weather</button>
+        <!-- Button po ito na kapag kinlick it will call function na "getWeather()" para mag-refresh ng data. -->
+    </div>
+
+    <!-- Map -->
+    <h2>Location Map</h2>
+
+    <div id="map"></div>
+    <!-- Div para sa mapa gamit. -->
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <!-- This the JavaScript library ng Leaflet na gagamitin fro our map I use the 
+     "https://leafletjs.com/reference.html#map-example" as refrence -->
+
+    <script src="tapa.js"></script>
+    <!-- line for calling the external javascript -->
+</body>
+  <!-- 
+    Title: WEEK 8 - HTML - CSS - Javascript
+    Made by: Maeven Lirio Tapa
+    Year/Section: BET-COET-3A
+    Date: October 30, 2025 -->
+</html>

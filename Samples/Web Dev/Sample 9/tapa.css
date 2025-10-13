@@ -1,0 +1,99 @@
+html{
+    box-sizing: border-box;
+    height: 100%;
+}
+*, *:before, *:after{
+    box-sizing: inherit;
+    margin: 0;
+    padding: 0;
+}
+body{
+    align-items: center;
+    background: #605ae9;
+    display: flex;
+    font-family: 'Segoe UI';
+    font-display: swap;
+    height: inherit;
+    justify-content: center;
+}
+
+.wrapper{
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.2);
+    color: black;
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    background: rgba(255,255,255,0.5);
+    flex-basis: 400px;
+    padding: 20px 35px;
+}
+
+h1 {
+    color: white;
+    font-size: 20px;
+    margin-bottom: 10px;
+    padding: 5px 10px;
+    text-align: center;
+}
+
+.screen{
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    background: rgba(84, 205, 83,0.75);
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.2);
+    color: white;
+    font-size: 35px;
+    overflow: auto;
+    padding: 10px;
+    text-align: right;
+    width: 328px;
+}
+.buttons_row{
+    display: flex;
+    justify-content: space-between;
+    margin: 5% 0;
+}
+.calcu_buttons{
+    border: none;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.2);
+    color: black;
+    flex-basis: 20%;
+    font-size: 25px;
+    height: 65px;
+}
+.calcu_buttons:hover{
+    background-color: #f78c00;
+}
+.calcu_buttons:active{
+    background-color: #ffb200;
+}
+.calcu_buttons:last-child{
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.2);
+    color: white;
+    background-color: #387f7c;
+}
+.calcu_buttons:last-child:hover{
+    background-color: #02989e;
+}
+.calcu_buttons:last-child:active{
+    background: #75d07d;
+    color: white;
+}
+.top{
+    background: #ffea77;
+}
+.top:hover{
+    background: #fff45c;
+}
+.top:active{
+    background: white;
+}
+.double{
+    flex-basis: 47%;
+}
