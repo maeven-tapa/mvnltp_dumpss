@@ -11,10 +11,26 @@ function show_the_number() {
 }
 
 function is_it_a_math_sign(the_letter) {
-	return the_letter === '+' || the_letter === '-' || the_letter === '*' || the_letter === '/';
+	return the_letter === '+' || the_letter === '-' || the_letter === '*' || the_letter === '/' || the_letter === '÷' || the_letter === '−';
 }
 
 function add_to_math(the_thing_to_add) {
+	if (the_thing_to_add === '−') {
+		the_thing_to_add = '-';
+	}
+
+	if (is_it_a_math_sign(the_thing_to_add) && the_math_stuff === '') {
+		if (the_thing_to_add === '-') {
+			the_math_stuff = '-';
+			show_the_number();
+		}
+		return;
+	}
+
+	if (is_it_a_math_sign(the_thing_to_add) && the_math_stuff === '-') {
+		return;
+	}
+
 	if (the_math_stuff === '0' && '0123456789'.indexOf(the_thing_to_add) !== -1) {
 		the_math_stuff = the_thing_to_add;
 		show_the_number();
@@ -24,7 +40,11 @@ function add_to_math(the_thing_to_add) {
 	var the_last_thing = the_math_stuff.charAt(the_math_stuff.length - 1);
 
 	if (is_it_a_math_sign(the_last_thing) && is_it_a_math_sign(the_thing_to_add)) {
-		the_math_stuff = the_math_stuff.slice(0, -1) + the_thing_to_add;
+		if (the_thing_to_add === '-' && the_last_thing !== '-') {
+			the_math_stuff += the_thing_to_add;
+		} else {
+			the_math_stuff = the_math_stuff.slice(0, -1) + the_thing_to_add;
+		}
 		show_the_number();
 		return;
 	}
@@ -77,6 +97,9 @@ function do_the_math() {
 	}
 	while (cleaned_math.indexOf('÷') !== -1) {
 		cleaned_math = cleaned_math.replace('÷', '/');
+	}
+	while (cleaned_math.indexOf('−') !== -1) {
+		cleaned_math = cleaned_math.replace('−', '-');
 	}
 
 	var allowed_stuff = '0123456789+-*/.() ';

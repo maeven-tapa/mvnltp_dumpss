@@ -1,0 +1,45 @@
+Create me code for a line following robot:
+Specs of the robot:
+Esp32 s3 
+Tb6612fng 
+Two n20 motors 1000rpm 6v
+two 18650 battery (7.4v)
+5 channel tcrt5000 (no potention meter,but has 74hc14d inverter to invert the outputs )
+no encoders
+no gyro(mpu)
+
+additional data:
+Width of the robot with wheels: 195mm
+leght of the robot back edge to front edge(sensor): 185mm
+Wheel diameter (mm): 32
+Wheel track / axle width (mm): 180mm
+Robot mass (kg, approx): 0.6 kg
+Distance sensors are ahead of center (mm): 155mm
+Number of reflectance sensors: 5
+Spacing between sensors (mm center-to-center):
+Sensor height above ground (mm):3mm
+Motor RPM (no-load): 1000 (6v)
+Battery voltage: 7.4
+Motor PWM range: 0-255, SINCE MY SUPPLY VOLTAGE FOR MOTOR IS 7.4V INSTEAD OF 6V MAKE THE PWM RANGE LOWER SO THAT IT ONLY CONSUME TOLERAB;LE VOLATAGE
+Desired base speed (RPM or m/s): about 800 to 1000rpm on staright line, and 400 t0 800 in curve or sections.
+
+PIN CONFIG:
+5 channel tcrt5000 analog:
+OUT1 - GPIO15
+OUT2 - GPIO7
+OUT3 - GPIO6
+OUT4 - GPIO5
+OUT5 - GPIO4
+
+Tb6612fng:
+PWMA - GPIO21
+AIN2 - GPIO35
+AIN1 - GPIO36
+STBY - GPIO37
+BIN1 - GPIO38
+BIN2 - GPIO39
+PWMB - GPIO40
+
+TWO PULL DOWN bUTTONS
+BUTTONA - GPIO20
+BUTTONB - GPIO1
