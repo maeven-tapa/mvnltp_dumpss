@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Tails and Trails</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+  <div class="dashboard-wrapper">
+    <div class="dashboard-card">
+
+      <div class="logo-box">
+        <img src="images/logo.png" alt="Tails and Trails Logo">
+      </div>
+
+      <h1 class="dashboard-title">WELCOME</h1>
+      
+      <div class="welcome-message">
+        <p class="greeting-text">Hello,</p>
+        <p id="userName" class="user-name">Loading...</p>
+        <p class="greeting-subtitle">We're glad to have you here!</p>
+      </div>
+
+      <button onclick="location.href='logout.php'" class="btn-logout">Log Out</button>
+    </div>
+  </div>
+  
+  <script>
+    // Get user name from URL parameter or session
+    const urlParams = new URLSearchParams(window.location.search);
+    const userName = urlParams.get('name');
+    
+    if (userName) {
+      document.getElementById('userName').textContent = userName;
+    } else {
+      // If no name in URL, try to fetch from PHP session
+      fetch('get_user.php')
+        .then(response => response.json())
+        .then(data => {
+          if (data.name) {
+            document.getElementById('userName').textContent = data.name;
+          } else {
+            window.location.href = 'login.html';
+          }
+        })
+        .catch(() => {
+          window.location.href = 'login.html';
+        });
+    }
+  </script>
+</body>
+</html>
