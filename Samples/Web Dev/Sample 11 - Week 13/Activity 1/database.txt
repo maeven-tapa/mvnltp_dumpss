@@ -1,6 +1,49 @@
 CREATE DATABASE db_trailsandtails_midterm;
 USE db_trailsandtails_midterm;
 
-CREATE TABLE tbl_users (id INT AUTO_INCREMENT PRIMARY KEY,fname VARCHAR(100) NOT NULL,lname VARCHAR(100) NOT NULL,email VARCHAR(150) NOT NULL UNIQUE,pass VARCHAR(255) NOT NULL,created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
+-- Use a string-based user id in the format USR0001 for registered users.
+-- This makes it possible to also store guest ids like GST0001 in appointment records.
+CREATE TABLE tbl_users (
+	user_id VARCHAR(8) PRIMARY KEY,
+	fname VARCHAR(100) NOT NULL,
+	lname VARCHAR(100) NOT NULL,
+	email VARCHAR(150) NOT NULL UNIQUE,
+	contact VARCHAR(20) NOT NULL,
+	pass VARCHAR(255) NOT NULL,
+	role VARCHAR(20) NOT NULL DEFAULT 'user',
+	status VARCHAR(20) NOT NULL DEFAULT 'active',
+	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
 CREATE TABLE tbl_newsletter (id INT AUTO_INCREMENT PRIMARY KEY,email VARCHAR(150) NOT NULL UNIQUE,subscribed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
+
+-- Appointments table for both registered user and guest bookings
+-- If booking_type = 'registered': Use user_id, guest_* fields are NULL
+-- If booking_type = 'guest': user_id is NULL, use guest_name, guest_email, guest_contact
+CREATE TABLE tbl_appointments (
+	id INT AUTO_INCREMENT PRIMARY KEY,
+	booking_type VARCHAR(20) NOT NULL DEFAULT 'registered',
+	user_id VARCHAR(8),
+	guest_name VARCHAR(150),
+	guest_email VARCHAR(150),
+	guest_contact VARCHAR(20),
+	pet_name VARCHAR(150) NOT NULL,
+	service VARCHAR(100) NOT NULL,
+	vet VARCHAR(100),
+	appt_date DATE NOT NULL,
+	appt_time TIME NOT NULL,
+	status VARCHAR(20) NOT NULL DEFAULT 'pending',
+	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	CONSTRAINT check_booking_type CHECK (booking_type IN ('registered', 'guest')),
+	CONSTRAINT check_booking_consistency CHECK (
+		(booking_type = 'registered' AND user_id IS NOT NULL AND guest_name IS NULL AND guest_email IS NULL AND guest_contact IS NULL)
+		OR
+		(booking_type = 'guest' AND user_id IS NULL AND guest_name IS NOT NULL AND guest_email IS NOT NULL AND guest_contact IS NOT NULL)
+	)
+);
+
+INSERT INTO tbl_users (user_id, fname, lname, email, contact, pass, role, status) 
+VALUES ('ADM0001', 'Admin', 'User', 'admin@trailsandtails.com', '09123456789', 'admin123', 'admin', 'active');
+
+Email: admin@trailsandtails.com
+Password: admin123
