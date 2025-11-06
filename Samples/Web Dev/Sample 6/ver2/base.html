@@ -67,15 +67,15 @@
         <div class="cards" id="contact">
           <h2>Contact</h2>
           <ol>
-            <li>Call us at 09063979666</li>
-            <li>Email: tailsandtrailsve@gmail</li>
+            <li>Call us at +63963979666</li>
+            <li>Email: tailsandtrailsvet@gmail.com</li>
           </ol>
         </div>
         <div class="cards" id="visit">
           <h2>Visit Us</h2>
           <ol>
-            <li>Carlos Q. Trinidad Avenu, Salawag, Dasmarinas City</li>
-            <li>Follow us: Tails and Tails</li>
+            <li>Carlos Q. Trinidad Avenue, Salawag, Dasmariñas City</li>
+            <li>Follow us: Tails and Trails on Facebook</li>
           </ol>
         </div>
         <div class="cards" id="services-list">
@@ -92,7 +92,7 @@
           <p>Get pet health tips, clinic updates, and special care guides.</p>
           <div class="newsletter-row">
             <input type="email" placeholder="you@example.com" />
-            <button>confirm</button>
+            <button>Confirm</button>
           </div>
           <p>We respect your privacy. Unsubscribe anytime.</p>
         </div>
@@ -123,7 +123,12 @@
         <h2>Book Appointment</h2>
         <form id="booking-form">
           <label
-            >Full Name<br />
+            >Full Name of Owner<br />
+            <input type="text" name="fullname" required class="booking-input" />
+          </label>
+          </label>
+		  <label
+            >Name of Pet<br />
             <input type="text" name="fullname" required class="booking-input" />
           </label>
           <label
@@ -137,9 +142,13 @@
           <label
             >Doctor Name<br />
             <select name="doctor" required class="booking-input">
-              <option value="">Select doctor</option>
+              <option value="">Select Doctor</option>
               <option value="Dr. Dona Palacios">Dr. Dona Palacios</option>
-              <option value="Dr. Amiel John Padasay">
+              <option value="Dr. Marie Santos">Dr. Marie Santos</option>
+			  <option value="Dr. Siegmond Jea Amador">Dr. Siegmond Jean Amador</option>
+			  <option value="Dr. Maeven Tapa">Dr. Maeven Tapa</option>
+			  <option value="Dr. Caroline Dorongon">Dr. Caroline Dorongon</option>
+			  <option value="Dr. Amiel John Padasay">
                 Dr. Amiel John Padasay
               </option>
             </select>
@@ -147,14 +156,14 @@
           <label
             >Category<br />
             <select name="category" required class="booking-input">
-              <option value="">Select category</option>
+              <option value="">Select Category</option>
               <option value="Checkup">Checkup</option>
               <option value="Surgery">Surgery</option>
               <option value="Grooming">Grooming</option>
             </select>
           </label>
           <label
-            >Date<br />
+            >Choose a Schedule<br />
             <input type="date" name="date" required class="booking-input" />
           </label>
           <label
@@ -162,7 +171,7 @@
             <input type="time" name="time" required class="booking-input" />
           </label>
           <label
-            >Symptoms<br />
+            >Description<br />
             <textarea name="symptoms" rows="2" class="booking-input"></textarea>
           </label>
           <label
