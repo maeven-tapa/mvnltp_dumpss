@@ -1,3 +1,51 @@
+<?php
+// index.php — serves the homepage on GET and handles newsletter POST subscriptions on POST
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    header('Content-Type: application/json');
+
+    $host = 'localhost';
+    $username = 'root';
+    $password = 'root';
+    $database = 'db_trailsandtails_midterm';
+
+    $conn = new mysqli($host, $username, $password, $database);
+    if ($conn->connect_error) {
+        echo json_encode(['success' => false, 'message' => 'Database connection error']);
+        exit();
+    }
+
+    $email = isset($_POST['email']) ? trim($_POST['email']) : '';
+    if ($email === '') {
+        echo json_encode(['success' => false, 'message' => 'Email is required']);
+        $conn->close();
+        exit();
+    }
+
+    // Check if email already exists
+    $checkQuery = $conn->prepare("SELECT id FROM tbl_newsletter WHERE email = ?");
+    $checkQuery->bind_param('s', $email);
+    $checkQuery->execute();
+    $result = $checkQuery->get_result();
+    if ($result && $result->num_rows > 0) {
+        echo json_encode(['success' => false, 'message' => 'This email is already subscribed to our newsletter!']);
+        $checkQuery->close();
+        $conn->close();
+        exit();
+    }
+
+    $insertQuery = $conn->prepare("INSERT INTO tbl_newsletter (email) VALUES (?)");
+    $insertQuery->bind_param('s', $email);
+    if ($insertQuery->execute()) {
+        echo json_encode(['success' => true, 'message' => 'Successfully subscribed to our newsletter!']);
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Error subscribing. Please try again.']);
+    }
+    $insertQuery->close();
+    $checkQuery->close();
+    $conn->close();
+    exit();
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,20 +55,20 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="base.css">
+  <link rel="stylesheet" href="assets/css/base.css">
 </head>
 <body>
   <header>
     <nav>
       <div class="logo-section">
         <div class="logo-circle">
-          <img src="images/logo.png" alt="Logo" style="width: 100%; height: 100%; object-fit: contain;">
+          <img src="assets/images/logo.png" alt="Logo" style="width: 100%; height: 100%; object-fit: contain;">
         </div>
         <div class="logo-text">Tails and Trails</div>
       </div>
       <div class="menu-toggle" id="menuToggle">
         <span></span>
-        <span></span>
+        <span></sp
         <span></span>
       </div>
       <ul class="nav-links" id="navLinks">
@@ -28,7 +76,7 @@
         <li><a href="#services">Services</a></li>
         <li><a href="#visit">Visit Us</a></li>
         <li><a href="#newsletter">Newsletter</a></li>
-        <li><button class="btn-login" onclick="window.location.href='login.html'">Log In</button></li>
+  <li><button class="btn-login" onclick="window.location.href='auth/login.php'">Log In</button></li>
       </ul>
     </nav>
   </header>
@@ -44,7 +92,7 @@
         </div>
       </div>
       <div class="hero-image">
-        <img src="images/catdog.png" alt="Happy pets at Tails and Trails">
+        <img src="assets/images/catdog.png" alt="Happy pets at Tails and Trails">
       </div>
     </div>
   </section>
@@ -131,17 +179,21 @@
           <input type="text" id="contact" name="contact" class="form-control" required>
         </div>
         <div class="form-group">
-          <label for="doctor">Doctor Name</label>
-          <select id="doctor" name="doctor" class="form-control" required>
-            <option value="">Select doctor</option>
+          <label for="pet_name">Pet Name</label>
+          <input type="text" id="pet_name" name="pet_name" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label for="doctor">Preferred Vet (optional)</label>
+          <select id="doctor" name="doctor" class="form-control">
+            <option value="">No preference</option>
             <option value="Dr. Dona Palacios">Dr. Dona Palacios</option>
             <option value="Dr. Amiel John Padasay">Dr. Amiel John Padasay</option>
           </select>
         </div>
         <div class="form-group">
-          <label for="category">Category</label>
-          <select id="category" name="category" class="form-control" required>
-            <option value="">Select category</option>
+          <label for="service">Service</label>
+          <select id="service" name="service" class="form-control" required>
+            <option value="">Select service</option>
             <option value="Checkup">Checkup</option>
             <option value="Surgery">Surgery</option>
             <option value="Grooming">Grooming</option>
@@ -155,23 +207,7 @@
           <label for="time">Time</label>
           <input type="time" id="time" name="time" class="form-control" required>
         </div>
-        <div class="form-group">
-          <label for="symptoms">Symptoms</label>
-          <textarea id="symptoms" name="symptoms" class="form-control" rows="3"></textarea>
-        </div>
-        <div class="form-group">
-          <label>Pet Gender</label>
-          <div class="radio-group">
-            <label>
-              <input type="radio" name="gender" value="Male" required>
-              Male
-            </label>
-            <label>
-              <input type="radio" name="gender" value="Female" required>
-              Female
-            </label>
-          </div>
-        </div>
+        <!-- symptoms and pet gender removed per design; simplified guest booking -->
         <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Book Now</button>
       </form>
     </div>
@@ -218,19 +254,25 @@
     bookingForm.addEventListener('submit', (e) => {
       e.preventDefault();
       const formData = new FormData(bookingForm);
-      let details = 'Booking Details:\\n\\n';
-      details += `Full Name: ${formData.get('fullname')}\\n`;
-      details += `Email: ${formData.get('email')}\\n`;
-      details += `Contact No.: ${formData.get('contact')}\\n`;
-      details += `Doctor: ${formData.get('doctor')}\\n`;
-      details += `Category: ${formData.get('category')}\\n`;
-      details += `Date: ${formData.get('date')}\\n`;
-      details += `Time: ${formData.get('time')}\\n`;
-      details += `Symptoms: ${formData.get('symptoms')}\\n`;
-      details += `Pet Gender: ${formData.get('gender')}`;
-      alert(details);
-      bookingModal.style.display = 'none';
-      bookingForm.reset();
+      // send booking to guest_book.php to persist into tbl_appointments
+      fetch('includes/guest_book.php', {
+        method: 'POST',
+        body: formData
+      })
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) {
+          alert('Appointment booked successfully! Reference ID: ' + (data.appointment_ref ?? ''));
+          bookingForm.reset();
+          bookingModal.style.display = 'none';
+        } else {
+          alert('Booking failed: ' + (data.message || 'Unknown error'));
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        alert('Error connecting to server. Please try again.');
+      });
     });
 
     const newsletterForm = document.getElementById('newsletterForm');
@@ -239,11 +281,10 @@
       e.preventDefault();
       const email = newsletterEmail.value.trim();
       if (email) {
-        // Send to PHP backend
+        // Send to PHP backend (this same file)
         const formData = new FormData();
         formData.append('email', email);
-        
-        fetch('newsletter.php', {
+        fetch('index.php', {
           method: 'POST',
           body: formData
         })

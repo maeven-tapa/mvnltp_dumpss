@@ -1,0 +1,44 @@
+RIGHT HTML STRUCTURE:
+my-webapp/
+│
+├── index.php                     # Landing page or homepage
+│
+├── pages/
+│   ├── user/
+│   │   └── dashboard.php
+│   │
+│   └── admin/
+│       └── dashboard.php
+│
+├── auth/
+│   ├── login.php                 # Login form
+│   ├── register.php              # Registration form
+│   ├── logout.php                # Logout handler
+│   └── verify.php (optional)     # For email verification, if needed
+│
+├── backend/
+│   ├── auth/
+│   │   ├── login_process.php     # Handles login logic
+│   │   ├── register_process.php  # Handles registration logic
+│   │   └── logout_process.php    # Handles logout
+│   │
+│   └── database/
+│       └── connect.php
+│
+├── includes/
+│   ├── header.php
+│   ├── footer.php
+│   └── config.php
+│
+├── assets/
+│   ├── css/
+│   ├── js/
+│   └── images/
+│
+├── database/
+│   └── schema.sql
+│
+├── .htaccess                # URL rewrite rules (optional, for clean URLs)
+├── .gitignore               # Ignore vendor/cache files if using Git
+├── README.md                # Project documentation
+└── LICENSE                  # (Optional) License file

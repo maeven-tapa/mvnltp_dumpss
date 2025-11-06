@@ -4,7 +4,7 @@ const pwd = document.getElementById('password');
 toggle.addEventListener('click', () => {
   const isPassword = pwd.getAttribute('type') === 'password';
   pwd.setAttribute('type', isPassword ? 'text' : 'password');
-  toggle.src = isPassword ? 'images/eye-open.png' : 'images/eye-close.png'; 
+  toggle.src = isPassword ? '../assets/images/eye-open.png' : '../assets/images/eye-close.png'; 
   toggle.alt = isPassword ? 'Hide Password' : 'Show Password';
 });
 

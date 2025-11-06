@@ -109,7 +109,7 @@ body {
 }
 
 .image-full {
-  background: url("images/loginvet.jpg") no-repeat center center;
+  background: url("../images/loginvet.jpg") no-repeat center center;
   background-size: cover;
   position: absolute;
   inset: 0;
