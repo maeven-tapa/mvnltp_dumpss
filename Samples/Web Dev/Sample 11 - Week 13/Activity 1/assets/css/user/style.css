@@ -33,6 +33,18 @@ body {
   margin-bottom: 25px;
 }
 
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.logo-img {
+  height: 1.3em;
+  width: auto;
+  object-fit: contain;
+}
+
 .logo span {
   font-weight: 700;
   font-size: 1.3em;
@@ -321,4 +333,58 @@ td button {
 
 .hidden {
   display: none !important;
+}
+
+/* Enhanced Date Picker Styling for User Dashboard */
+input[type="date"] {
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+  border: 2px solid #ddd !important;
+  padding: 8px 10px !important;
+  border-radius: 8px !important;
+  font-size: 1em !important;
+}
+
+input[type="date"]:hover {
+  border-color: #5daba8 !important;
+  box-shadow: 0 0 4px rgba(93, 171, 168, 0.3) !important;
+}
+
+input[type="date"]:focus {
+  outline: none !important;
+  border-color: #5daba8 !important;
+  box-shadow: 0 0 0 3px rgba(93, 171, 168, 0.1) !important;
+}
+
+input[type="date"].valid-date {
+  background-color: #e8f5e9 !important;
+  border-color: #4caf50 !important;
+  box-shadow: 0 0 8px rgba(76, 175, 80, 0.4) !important;
+}
+
+input[type="date"].invalid-date {
+  background-color: #ffebee !important;
+  border-color: #f44336 !important;
+  box-shadow: 0 0 8px rgba(244, 67, 54, 0.4) !important;
+}
+
+input[type="date"].date-picker-active {
+  box-shadow: 0 0 10px rgba(93, 171, 168, 0.6) !important;
+  border-color: #5daba8 !important;
+}
+
+/* Availability indicator message */
+.date-availability-info {
+  font-size: 0.85em;
+  color: #666;
+  margin-top: 4px;
+  font-style: italic;
+}
+
+.date-availability-info.available {
+  color: #4caf50;
+}
+
+.date-availability-info.unavailable {
+  color: #f44336;
 }

@@ -880,3 +880,46 @@ button:hover {
     max-height: 98vh;
   }
 }
+
+/* Enhanced Date Picker Styling */
+input[type="date"] {
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+  border: 2px solid #ddd !important;
+  padding: 8px 10px !important;
+  border-radius: 8px !important;
+}
+
+input[type="date"]:hover {
+  border-color: #67C5BB !important;
+  box-shadow: 0 0 4px rgba(103, 197, 187, 0.3) !important;
+}
+
+input[type="date"].valid-date {
+  background-color: #e8f5e9 !important;
+  border-color: #4caf50 !important;
+  box-shadow: 0 0 8px rgba(76, 175, 80, 0.4) !important;
+}
+
+input[type="date"].invalid-date {
+  background-color: #ffebee !important;
+  border-color: #f44336 !important;
+  box-shadow: 0 0 8px rgba(244, 67, 54, 0.4) !important;
+}
+
+input[type="date"].date-picker-active {
+  box-shadow: 0 0 10px rgba(103, 197, 187, 0.6) !important;
+  border-color: #67C5BB !important;
+}
+
+/* Styling for invalid date text */
+.invalid-date-message {
+  color: #f44336;
+  font-size: 12px;
+  margin-top: 4px;
+  display: none;
+}
+
+.invalid-date ~ .invalid-date-message {
+  display: block;
+}

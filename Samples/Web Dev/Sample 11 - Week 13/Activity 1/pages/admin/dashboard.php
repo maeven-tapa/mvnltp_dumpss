@@ -54,6 +54,15 @@ if ($statsQuery && $statsResult = $statsQuery->fetch_assoc()) {
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Tails & Trails - Admin Dashboard</title>
 <link rel="stylesheet" href="../../assets/css/admin/style.css">
+<link rel="stylesheet" href="../../assets/css/custom-date-picker.css">
+<style>
+  .date-time-section {
+    display: none;
+  }
+  .date-time-section.visible {
+    display: block;
+  }
+</style>
 </head>
 <body>
 
@@ -63,19 +72,20 @@ if ($statsQuery && $statsResult = $statsQuery->fetch_assoc()) {
   <!-- Left floating panel (collapsed by default) -->
   <aside id="leftPanel" class="left-panel closed" aria-hidden="true">
   <div class="side-top">
-    <div class="side-logo">🐾 <span>Tails & Trails</span></div>
+    <div class="side-logo"><img src="../../assets/images/logo.png" alt="Tails & Trails Logo" class="logo-img"> <span>Tails & Trails</span></div>
     <button id="panelToggle" class="side-toggle" aria-expanded="false" aria-label="Open navigation">☰</button>
   </div>
   <nav class="nav" role="navigation" aria-label="Main navigation">
     <button class="side-btn active" data-target="dashboard"><span class="icon">🏠</span><span class="label">Dashboard</span></button>
     <button class="side-btn" data-target="users"><span class="icon">👥</span><span class="label">Users</span></button>
+    <button class="side-btn" data-target="doctors"><span class="icon">👨‍⚕️</span><span class="label">Doctors</span></button>
     <button class="side-btn logout-btn"><span class="icon">🚪</span><span class="label">Logout</span></button>
   </nav>
   </aside>
 
   <div class="admin-dashboard">
   <header class="admin-header">
-    <div class="logo">🏚️ <span>Dashboard</span></div>
+    <div class="logo"><img src="../../assets/images/logo.png" alt="Tails & Trails Logo" class="logo-img"> <span>Dashboard</span></div>
     <div class="top-controls">
       <span style="font-weight: 600; margin-right: 20px;">Welcome, <?php echo htmlspecialchars($adminFullName); ?></span>
       <button id="addAdminBtn" class="btn primary-btn">+ Add Appointment</button>
@@ -190,9 +200,6 @@ if ($statsQuery && $statsResult = $statsQuery->fetch_assoc()) {
       <label for="adminDoctor">Doctor:</label>
       <select id="adminDoctor" required>
         <option value="" disabled selected>Select doctor</option>
-        <option value="Dr. Palacios">Dr. Palacios</option>
-        <option value="Dr. Santos">Dr. Santos</option>
-        <option value="Dr. Padasay">Dr. Padasay</option>
       </select>
 
       <label for="adminService">Service:</label>
@@ -205,31 +212,15 @@ if ($statsQuery && $statsResult = $statsQuery->fetch_assoc()) {
         <option value="Surgery">Surgery</option>
       </select>
 
-      <label for="adminDate">Date:</label>
-      <input type="date" id="adminDate" required>
+      <div class="date-time-section">
+        <label for="adminDate">Date:</label>
+        <input type="date" id="adminDate" required>
 
-      <label for="adminTime">Time:</label>
-      <select id="adminTime" required>
-        <option value="" disabled selected>Select time</option>
-        <option value="08:00">08:00 AM</option>
-        <option value="08:30">08:30 AM</option>
-        <option value="09:00">09:00 AM</option>
-        <option value="09:30">09:30 AM</option>
-        <option value="10:00">10:00 AM</option>
-        <option value="10:30">10:30 AM</option>
-        <option value="11:00">11:00 AM</option>
-        <option value="11:30">11:30 AM</option>
-        <option value="13:00">01:00 PM</option>
-        <option value="13:30">01:30 PM</option>
-        <option value="14:00">02:00 PM</option>
-        <option value="14:30">02:30 PM</option>
-        <option value="15:00">03:00 PM</option>
-        <option value="15:30">03:30 PM</option>
-        <option value="16:00">04:00 PM</option>
-        <option value="16:30">04:30 PM</option>
-        <option value="17:00">05:00 PM</option>
-        <option value="17:30">05:30 PM</option>
-      </select>
+        <label for="adminTime">Time:</label>
+        <select id="adminTime" required>
+          <option value="" disabled selected>Select time</option>
+        </select>
+      </div>
 
       <div class="modal-buttons">
         <button type="submit" class="btn primary-btn">Save</button>
@@ -239,6 +230,8 @@ if ($statsQuery && $statsResult = $statsQuery->fetch_assoc()) {
   </div>
 </div>
 
+<script src="../../assets/js/custom-date-picker.js"></script>
+<script src="../../assets/js/appointment-utils.js"></script>
 <script src="../../assets/js/admin/script.js"></script>
 </body>
 </html>

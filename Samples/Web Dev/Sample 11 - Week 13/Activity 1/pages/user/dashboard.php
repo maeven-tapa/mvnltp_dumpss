@@ -19,6 +19,7 @@ if (empty($userFullName)) {
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Tails & Trails - My Appointments</title>
 <link rel="stylesheet" href="../../assets/css/user/style.css">
+<link rel="stylesheet" href="../../assets/css/custom-date-picker.css">
 </head>
 <body>
 
@@ -26,7 +27,7 @@ if (empty($userFullName)) {
   <div class="dashboard-container">
     
     <header class="dashboard-header">
-      <div class="logo">🐾 <span>Tails & Trails</span></div>
+      <div class="logo"><img src="../../assets/images/logo.png" alt="Tails & Trails Logo" class="logo-img"> <span>Tails & Trails</span></div>
       <div class="header-right" style="display:flex;align-items:center;gap:0.75rem;">
         <span id="welcomeText" style="font-weight:600;">Welcome, <?php echo htmlspecialchars($userFullName); ?></span>
         <button id="logoutBtn" class="btn" aria-label="Logout" onclick="window.location.href='../../auth/logout.php'">Logout</button>
@@ -100,39 +101,20 @@ if (empty($userFullName)) {
         <option value="Surgery">Surgery</option>
       </select>
 
-      <label for="vet">Preferred Vet (optional):</label>
+      <label for="vet">Preferred Vet:</label>
       <select id="vet" name="vet">
         <option value="" selected>No preference</option>
-        <option value="Dr. Palacios">Dr. Palacios</option>
-        <option value="Dr. Santos">Dr. Santos</option>
-        <option value="Dr. Padasay">Dr. Padasay</option>
       </select>
 
-      <label for="date">Date:</label>
-      <input type="date" id="date" name="date" required>
+      <div class="date-time-section">
+        <label for="date">Date:</label>
+        <input type="date" id="date" name="date" required>
 
-      <label for="time">Time:</label>
-<select id="time" name="time" required>
-  <option value="" disabled selected>Select time</option>
-  <option value="08:00">08:00 AM</option>
-  <option value="08:30">08:30 AM</option>
-  <option value="09:00">09:00 AM</option>
-  <option value="09:30">09:30 AM</option>
-  <option value="10:00">10:00 AM</option>
-  <option value="10:30">10:30 AM</option>
-  <option value="11:00">11:00 AM</option>
-  <option value="11:30">11:30 AM</option>
-  <option value="13:00">01:00 PM</option>
-  <option value="13:30">01:30 PM</option>
-  <option value="14:00">02:00 PM</option>
-  <option value="14:30">02:30 PM</option>
-  <option value="15:00">03:00 PM</option>
-  <option value="15:30">03:30 PM</option>
-  <option value="16:00">04:00 PM</option>
-  <option value="16:30">04:30 PM</option>
-  <option value="17:00">05:00 PM</option>
-  <option value="17:30">05:30 PM</option>
-</select>
+        <label for="time">Time:</label>
+        <select id="time" name="time" required>
+          <option value="" disabled selected>Select time</option>
+        </select>
+      </div>
 
 
       <div class="modal-buttons">
@@ -187,6 +169,8 @@ if (empty($userFullName)) {
     }
   })();
 </script>
+<script src="../../assets/js/custom-date-picker.js"></script>
+<script src="../../assets/js/appointment-utils.js"></script>
 <script src="../../assets/js/user/script.js"></script>
 </body>
 </html>

@@ -56,6 +56,86 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/base.css">
+  <link rel="stylesheet" href="assets/css/booking-date-picker.css">
+  <style>
+    .invalid-date {
+      border-color: #f44336 !important;
+      background-color: #ffebee !important;
+    }
+
+    /* Enhanced Date Picker Styling */
+    input[type="date"] {
+      cursor: pointer !important;
+      transition: all 0.3s ease !important;
+      border: 2px solid #ddd !important;
+      padding: 8px 10px !important;
+      border-radius: 8px !important;
+      font-size: 1em !important;
+    }
+
+    input[type="date"]:hover {
+      border-color: #67C5BB !important;
+      box-shadow: 0 0 4px rgba(103, 197, 187, 0.3) !important;
+    }
+
+    input[type="date"]:focus {
+      outline: none !important;
+      border-color: #67C5BB !important;
+      box-shadow: 0 0 0 3px rgba(103, 197, 187, 0.1) !important;
+    }
+
+    input[type="date"].valid-date {
+      background-color: #e8f5e9 !important;
+      border-color: #4caf50 !important;
+      box-shadow: 0 0 8px rgba(76, 175, 80, 0.4) !important;
+    }
+
+    input[type="date"].invalid-date {
+      background-color: #ffebee !important;
+      border-color: #f44336 !important;
+      box-shadow: 0 0 8px rgba(244, 67, 54, 0.4) !important;
+    }
+
+    input[type="date"].date-picker-active {
+      box-shadow: 0 0 10px rgba(103, 197, 187, 0.6) !important;
+      border-color: #67C5BB !important;
+    }
+
+    /* Hide date and time sections by default */
+    .date-time-section {
+      display: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .date-time-section.visible {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    /* Ensure modal scrolls when content expands */
+    .modal-content {
+      max-height: 90vh;
+      overflow-y: auto;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .modal-content form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+  </style>
 </head>
 <body>
   <header>
@@ -183,11 +263,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           <input type="text" id="pet_name" name="pet_name" class="form-control" required>
         </div>
         <div class="form-group">
-          <label for="doctor">Preferred Vet (optional)</label>
+          <label for="doctor">Preferred Vet</label>
           <select id="doctor" name="doctor" class="form-control">
             <option value="">No preference</option>
-            <option value="Dr. Dona Palacios">Dr. Dona Palacios</option>
-            <option value="Dr. Amiel John Padasay">Dr. Amiel John Padasay</option>
           </select>
         </div>
         <div class="form-group">
@@ -199,13 +277,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <option value="Grooming">Grooming</option>
           </select>
         </div>
-        <div class="form-group">
-          <label for="date">Date</label>
-          <input type="date" id="date" name="date" class="form-control" required>
-        </div>
-        <div class="form-group">
-          <label for="time">Time</label>
-          <input type="time" id="time" name="time" class="form-control" required>
+        <div class="date-time-section">
+          <div class="form-group">
+            <label for="date">Date</label>
+            <input type="date" id="date" name="date" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label for="time">Time</label>
+            <select id="time" name="time" class="form-control" required>
+              <option value="">Select time</option>
+            </select>
+          </div>
         </div>
         <!-- symptoms and pet gender removed per design; simplified guest booking -->
         <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Book Now</button>
@@ -213,6 +295,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
   </div>
 
+  <script src="assets/js/booking-date-picker.js"></script>
+  <script src="assets/js/appointment-utils.js"></script>
   <script>
     const menuToggle = document.getElementById('menuToggle');
     const navLinks = document.getElementById('navLinks');
@@ -310,6 +394,114 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         header.style.padding = '1.2rem 0';
       }
     });
+
+    // Initialize guest booking form with doctors and advanced filtering
+    let guestAllDoctors = [];
+    let guestAllAppointments = [];
+    let guestDatePicker = null;
+    const guestDoctorSelect = document.getElementById('doctor');
+    const guestDateInput = document.getElementById('date');
+    const guestTimeSelect = document.getElementById('time');
+    const guestBookingForm = document.getElementById('bookingForm');
+
+    async function initializeGuestBooking() {
+      const today = new Date().toISOString().split("T")[0];
+      guestDateInput.setAttribute("min", today);
+
+      // Initialize custom date picker
+      if (!guestDatePicker) {
+        guestDatePicker = new BookingDatePicker(guestDateInput, []);
+      }
+
+      // Load all doctors
+      guestAllDoctors = await fetchAvailableDoctors();
+      populateGuestDoctorSelect();
+
+      // Listen for changes
+      guestDoctorSelect.addEventListener('change', onGuestDoctorChange);
+      guestDateInput.addEventListener('change', onGuestDateChange);
+    }
+
+    function populateGuestDoctorSelect() {
+      guestDoctorSelect.innerHTML = '<option value="">No preference</option>';
+      guestAllDoctors.forEach(doctor => {
+        const option = document.createElement('option');
+        option.value = doctor.name_without_prefix;  // Store name without prefix for database
+        option.textContent = doctor.name;  // Display with Dr. prefix
+        guestDoctorSelect.appendChild(option);
+      });
+    }
+
+    async function onGuestDoctorChange() {
+      guestTimeSelect.innerHTML = '<option value="">Select time</option>';
+
+      const selectedDoctor = guestDoctorSelect.value;
+      const dateTimeSection = document.querySelector('.date-time-section');
+
+      if (!selectedDoctor) {
+        // No doctor selected, hide date and time section
+        dateTimeSection.classList.remove('visible');
+        guestDateInput.removeAttribute('required');
+        guestTimeSelect.removeAttribute('required');
+        // Clear date restrictions
+        const today = new Date().toISOString().split("T")[0];
+        guestDateInput.setAttribute("min", today);
+        guestDateInput.removeAttribute("max");
+        return;
+      }
+
+      // Doctor selected, show date and time section
+      dateTimeSection.classList.add('visible');
+      guestDateInput.setAttribute('required', 'required');
+      guestTimeSelect.setAttribute('required', 'required');
+
+      // Find doctor data and update date picker with available dates
+      const doctor = guestAllDoctors.find(d => d.name_without_prefix === selectedDoctor);
+      if (doctor && doctor.available_dates && guestDatePicker) {
+        const availableDates = getAvailableDatesForDoctor(doctor.available_dates);
+        guestDatePicker.updateAvailableDates(availableDates);
+      }
+
+      onGuestDateChange();
+    }
+
+    async function onGuestDateChange() {
+      guestTimeSelect.innerHTML = '<option value="">Select time</option>';
+
+      const selectedDate = guestDateInput.value;
+      if (!selectedDate) return;
+
+      const selectedDoctorName = guestDoctorSelect.value;
+
+      let availableTimeSlots = [];
+
+      if (selectedDoctorName) {
+        // Fetch booked times for this doctor and date
+        const response = await fetch(`pages/admin/api_doctors_public.php?action=getBookedTimes&date=${selectedDate}&doctor=${selectedDoctorName}`);
+        const bookedData = await response.json();
+        const bookedTimes = bookedData.data || [];
+
+        // Get doctor's available times
+        const doctor = guestAllDoctors.find(d => d.name_without_prefix === selectedDoctorName);
+        if (doctor && doctor.available_times) {
+          const timeSlots = generateTimeSlots(doctor.available_times);
+          availableTimeSlots = timeSlots.filter(slot => !bookedTimes.includes(slot));
+        }
+      } else {
+        // No doctor selected - show default available hours (8 AM to 5 PM)
+        availableTimeSlots = generateTimeSlots(['8-17']);
+      }
+
+      // Populate time dropdown
+      availableTimeSlots.forEach(time => {
+        const option = document.createElement('option');
+        option.value = time;
+        option.textContent = formatTime(time);
+        guestTimeSelect.appendChild(option);
+      });
+    }
+
+    initializeGuestBooking();
   </script>
 </body>
 </html>

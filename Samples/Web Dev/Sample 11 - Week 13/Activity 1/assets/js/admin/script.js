@@ -18,6 +18,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let editingId = null; 
   let appointments = []; 
+  let doctors = [];
   let currentPage = 1;
   let itemsPerPage = 15;
   let sortColumn = 'date';
@@ -45,6 +46,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   loadAppointments();
+  loadAvailableDoctors();
 
   addBtn.addEventListener("click", () => openModal("Add Appointment"));
   cancelBtn.addEventListener("click", closeModal);
@@ -54,6 +56,22 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   form.addEventListener("submit", handleFormSubmit);
+
+  // Initialize custom date picker for admin form
+  let adminDatePicker = null;
+  function initializeAdminDatePicker() {
+    if (adminDatePicker) {
+      adminDatePicker.updateAvailableDates([]);
+    } else {
+      adminDatePicker = new CustomDatePicker(dateInput, []);
+    }
+  }
+
+  // Call it on modal open
+  addBtn.addEventListener("click", () => {
+    openModal("Add Appointment");
+    setTimeout(() => initializeAdminDatePicker(), 0);
+  });
 
   // Handle booking type change
   bookingTypeSelect.addEventListener("change", () => {
@@ -67,7 +85,10 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   doctorSelect.addEventListener("change", updateAvailableTimes);
-  dateInput.addEventListener("change", updateAvailableTimes);
+  dateInput.addEventListener("change", () => {
+    loadAvailableDoctors();
+    updateAvailableTimes();
+  });
 
   if (searchInput) {
     searchInput.addEventListener("input", () => {
@@ -134,6 +155,43 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       })
       .catch(error => console.error('Error loading appointments:', error));
+  }
+
+  // Load available doctors from server
+  function loadAvailableDoctors() {
+    const selectedDate = dateInput.value;
+    const url = selectedDate 
+      ? `api_appointments.php?action=getAvailableDoctors&date=${selectedDate}`
+      : 'api_appointments.php?action=getAvailableDoctors';
+    
+    fetch(url)
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          doctors = data.data;
+          updateDoctorDropdown();
+        } else {
+          console.error('Failed to load doctors:', data.message);
+        }
+      })
+      .catch(error => console.error('Error loading doctors:', error));
+  }
+
+  // Update doctor dropdown with available doctors
+  function updateDoctorDropdown() {
+    const currentValue = doctorSelect.value;
+    doctorSelect.innerHTML = '<option value="" disabled selected>Select doctor</option>';
+    
+    doctors.forEach(doctor => {
+      const option = document.createElement('option');
+      option.value = doctor.name;
+      option.textContent = doctor.name;
+      doctorSelect.appendChild(option);
+    });
+    
+    if (currentValue && doctors.some(d => d.name === currentValue)) {
+      doctorSelect.value = currentValue;
+    }
   }
 
   function updateSummaryCards() {
@@ -284,36 +342,85 @@ document.addEventListener("DOMContentLoaded", () => {
   function updateAvailableTimes() {
     const selectedDoctor = doctorSelect.value;
     const selectedDate = dateInput.value;
+    const dateTimeSection = document.querySelector('.date-time-section');
 
-    for (const opt of timeSelect.options) {
-      opt.disabled = false;
-      opt.style.color = "";
+    timeSelect.innerHTML = '<option value="" disabled selected>Select time</option>';
+
+    // If no doctor selected, hide date-time section
+    if (!selectedDoctor) {
+      dateTimeSection.classList.remove('visible');
+      dateInput.removeAttribute('required');
+      timeSelect.removeAttribute('required');
+      return;
     }
 
-    if (!selectedDoctor || !selectedDate) return;
+    // Doctor selected, show date-time section
+    dateTimeSection.classList.add('visible');
+    dateInput.setAttribute('required', 'required');
+    timeSelect.setAttribute('required', 'required');
 
-    appointments.forEach((apt) => {
-      if (apt.id === editingId) return;
-      if (apt.vet === selectedDoctor && apt.appt_date === selectedDate) {
-        disableOverlappingTimes(apt.appt_time);
-      }
-    });
+    // Update date picker with available dates for this doctor
+    const doctor = doctors.find(d => d.name === selectedDoctor);
+    if (doctor && doctor.available_dates && adminDatePicker) {
+      const availableDates = getAvailableDatesForDoctor(doctor.available_dates);
+      adminDatePicker.updateAvailableDates(availableDates);
+    }
+
+    // If no date selected, don't populate times yet
+    if (!selectedDate) {
+      return;
+    }
+
+    // Populate time slots based on doctor availability
+    populateTimeSlotsForDoctor(selectedDoctor, selectedDate);
   }
 
-  function disableOverlappingTimes(bookedTime) {
-    const bookedMinutes = timeToMinutes(bookedTime);
-
-    for (const opt of timeSelect.options) {
-      if (!opt.value) continue;
-
-      const optMinutes = timeToMinutes(opt.value);
-      const timeDifference = Math.abs(optMinutes - bookedMinutes);
-
-      if (timeDifference < 60) {
-        opt.disabled = true;
-        opt.style.color = "#ccc";
-      }
+  // Populate time slots based on doctor's schedule
+  function populateTimeSlotsForDoctor(doctorName, selectedDate) {
+    // Find the doctor from the loaded doctors list
+    const doctor = doctors.find(d => d.name === doctorName);
+    
+    if (!doctor || !doctor.available_times) {
+      // Fallback to default hours if no doctor info
+      const defaultTimes = generateTimeSlots(['8-17']);
+      defaultTimes.forEach(time => {
+        const option = document.createElement('option');
+        option.value = time;
+        option.textContent = formatTime(time);
+        timeSelect.appendChild(option);
+      });
+      return;
     }
+
+    // Generate time slots based on doctor's available_times
+    const timeSlots = generateTimeSlots(doctor.available_times);
+
+    // Fetch booked times for this doctor and date
+    fetch(`api_appointments.php?action=getBookedTimes&date=${selectedDate}&doctor=${doctorName}`)
+      .then(response => response.json())
+      .then(data => {
+        const bookedTimes = data.data || [];
+
+        // Populate dropdown with available times only
+        timeSlots.forEach(time => {
+          if (!bookedTimes.includes(time)) {
+            const option = document.createElement('option');
+            option.value = time;
+            option.textContent = formatTime(time);
+            timeSelect.appendChild(option);
+          }
+        });
+      })
+      .catch(err => {
+        console.error('Error fetching booked times:', err);
+        // If fetch fails, still show all available times
+        timeSlots.forEach(time => {
+          const option = document.createElement('option');
+          option.value = time;
+          option.textContent = formatTime(time);
+          timeSelect.appendChild(option);
+        });
+      });
   }
 
   function renderTable() {
@@ -659,6 +766,8 @@ document.addEventListener("DOMContentLoaded", () => {
           window.location.href = 'dashboard.php';
         } else if (target === 'users') {
           window.location.href = 'users.php';
+        } else if (target === 'doctors') {
+          window.location.href = 'doctors.php';
         }
       });
     });

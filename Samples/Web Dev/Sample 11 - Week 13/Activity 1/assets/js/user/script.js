@@ -1,4 +1,3 @@
-// adapted from pages/user/script.js — now uses server endpoints (appointments.php)
 document.addEventListener("DOMContentLoaded", () => {
   const addBtn = document.getElementById("addBtn");
   const modal = document.getElementById("modal");
@@ -19,10 +18,27 @@ document.addEventListener("DOMContentLoaded", () => {
   const receiptDate = document.getElementById("receiptDate");
 
   const dateInput = document.getElementById("date");
+  const vetSelect = document.getElementById("vet");
+  const timeSelect = document.getElementById("time");
   const today = new Date().toISOString().split("T")[0];
   if (dateInput) dateInput.setAttribute("min", today);
 
+  // Add CSS for date-time-section
+  const style = document.createElement('style');
+  style.textContent = `
+    .date-time-section {
+      display: none;
+    }
+    .date-time-section.visible {
+      display: block;
+    }
+  `;
+  document.head.appendChild(style);
+
   let editRow = null;
+  let allDoctors = [];
+  let allAppointments = [];
+  let userDatePicker = null;
 
   addBtn.addEventListener("click", () => {
     modalTitle.textContent = "Book New Appointment";
@@ -30,16 +46,138 @@ document.addEventListener("DOMContentLoaded", () => {
     editRow = null;
     modal.classList.add("show");
     modal.classList.remove("hidden");
+    // Initialize custom date picker when modal opens
+    setTimeout(() => initializeUserDatePicker(), 0);
   });
+
+  // Initialize custom date picker for user form
+  function initializeUserDatePicker() {
+    if (userDatePicker) {
+      userDatePicker.updateAvailableDates([]);
+    } else {
+      userDatePicker = new CustomDatePicker(dateInput, []);
+    }
+  }
 
   cancelBtn.addEventListener("click", closeModal);
   window.addEventListener("click", e => {
     if (e.target === modal) closeModal();
   });
 
+  // Listen for vet and date changes to update available times
+  vetSelect.addEventListener("change", updateAvailableTimes);
+  dateInput.addEventListener("change", updateAvailableTimes);
+
   function closeModal() {
     modal.classList.remove("show");
     setTimeout(() => modal.classList.add("hidden"), 300);
+  }
+
+  // Fetch all doctors and their availability
+  async function loadAllDoctors() {
+    try {
+      const response = await fetch('../../pages/admin/api_doctors_public.php?action=getAvailableDoctors');
+      const data = await response.json();
+      if (data.success && data.data) {
+        allDoctors = data.data;
+        populateDoctorSelect();
+      }
+    } catch (err) {
+      console.error('Error loading doctors:', err);
+    }
+  }
+
+  function populateDoctorSelect() {
+    vetSelect.innerHTML = '<option value="">No preference</option>';
+    allDoctors.forEach(doctor => {
+      const option = document.createElement('option');
+      option.value = doctor.name_without_prefix;  // Store name without prefix
+      option.textContent = doctor.name;  // Display with Dr. prefix
+      vetSelect.appendChild(option);
+    });
+  }
+
+  // Update available times based on selected vet and date
+  async function updateAvailableTimes() {
+    const selectedVet = vetSelect.value;
+    const selectedDate = dateInput.value;
+    const dateTimeSection = document.querySelector('.date-time-section');
+
+    timeSelect.innerHTML = '<option value="" disabled selected>Select time</option>';
+
+    // If no vet selected, hide date and time section
+    if (!selectedVet) {
+      dateTimeSection.classList.remove('visible');
+      dateInput.removeAttribute('required');
+      timeSelect.removeAttribute('required');
+      const today = new Date().toISOString().split("T")[0];
+      dateInput.setAttribute("min", today);
+      dateInput.removeAttribute("max");
+      dateInput.classList.remove('valid-date', 'invalid-date');
+      return;
+    }
+
+    // Vet selected, show date and time section
+    dateTimeSection.classList.add('visible');
+    dateInput.setAttribute('required', 'required');
+    timeSelect.setAttribute('required', 'required');
+
+    // Update date picker with available dates
+    const doctor = allDoctors.find(d => d.name_without_prefix === selectedVet);
+    if (doctor && doctor.available_dates && userDatePicker) {
+      const availableDates = getAvailableDatesForDoctor(doctor.available_dates);
+      userDatePicker.updateAvailableDates(availableDates);
+    }
+
+    if (!selectedDate) {
+      // Date picker is already initialized with available dates above
+      return;
+    }
+
+    // Get selected doctor's availability
+    let doctorTimes = null;
+    if (selectedVet) {
+      const doctor = allDoctors.find(d => d.name_without_prefix === selectedVet);
+      if (doctor) {
+        doctorTimes = doctor.available_times;
+      }
+    }
+
+    // Fetch booked times for this date and doctor
+    let bookedTimes = [];
+    if (selectedVet && selectedDate) {
+      try {
+        const response = await fetch(`../../pages/admin/api_doctors_public.php?action=getBookedTimes&date=${selectedDate}&doctor=${selectedVet}`);
+        const bookedData = await response.json();
+        bookedTimes = bookedData.data || [];
+      } catch (err) {
+        console.error('Error fetching booked times:', err);
+      }
+    }
+
+    // If no vet selected, show default times
+    if (!doctorTimes) {
+      const defaultTimes = generateTimeSlots(['8-17']);  // 8 AM to 5 PM
+      populateTimeOptions(defaultTimes, selectedDate, bookedTimes);
+      return;
+    }
+
+    // Generate times based on doctor's available time slots
+    const times = generateTimeSlots(doctorTimes);
+    populateTimeOptions(times, selectedDate, bookedTimes);
+  }
+
+  // Populate time dropdown with available times, excluding booked times
+  function populateTimeOptions(availableTimes, selectedDate, bookedTimes = []) {
+    availableTimes.forEach(time => {
+      if (!bookedTimes.includes(time)) {
+        const displayTime = formatTime(time);
+        const option = document.createElement('option');
+        option.value = time;
+        option.textContent = displayTime;
+        timeSelect.appendChild(option);
+      }
+    });
   }
 
   // Load appointments from server
@@ -48,6 +186,7 @@ document.addEventListener("DOMContentLoaded", () => {
       .then(r => r.json())
       .then(data => {
         if (!Array.isArray(data)) return;
+        allAppointments = data;
         upcomingTableBody.innerHTML = '';
         pastTableBody.innerHTML = '';
         data.forEach(addRowFromServer);
@@ -123,6 +262,7 @@ document.addEventListener("DOMContentLoaded", () => {
       .then(r => r.json())
       .then(resp => {
         if (resp && resp.success && resp.appointment) {
+          allAppointments.push(resp.appointment);
           addRowFromServer(resp.appointment);
           showReceipt({ petName: resp.appointment.pet_name, service: resp.appointment.service, date: resp.appointment.appt_date, time: formatTime(resp.appointment.appt_time), vet: resp.appointment.vet || 'Not assigned', status: resp.appointment.status });
         } else {
@@ -149,6 +289,7 @@ document.addEventListener("DOMContentLoaded", () => {
       modalTitle.textContent = 'Edit Appointment';
       modal.classList.add('show');
       modal.classList.remove('hidden');
+      updateAvailableTimes();
     });
 
     cancelBtn.addEventListener('click', () => {
@@ -164,6 +305,9 @@ document.addEventListener("DOMContentLoaded", () => {
             setStatus(row, 'Cancelled');
             const edit = row.querySelector('.edit-btn'); if (edit) edit.remove();
             const cancel = row.querySelector('.cancel-btn'); if (cancel) cancel.remove();
+            allAppointments = allAppointments.map(appt => 
+              appt.id == id ? { ...appt, status: 'cancelled' } : appt
+            );
             pastTableBody.appendChild(row);
           } else alert('Unable to cancel appointment');
         })
@@ -192,31 +336,13 @@ document.addEventListener("DOMContentLoaded", () => {
     setTimeout(() => receiptPopup.classList.add('hidden'), 300);
   });
 
-  function formatTime(time24) {
-    if (!time24) return '';
-    let [h, m] = time24.split(':');
-    h = parseInt(h, 10);
-    m = parseInt(m, 10);
-    const modifier = h >= 12 ? 'PM' : 'AM';
-    h = h % 12 || 12;
-    return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')} ${modifier}`;
-  }
-
-  function to24Hour(time12) {
-    if (!time12.includes(' ')) return time12;
-    let [time, modifier] = time12.split(' ');
-    let [h, m] = time.split(':').map(Number);
-    if (modifier.toUpperCase() === 'PM' && h !== 12) h += 12;
-    if (modifier.toUpperCase() === 'AM' && h === 12) h = 0;
-    return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
-  }
-
   function escapeHtml(str) {
     if (!str) return '';
     return str.replace(/[&<>"']/g, function (c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[c]; });
   }
 
   // initial load
+  loadAllDoctors();
   loadAppointments();
 
 });

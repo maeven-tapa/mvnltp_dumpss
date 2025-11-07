@@ -1,8 +1,7 @@
 CREATE DATABASE db_trailsandtails_midterm;
 USE db_trailsandtails_midterm;
 
--- Use a string-based user id in the format USR0001 for registered users.
--- This makes it possible to also store guest ids like GST0001 in appointment records.
+
 CREATE TABLE tbl_users (
 	user_id VARCHAR(8) PRIMARY KEY,
 	fname VARCHAR(100) NOT NULL,
@@ -17,9 +16,19 @@ CREATE TABLE tbl_users (
 
 CREATE TABLE tbl_newsletter (id INT AUTO_INCREMENT PRIMARY KEY,email VARCHAR(150) NOT NULL UNIQUE,subscribed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
 
--- Appointments table for both registered user and guest bookings
--- If booking_type = 'registered': Use user_id, guest_* fields are NULL
--- If booking_type = 'guest': user_id is NULL, use guest_name, guest_email, guest_contact
+
+CREATE TABLE tbl_vets (
+	vet_id VARCHAR(8) PRIMARY KEY,
+	name VARCHAR(100) NOT NULL,
+	email VARCHAR(150) NOT NULL UNIQUE,
+	contact VARCHAR(20) NOT NULL,
+	status VARCHAR(20) NOT NULL DEFAULT 'On Duty',
+	available_dates JSON,
+	available_times JSON,
+	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	CONSTRAINT check_vet_status CHECK (status IN ('On Duty', 'Off Duty', 'On Leave'))
+);
+
 CREATE TABLE tbl_appointments (
 	id INT AUTO_INCREMENT PRIMARY KEY,
 	booking_type VARCHAR(20) NOT NULL DEFAULT 'registered',

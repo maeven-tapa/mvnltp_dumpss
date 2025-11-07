@@ -1,14 +1,14 @@
 <?php
 // db.php — Connect to MySQL database
+// Using provided system settings: host=localhost, username=root, password=root (no port)
 $DB_HOST = 'localhost';
-$DB_PORT = 3307;
 $DB_NAME = 'petshop';
 $DB_USER = 'root';
-$DB_PASS = 'amiel2004';
+$DB_PASS = 'root';
 
 try {
     // Connect first without database (for initial creation)
-    $pdo = new PDO("mysql:host=$DB_HOST;port=$DB_PORT;charset=utf8mb4", $DB_USER, $DB_PASS, [
+    $pdo = new PDO("mysql:host=$DB_HOST;charset=utf8mb4", $DB_USER, $DB_PASS, [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
     ]);
@@ -17,7 +17,7 @@ try {
     $pdo->exec("CREATE DATABASE IF NOT EXISTS `$DB_NAME` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
 
     // Reconnect to the specific database
-    $pdo = new PDO("mysql:host=$DB_HOST;port=$DB_PORT;dbname=$DB_NAME;charset=utf8mb4", $DB_USER, $DB_PASS, [
+    $pdo = new PDO("mysql:host=$DB_HOST;dbname=$DB_NAME;charset=utf8mb4", $DB_USER, $DB_PASS, [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
     ]);

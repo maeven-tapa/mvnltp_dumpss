@@ -331,6 +331,8 @@ document.addEventListener("DOMContentLoaded", () => {
           window.location.href = 'dashboard.php';
         } else if (target === 'users') {
           window.location.href = 'users.php';
+        } else if (target === 'doctors') {
+          window.location.href = 'doctors.php';
         }
       });
     });

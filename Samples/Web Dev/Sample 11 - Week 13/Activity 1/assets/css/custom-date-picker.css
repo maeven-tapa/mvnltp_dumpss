@@ -1,0 +1,203 @@
+/* Custom Date Picker Styling */
+
+/* Wrapper for date picker input and widget */
+.date-picker-wrapper {
+  position: relative;
+  display: block;
+  width: 100%;
+  z-index: 9999;
+  /* Ensure wrapper escapes overflow constraints from modal parents */
+  overflow: visible !important;
+}
+
+.custom-date-picker-container {
+  position: fixed;
+  background: white;
+  border: 2px solid #67C5BB;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 9999;
+  box-sizing: border-box;
+  max-height: none;
+  min-height: auto;
+  overflow: visible;
+  padding: 10px;
+  /* Width and positioning handled dynamically by JavaScript */
+  /* Remove margin-top as it conflicts with fixed positioning */
+}
+
+.date-picker-widget {
+  padding: 0;
+  font-family: 'Poppins', sans-serif;
+  display: flex;
+  flex-direction: column;
+  overflow: visible;
+  gap: 8px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.date-picker-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+  padding: 4px;
+  background-color: #f0fffe;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.date-picker-header button {
+  background: none;
+  border: none;
+  color: #67C5BB;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 1px 3px;
+  border-radius: 3px;
+  transition: all 0.2s ease;
+}
+
+.date-picker-header button:hover {
+  background-color: #e0f5f4;
+  color: #2C5F6F;
+}
+
+.current-month {
+  font-weight: 600;
+  color: #333;
+  font-size: 12px;
+  min-width: 110px;
+  text-align: center;
+}
+
+.date-picker-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  margin-bottom: 8px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.weekday {
+  font-weight: 600;
+  color: #2C5F6F;
+  font-size: 11px;
+  padding: 6px 0;
+  line-height: 1;
+  text-align: center;
+}
+
+.date-picker-dates {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  grid-auto-rows: 42px;
+  gap: 4px;
+  flex: 0;
+  align-content: start;
+  min-width: 0;
+  width: 100%;
+}
+
+.date-cell {
+  aspect-ratio: 1 / 1;
+  border: 1px solid #e0e0e0;
+  background-color: #fafafa;
+  color: #333;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Poppins', sans-serif;
+  padding: 0;
+  line-height: 1.2;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  min-height: 42px;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.date-cell:not(.empty):not(.unavailable):hover {
+  border-color: #67C5BB;
+  background-color: #e8f5f4;
+}
+
+/* Available dates - Green */
+.date-cell.available {
+  border-color: #4caf50;
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.date-cell.available:hover {
+  background-color: #c8e6c9;
+  border-color: #2e7d32;
+  box-shadow: inset 0 0 4px rgba(76, 175, 80, 0.2);
+}
+
+/* Unavailable dates - Red/Disabled */
+.date-cell.unavailable {
+  border-color: #e0e0e0;
+  background-color: #ffebee;
+  color: #c62828;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.date-cell.unavailable:hover {
+  background-color: #ffebee;
+  border-color: #e0e0e0;
+}
+
+/* Today highlight */
+.date-cell.today {
+  border-color: #67C5BB;
+  border-width: 2px;
+}
+
+/* Selected date */
+.date-cell.selected {
+  background-color: #67C5BB;
+  color: white;
+  border-color: #2C5F6F;
+  font-weight: 700;
+  box-shadow: inset 0 0 4px rgba(103, 197, 187, 0.3);
+}
+
+.date-cell.selected.available {
+  background: linear-gradient(135deg, #4caf50 0%, #67C5BB 100%);
+}
+
+/* Empty cells */
+.date-cell.empty {
+  cursor: default;
+  background: none;
+  border: none;
+}
+
+/* Hide native date picker arrow when using custom picker */
+input[type="text"].use-custom-picker::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.3;
+}
+
+/* Ensure calendar widget escapes modal overflow constraints */
+.modal-content .date-picker-wrapper,
+.modal .date-picker-wrapper {
+  overflow: visible !important;
+}
+
+.modal-content .custom-date-picker-container,
+.modal .custom-date-picker-container {
+  position: fixed !important;
+  /* Allow JavaScript to set position dynamically */
+}

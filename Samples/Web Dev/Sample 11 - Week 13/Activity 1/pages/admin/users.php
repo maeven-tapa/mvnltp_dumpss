@@ -67,6 +67,7 @@ if ($statsQuery && $statsResult = $statsQuery->fetch_assoc()) {
   <nav class="nav" role="navigation" aria-label="Main navigation">
     <button class="side-btn" data-target="dashboard"><span class="icon">🏠</span><span class="label">Dashboard</span></button>
     <button class="side-btn active" data-target="users"><span class="icon">👥</span><span class="label">Users</span></button>
+    <button class="side-btn" data-target="doctors"><span class="icon">👨‍⚕️</span><span class="label">Doctors</span></button>
     <button class="side-btn logout-btn"><span class="icon">🚪</span><span class="label">Logout</span></button>
   </nav>
   </aside>
@@ -75,7 +76,6 @@ if ($statsQuery && $statsResult = $statsQuery->fetch_assoc()) {
   <header class="admin-header">
     <div class="logo">👥 <span>Users</span></div>
     <div class="top-controls">
-      <span style="font-weight: 600; margin-right: 20px;">Welcome, <?php echo htmlspecialchars($adminFullName); ?></span>
       <input type="text" id="userSearch" placeholder="Search by name, email or contact...">
     </div>
   </header>
