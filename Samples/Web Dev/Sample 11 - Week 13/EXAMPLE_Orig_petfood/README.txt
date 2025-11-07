@@ -47,3 +47,15 @@ CREATE TABLE IF NOT EXISTS orders (
         FOREIGN KEY (item_id) REFERENCES items(id) ON DELETE CASCADE
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE IF NOT EXISTS users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_code VARCHAR(20) UNIQUE,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    role ENUM('admin','user') DEFAULT 'user',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+INSERT INTO users (user_code, name, email, password, role)
+VALUES ('ADM-0001', 'Administrator', 'admin@petfoodplace.com', MD5('admin123'), 'admin');
