@@ -3,6 +3,10 @@ session_start();
 require 'db.php';
 if (!isset($_SESSION['is_admin'])) { header('Location: home_admin.php'); exit; }
 
+function e($str) {
+    return htmlspecialchars($str, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+}
+
 $orders = $pdo->query("
   SELECT o.*, i.name AS item_name, i.price AS item_price
   FROM orders o LEFT JOIN items i ON o.item_id = i.id

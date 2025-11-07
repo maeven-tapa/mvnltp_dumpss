@@ -23,11 +23,27 @@ USE petshop;
 
 Step 2.)
 
-Enter this URL to your browser (e.g. Google Chrome, Microsoft Edge)
+Type this command for the items and orders table.
 
-http://localhost/Example_petfood*/db.php
+CREATE TABLE IF NOT EXISTS items (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        item_code VARCHAR(20) UNIQUE,
+        name VARCHAR(255) NOT NULL,
+        description TEXT,
+        price DECIMAL(10,2) NOT NULL DEFAULT 0,
+        stock INT NOT NULL DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+	
+CREATE TABLE IF NOT EXISTS orders (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        order_code VARCHAR(20) UNIQUE,
+        item_id INT NOT NULL,
+        customer_name VARCHAR(255) NOT NULL,
+        customer_contact VARCHAR(255) NOT NULL,
+        quantity INT NOT NULL DEFAULT 1,
+        status VARCHAR(20) NOT NULL DEFAULT 'reserved',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (item_id) REFERENCES items(id) ON DELETE CASCADE
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-This activates the database of the website.
-
-
-*You can change the name of the folder.

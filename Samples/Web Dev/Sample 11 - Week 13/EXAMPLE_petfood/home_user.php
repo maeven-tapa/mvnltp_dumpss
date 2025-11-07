@@ -2,6 +2,10 @@
 session_start();
 require 'db.php';
 
+function e($str) {
+    return htmlspecialchars($str, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+}
+
 // fetch items
 $items = $pdo->query("SELECT * FROM items ORDER BY created_at DESC")->fetchAll();
 ?>

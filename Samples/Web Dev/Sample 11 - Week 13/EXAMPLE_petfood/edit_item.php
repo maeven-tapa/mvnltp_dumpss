@@ -3,6 +3,10 @@ session_start();
 require 'db.php';
 if (!isset($_SESSION['is_admin'])) { header('Location: home_admin.php'); exit; }
 
+function e($str) {
+    return htmlspecialchars($str, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+}
+
 $id = (int)($_GET['id'] ?? 0);
 if (!$id) die('Missing ID');
 

@@ -2,6 +2,10 @@
 session_start();
 require 'db.php';
 
+function e($str) {
+    return htmlspecialchars($str, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+}
+
 // Ensure only admin can use it
 if (!isset($_SESSION['is_admin'])) {
     header('Location: home_admin.php');

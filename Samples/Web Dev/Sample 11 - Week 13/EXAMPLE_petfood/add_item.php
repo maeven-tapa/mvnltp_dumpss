@@ -3,6 +3,24 @@ session_start();
 require 'db.php';
 if (!isset($_SESSION['is_admin'])) { header('Location: home_admin.php'); exit; }
 
+function generateItemCode($pdo) {
+    // Get all existing item codes
+    $stmt = $pdo->query("SELECT item_code FROM items ORDER BY id ASC");
+    $existing = $stmt->fetchAll(PDO::FETCH_COLUMN);
+    
+    // Find first available number slot
+    $num = 1;
+    while (in_array(sprintf("PFPA-%04d", $num), $existing)) {
+        $num++;
+    }
+    
+    return sprintf("PFPA-%04d", $num);
+}
+
+function e($str) {
+    return htmlspecialchars($str, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+}
+
 $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $name = trim($_POST['name'] ?? '');
