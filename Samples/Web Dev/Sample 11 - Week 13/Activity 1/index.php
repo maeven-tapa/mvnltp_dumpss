@@ -1,4 +1,17 @@
 <?php
+session_start();
+
+// If user is already logged in, redirect them to their appropriate dashboard
+if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
+    $role = isset($_SESSION['role']) ? strtolower($_SESSION['role']) : 'user';
+    if ($role === 'admin') {
+        header("Location: pages/admin/dashboard.php");
+    } else {
+        header("Location: pages/user/dashboard.php");
+    }
+    exit();
+}
+
 // index.php — serves the homepage on GET and handles newsletter POST subscriptions on POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     header('Content-Type: application/json');
@@ -295,8 +308,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
   </div>
 
-  <script src="assets/js/booking-date-picker.js"></script>
-  <script src="assets/js/appointment-utils.js"></script>
+  <script src="assets/js/components/booking-date-picker.js"></script>
+  <script src="assets/js/utils/appointment.js"></script>
   <script>
     const menuToggle = document.getElementById('menuToggle');
     const navLinks = document.getElementById('navLinks');

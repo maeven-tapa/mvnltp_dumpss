@@ -1,9 +1,9 @@
 /**
- * Custom Date Picker with available date highlighting
- * Displays a calendar widget with color-coded available dates
+ * Booking Date Picker - Specialized for booking modal on index page
+ * Displays a calendar widget with tight spacing suitable for modals
  */
 
-class CustomDatePicker {
+class BookingDatePicker {
   constructor(inputElement, availableDates = []) {
     this.inputElement = inputElement;
     this.availableDates = new Set(availableDates);
@@ -17,18 +17,18 @@ class CustomDatePicker {
   init() {
     // Create picker container
     this.container = document.createElement('div');
-    this.container.className = 'custom-date-picker-container';
+    this.container.className = 'booking-date-picker-container';
     this.container.style.display = 'none';
     this.container.innerHTML = this.getPickerHTML();
     
     // Wrap the input in a container for better layout control
     this.wrapper = document.createElement('div');
-    this.wrapper.className = 'date-picker-wrapper';
+    this.wrapper.className = 'booking-date-picker-wrapper';
     this.inputElement.parentNode.insertBefore(this.wrapper, this.inputElement);
     this.wrapper.appendChild(this.inputElement);
 
-    // Insert calendar widget as direct child of body to escape modal constraints
-    document.body.appendChild(this.container);
+    // Insert calendar widget as child of wrapper (for modals, absolute positioning works better)
+    this.wrapper.appendChild(this.container);
 
     // Set container width to match input width
     const setContainerWidth = () => {
@@ -52,13 +52,16 @@ class CustomDatePicker {
     // Bind events
     this.inputElement.addEventListener('click', (e) => {
       e.stopPropagation();
+      e.preventDefault();
       this.toggle();
     });
     
-    this.inputElement.addEventListener('focus', (e) => {
-      e.stopPropagation();
-      this.open();
+    this.inputElement.addEventListener('mousedown', (e) => {
+      e.preventDefault();
     });
+    
+    // Remove focus event to prevent hold-down bug
+    // Only use click event for opening
     
     // Stop propagation on the entire container to prevent closing on any internal click
     this.container.addEventListener('click', (e) => {
@@ -84,13 +87,13 @@ class CustomDatePicker {
 
   getPickerHTML() {
     return `
-      <div class="date-picker-widget">
-        <div class="date-picker-header">
+      <div class="booking-date-picker-widget">
+        <div class="booking-date-picker-header">
           <button type="button" class="prev-month" title="Previous month">◀</button>
           <div class="current-month"></div>
           <button type="button" class="next-month" title="Next month">▶</button>
         </div>
-        <div class="date-picker-weekdays">
+        <div class="booking-date-picker-weekdays">
           <div class="weekday">Sun</div>
           <div class="weekday">Mon</div>
           <div class="weekday">Tue</div>
@@ -99,7 +102,7 @@ class CustomDatePicker {
           <div class="weekday">Fri</div>
           <div class="weekday">Sat</div>
         </div>
-        <div class="date-picker-dates"></div>
+        <div class="booking-date-picker-dates"></div>
       </div>
     `;
   }
@@ -113,7 +116,7 @@ class CustomDatePicker {
     this.container.querySelector('.current-month').textContent = monthName;
 
     // Clear previous dates
-    const datesContainer = this.container.querySelector('.date-picker-dates');
+    const datesContainer = this.container.querySelector('.booking-date-picker-dates');
     datesContainer.innerHTML = '';
 
     // Get first day of month and number of days
@@ -123,17 +126,20 @@ class CustomDatePicker {
     // Add empty cells for days before month starts
     for (let i = 0; i < firstDay; i++) {
       const emptyCell = document.createElement('div');
-      emptyCell.className = 'date-cell empty';
+      emptyCell.className = 'booking-date-cell empty';
       datesContainer.appendChild(emptyCell);
     }
 
     // Add date cells
     for (let day = 1; day <= daysInMonth; day++) {
       const date = new Date(year, month, day);
-      const dateStr = date.toISOString().split('T')[0];
+      // Format date in local timezone to avoid UTC offset issues
+      const dateStr = date.getFullYear() + '-' + 
+                      String(date.getMonth() + 1).padStart(2, '0') + '-' + 
+                      String(date.getDate()).padStart(2, '0');
       const dateCell = document.createElement('button');
       dateCell.type = 'button';
-      dateCell.className = 'date-cell';
+      dateCell.className = 'booking-date-cell';
       dateCell.textContent = day;
 
       const isAvailable = this.availableDates.has(dateStr);
@@ -198,26 +204,27 @@ class CustomDatePicker {
   }
 
   open() {
-    console.log('Opening custom date picker');
+    console.log('Opening booking date picker');
     this.isOpen = true;
-    
-    // Position the fixed container below the input element
-    const inputRect = this.inputElement.getBoundingClientRect();
-    this.container.style.top = (inputRect.bottom + window.scrollY + 5) + 'px';
-    this.container.style.left = (inputRect.left + window.scrollX) + 'px';
-    this.container.style.width = inputRect.width + 'px';
-    this.container.style.minWidth = '300px';  // Ensure minimum width
-    
     this.container.style.display = 'block';
-    this.inputElement.style.visibility = 'visible';  // Keep input visible
+    this.inputElement.style.display = 'none';
     this.renderCalendar();
+    
+    // Automatically calculate and set the margin-bottom based on calendar height
+    setTimeout(() => {
+      const calendarHeight = this.container.offsetHeight;
+      this.wrapper.style.marginBottom = (calendarHeight + 20) + 'px';
+      this.wrapper.classList.add('expanded');
+    }, 0);
   }
 
   close() {
-    console.log('Closing custom date picker');
+    console.log('Closing booking date picker');
     this.isOpen = false;
     this.container.style.display = 'none';
-    // Input remains visible and in normal flow
+    this.inputElement.style.display = 'block';
+    this.wrapper.classList.remove('expanded');
+    this.wrapper.style.marginBottom = '0px';
   }
 
   updateAvailableDates(newAvailableDates) {
@@ -227,4 +234,4 @@ class CustomDatePicker {
 }
 
 // Export for use
-window.CustomDatePicker = CustomDatePicker;
+window.BookingDatePicker = BookingDatePicker;

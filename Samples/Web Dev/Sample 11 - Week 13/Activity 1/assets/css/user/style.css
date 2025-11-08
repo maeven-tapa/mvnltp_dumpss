@@ -112,6 +112,75 @@ body {
   font-weight: 600;
 }
 
+.section-header {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.section-header h2 {
+  margin-bottom: 0;
+  color: #5daba8;
+  font-size: 1.2em;
+  font-weight: 600;
+}
+
+.search-filter-bar {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.search-input {
+  flex: 1;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid #dcdcdc;
+  transition: all 0.25s ease;
+  font-size: 0.95em;
+  box-sizing: border-box;
+}
+
+.search-input:focus {
+  border-color: #5daba8;
+  box-shadow: 0 0 0 3px rgba(93, 171, 168, 0.25);
+  outline: none;
+}
+
+.filter-buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.filter-btn {
+  padding: 8px 14px;
+  border: 1px solid #dcdcdc;
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  font-weight: 500;
+  font-size: 0.9em;
+  white-space: nowrap;
+}
+
+.filter-btn:hover {
+  background-color: #eaf7f6;
+  border-color: #5daba8;
+}
+
+.filter-btn.active {
+  background-color: #5daba8;
+  color: #fff;
+  border-color: #5daba8;
+}
+
+.section-header .search-bar {
+  margin-bottom: 0;
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
@@ -210,6 +279,7 @@ td button {
 .modal-content label {
   display: block;
   margin-top: 12px;
+  margin-bottom: 4px;
   font-weight: 500;
   font-size: 0.95em;
 }
@@ -218,7 +288,7 @@ td button {
 .modal-content select {
   width: 100%;
   padding: 9px 10px;
-  margin-top: 5px;
+  margin-top: 0;
   border-radius: 8px;
   border: 1px solid #dcdcdc;
   box-sizing: border-box;
@@ -236,7 +306,7 @@ td button {
 .modal-buttons {
   display: flex;
   justify-content: flex-end;
-  margin-top: 25px;
+  margin-top: 18px;
   gap: 10px;
 }
 

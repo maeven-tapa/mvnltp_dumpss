@@ -55,7 +55,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (userDatePicker) {
       userDatePicker.updateAvailableDates([]);
     } else {
-      userDatePicker = new CustomDatePicker(dateInput, []);
+      userDatePicker = new BookingDatePicker(dateInput, []);
     }
   }
 
@@ -192,6 +192,72 @@ document.addEventListener("DOMContentLoaded", () => {
         data.forEach(addRowFromServer);
       })
       .catch(() => { /* ignore load errors for now */ });
+  }
+
+  // Search functionality for upcoming appointments
+  const upcomingSearchInput = document.getElementById('upcomingSearchInput');
+  let upcomingFilterStatus = 'all';
+  
+  if (upcomingSearchInput) {
+    upcomingSearchInput.addEventListener('input', filterUpcomingTable);
+  }
+
+  // Filter buttons for upcoming appointments
+  document.querySelectorAll('.appointments-section:first-of-type .filter-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.currentTarget.parentElement.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      e.currentTarget.classList.add('active');
+      upcomingFilterStatus = e.currentTarget.dataset.status;
+      filterUpcomingTable();
+    });
+  });
+
+  function filterUpcomingTable() {
+    const searchTerm = upcomingSearchInput ? upcomingSearchInput.value.toLowerCase() : '';
+    const rows = upcomingTableBody.querySelectorAll('tr');
+    rows.forEach(row => {
+      const text = row.textContent.toLowerCase();
+      const statusCell = row.querySelector('.status');
+      const status = statusCell ? statusCell.textContent.toLowerCase() : '';
+      
+      const matchesSearch = text.includes(searchTerm);
+      const matchesFilter = upcomingFilterStatus === 'all' || status.includes(upcomingFilterStatus);
+      
+      row.style.display = (matchesSearch && matchesFilter) ? '' : 'none';
+    });
+  }
+
+  // Search functionality for past appointments
+  const pastSearchInput = document.getElementById('pastSearchInput');
+  let pastFilterStatus = 'all';
+  
+  if (pastSearchInput) {
+    pastSearchInput.addEventListener('input', filterPastTable);
+  }
+
+  // Filter buttons for past appointments
+  document.querySelectorAll('.appointments-section:last-of-type .filter-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.currentTarget.parentElement.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      e.currentTarget.classList.add('active');
+      pastFilterStatus = e.currentTarget.dataset.status;
+      filterPastTable();
+    });
+  });
+
+  function filterPastTable() {
+    const searchTerm = pastSearchInput ? pastSearchInput.value.toLowerCase() : '';
+    const rows = pastTableBody.querySelectorAll('tr');
+    rows.forEach(row => {
+      const text = row.textContent.toLowerCase();
+      const statusCell = row.querySelector('.status');
+      const status = statusCell ? statusCell.textContent.toLowerCase() : '';
+      
+      const matchesSearch = text.includes(searchTerm);
+      const matchesFilter = pastFilterStatus === 'all' || status.includes(pastFilterStatus);
+      
+      row.style.display = (matchesSearch && matchesFilter) ? '' : 'none';
+    });
   }
 
   function addRowFromServer(appt) {

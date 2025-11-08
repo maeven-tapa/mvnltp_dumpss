@@ -385,8 +385,8 @@ th.sortable.desc .sort-icon {
 
 .modal-content label {
   display: block;
-  margin-top: 15px;
-  margin-bottom: 5px;
+  margin-top: 12px;
+  margin-bottom: 4px;
   font-weight: 600;
   color: #555;
 }
@@ -396,7 +396,7 @@ th.sortable.desc .sort-icon {
 .modal-content textarea {
   width: 100%;
   padding: 9px 10px;
-  margin-top: 5px;
+  margin-top: 0;
   border-radius: 8px;
   border: 1px solid #dcdcdc;
   box-sizing: border-box;
@@ -452,7 +452,7 @@ th.sortable.desc .sort-icon {
 .modal-buttons {
   display: flex;
   justify-content: flex-end;
-  margin-top: 25px;
+  margin-top: 18px;
   gap: 10px;
 }
 

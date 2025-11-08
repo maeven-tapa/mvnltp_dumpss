@@ -1,5 +1,6 @@
 <?php
-session_start();
+// Include comprehensive session validation
+require_once __DIR__ . '/../../includes/session-check.php';
 
 // Check if user is logged in and is an admin
 if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || strtolower($_SESSION['role']) !== 'admin') {

@@ -1,5 +1,6 @@
 <?php
-session_start();
+// Include comprehensive session validation
+require_once __DIR__ . '/../../includes/session-check.php';
 
 // Check if user is logged in and is an admin
 if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || strtolower($_SESSION['role']) !== 'admin') {
@@ -54,14 +55,67 @@ if ($statsQuery && $statsResult = $statsQuery->fetch_assoc()) {
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Tails & Trails - Admin Dashboard</title>
 <link rel="stylesheet" href="../../assets/css/admin/style.css">
-<link rel="stylesheet" href="../../assets/css/custom-date-picker.css">
+<link rel="stylesheet" href="../../assets/css/booking-date-picker.css">
 <link rel="stylesheet" href="../../assets/css/toast.css">
 <style>
   .date-time-section {
     display: none;
+    transition: opacity 0.3s ease;
   }
   .date-time-section.visible {
     display: block;
+    animation: fadeIn 0.3s ease;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  /* Ensure modal scrolls when content expands */
+  .modal-content {
+    max-height: 90vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .modal-content form {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  /* Compact form field spacing */
+  .modal-content label {
+    margin-top: 12px !important;
+    margin-bottom: 4px !important;
+  }
+
+  .modal-content input,
+  .modal-content select,
+  .modal-content textarea {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+  }
+
+  /* Booking date picker inside modal - position relative to modal */
+  .modal-content .booking-date-picker-wrapper {
+    position: relative;
+    overflow: visible !important;
+    margin-top: 12px;
+  }
+
+  .modal-content .booking-date-picker-container {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 9999;
   }
 </style>
 </head>
@@ -215,7 +269,7 @@ if ($statsQuery && $statsResult = $statsQuery->fetch_assoc()) {
 
       <div class="date-time-section">
         <label for="adminDate">Date:</label>
-        <input type="date" id="adminDate" required>
+        <input type="text" id="adminDate" placeholder="YYYY-MM-DD" required>
 
         <label for="adminTime">Time:</label>
         <select id="adminTime" required>
@@ -231,9 +285,9 @@ if ($statsQuery && $statsResult = $statsQuery->fetch_assoc()) {
   </div>
 </div>
 
-<script src="../../assets/js/custom-date-picker.js"></script>
-<script src="../../assets/js/appointment-utils.js"></script>
-<script src="../../assets/js/toast.js"></script>
+<script src="../../assets/js/components/booking-date-picker.js"></script>
+<script src="../../assets/js/utils/appointment.js"></script>
+<script src="../../assets/js/components/toast.js"></script>
 <script src="../../assets/js/admin/script.js"></script>
 </body>
 </html>

@@ -1,6 +1,17 @@
 <?php
 session_start();
 
+// If user is already logged in, redirect them to their appropriate dashboard
+if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
+    $role = isset($_SESSION['role']) ? strtolower($_SESSION['role']) : 'user';
+    if ($role === 'admin') {
+        header("Location: ../pages/admin/dashboard.php");
+    } else {
+        header("Location: ../pages/user/dashboard.php");
+    }
+    exit();
+}
+
 $host = 'localhost';
 $username = 'root';
 $password = 'root';

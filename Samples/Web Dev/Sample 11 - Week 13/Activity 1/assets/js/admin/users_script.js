@@ -320,9 +320,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll('.side-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         if (btn.classList.contains('logout-btn')) {
-          if (confirm('Are you sure you want to log out?')) {
-            window.location.href = '../../auth/logout.php';
-          }
+          showLogoutConfirmation();
           return;
         }
 
@@ -336,6 +334,57 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
     });
+    
+    // Function to show logout confirmation modal
+    function showLogoutConfirmation() {
+      const logoutModal = document.createElement('div');
+      logoutModal.id = 'logoutConfirmModal';
+      logoutModal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 10000;
+      `;
+      
+      logoutModal.innerHTML = `
+        <div style="background-color: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); max-width: 400px; text-align: center;">
+          <h3 style="margin-top: 0; margin-bottom: 15px; color: #333;">Confirm Logout</h3>
+          <p style="margin-bottom: 25px; color: #666; font-size: 15px;">Are you sure you want to logout? You will need to log in again to access your account.</p>
+          <div style="display: flex; gap: 10px; justify-content: center;">
+            <button id="logoutConfirmBtn" style="padding: 10px 20px; background-color: #e74c3c; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600;">Logout</button>
+            <button id="logoutCancelBtn" style="padding: 10px 20px; background-color: #95a5a6; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600;">Cancel</button>
+          </div>
+        </div>
+      `;
+      
+      document.body.appendChild(logoutModal);
+      
+      document.getElementById('logoutConfirmBtn').addEventListener('click', function(){
+        try{ localStorage.clear(); sessionStorage.clear(); }catch(e){ }
+        window.location.href = '../../auth/logout.php';
+      });
+      
+      document.getElementById('logoutCancelBtn').addEventListener('click', function(){
+        logoutModal.remove();
+      });
+    }
   }
 });
+
+// Prevent browser back button to go back if logged out
+(function(){
+  // Add history entry on page load
+  window.history.pushState(null, null, window.location.href);
+  
+  // Handle back button
+  window.addEventListener('popstate', function(){
+    window.history.pushState(null, null, window.location.href);
+  });
+})();
 

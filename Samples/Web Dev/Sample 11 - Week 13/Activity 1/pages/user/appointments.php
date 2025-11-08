@@ -1,7 +1,15 @@
 <?php
-session_start();
+// Session validation with same security headers
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 header('Content-Type: application/json');
-if (!isset($_SESSION['user_id'])) {
+header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+header('Pragma: no-cache');
+
+// Validate session for API endpoint
+if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
     echo json_encode(['success' => false, 'message' => 'Not authenticated']);
     exit();
 }

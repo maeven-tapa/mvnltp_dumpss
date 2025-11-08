@@ -1,5 +1,5 @@
 /**
- * appointment-utils.js
+ * appointment.js
  * Shared utility functions for appointment booking across guest and registered users
  */
 
@@ -109,7 +109,10 @@ function getAvailableDatesForDoctor(availableDays, daysInFuture = 60) {
     currentDate.setDate(today.getDate() + i);
     
     const dayOfWeek = currentDate.getDay();
-    const dateStr = currentDate.toISOString().split('T')[0];
+    // Format date in local timezone to avoid UTC offset issues
+    const dateStr = currentDate.getFullYear() + '-' + 
+                    String(currentDate.getMonth() + 1).padStart(2, '0') + '-' + 
+                    String(currentDate.getDate()).padStart(2, '0');
     const dayName = currentDate.toLocaleDateString('en-US', { weekday: 'long' });
     
     if (availableDayNumbers.includes(dayOfWeek)) {
