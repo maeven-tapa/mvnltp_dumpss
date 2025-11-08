@@ -5,14 +5,12 @@ include_once '../db.php';
 $error = '';
 
 // Redirect already logged-in users
-if (isset($_SESSION['role'])) {
-    if ($_SESSION['role'] === 'admin') {
-        header("Location: /EXAMPLE_Orig_petfood/pages/admin/home.php");
-        exit;
-    } else {
-        header("Location: /EXAMPLE_Orig_petfood/pages/user/home.php");
-        exit;
-    }
+if ($_SESSION['role'] === 'admin') {
+    header("Location: ../../pages/admin/home.php");
+    exit;
+} else {
+    header("Location: ../../pages/user/home.php");
+    exit;
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -40,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $_SESSION['email'] = $user['email'];
                     $_SESSION['role'] = $user['role'];
                     $_SESSION['force_change_password'] = true;
-                    header("Location: /EXAMPLE_Orig_petfood/backend/auth/change_password.php?force=1");
+                    header("Location: ../auth/change_password.php");
                     exit;
                 }
 
@@ -49,9 +47,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['role'] = $user['role'];
 
                 if ($user['role'] === 'admin') {
-                    header("Location: /EXAMPLE_Orig_petfood/pages/admin/home.php");
+                    header("Location: ../../pages/admin/home.php");
                 } else {
-                    header("Location: /EXAMPLE_Orig_petfood/pages/user/home.php");
+                    header("Location: ../../pages/user/home.php");
+                }
                 }
                 exit;
 
@@ -66,21 +65,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 if ($user['role'] === 'admin' && $password === 'admin123') {
                     $_SESSION['force_change_password'] = true;
-                    header("Location: /EXAMPLE_Orig_petfood/backend/auth/change_password.php?force=1");
+                    header("Location: ../auth/change_password.php");
                     exit;
                 }
 
                 if ($user['role'] === 'admin') {
-                    header("Location: /EXAMPLE_Orig_petfood/pages/admin/home.php");
+                    header("Location: ../../pages/admin/home.php");
                 } else {
-                    header("Location: /EXAMPLE_Orig_petfood/pages/user/home.php");
+                    header("Location: ../../pages/user/home.php");
                 }
                 exit;
             } else {
                 $error = "Invalid email or password.";
-            }
-        } else {
-            $error = "Invalid email or password.";
         }
     } catch (PDOException $e) {
         $error = "Database error: " . htmlspecialchars($e->getMessage());

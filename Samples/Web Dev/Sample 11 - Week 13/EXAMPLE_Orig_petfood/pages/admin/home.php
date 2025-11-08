@@ -12,8 +12,9 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
 }
 
 if (!empty($_SESSION['password_change_required'])) {
-    header("Location: ../../backend/auth/change_password.php?force=1");
-    exit;
+    header("Location: ../../backend/auth/change_password.php");
+  exit;
+
 }
 
 $stmt = $pdo->query("SELECT * FROM items ORDER BY created_at DESC");

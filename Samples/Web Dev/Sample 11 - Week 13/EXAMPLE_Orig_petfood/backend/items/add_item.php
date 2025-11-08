@@ -42,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt->execute([$item_code, $name, $desc, $price, $stock]);
 
     header("Location: ../../pages/admin/home.php?added=1");
-    exit;
+exit;
 }
 ?>
 

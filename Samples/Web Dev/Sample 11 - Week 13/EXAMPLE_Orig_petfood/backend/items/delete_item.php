@@ -37,8 +37,8 @@ try {
     $pdo->commit();
 
     // Redirect with success flag
-    header("Location: ../../pages/admin/home.php?deleted=1");
-    exit;
+    header("Location: ../../pages/admin/home.php?error=db&message=" . urlencode($e->getMessage()));
+exit;
 
 } catch (PDOException $e) {
     // Roll back if anything goes wrong
