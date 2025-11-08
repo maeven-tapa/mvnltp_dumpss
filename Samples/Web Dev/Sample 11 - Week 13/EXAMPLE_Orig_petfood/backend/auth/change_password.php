@@ -4,8 +4,8 @@ require_once '../db.php';
 
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin' || !isset($_SESSION['email'])) {
     session_destroy();
-    header("Location: /EXAMPLE_Orig_petfood/backend/auth/login.php");
-    exit;
+    header("Location: login.php");
+exit;
 }
 
 $email = $_SESSION['email'];
@@ -29,8 +29,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         unset($_SESSION['force_change_password']);
         $_SESSION['message'] = "Password changed successfully!";
-        header("Location: /EXAMPLE_Orig_petfood/pages/admin/home.php");
-        exit;
+        header("Location: ../../pages/admin/home.php");
+      exit;
     }
 }
 
@@ -38,8 +38,8 @@ if ($isForced) {
     if (!isset($_SESSION['last_activity'])) $_SESSION['last_activity'] = time();
     if (time() - $_SESSION['last_activity'] > 180) {
         session_destroy();
-        header("Location: /EXAMPLE_Orig_petfood/backend/auth/login.php");
-        exit;
+        header("Location: login.php");
+      exit;
     }
     $_SESSION['last_activity'] = time();
 }

@@ -19,7 +19,7 @@
     }
 
     // Configuration
-    const pawImage = '/EXAMPLE_Orig_petfood/assets/image/paw-print.png';
+    const pawImage = window.PAW_IMAGE_PATH || '/assets/image/paw-print.png';
     const pawCount = 50; // Reduced for performance on all pages
     const paws = [];
 
