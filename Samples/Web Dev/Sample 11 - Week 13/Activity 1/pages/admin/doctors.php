@@ -54,6 +54,8 @@ if ($statsQuery && $statsResult = $statsQuery->fetch_assoc()) {
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Tails & Trails - Doctors Management</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
 <link rel="stylesheet" href="../../assets/css/admin/style.css">
 </head>
 <body>
@@ -68,10 +70,10 @@ if ($statsQuery && $statsResult = $statsQuery->fetch_assoc()) {
     <button id="panelToggle" class="side-toggle" aria-expanded="false" aria-label="Open navigation">☰</button>
   </div>
   <nav class="nav" role="navigation" aria-label="Main navigation">
-    <button class="side-btn" data-target="dashboard"><span class="icon">🏠</span><span class="label">Dashboard</span></button>
-    <button class="side-btn" data-target="users"><span class="icon">👥</span><span class="label">Users</span></button>
-    <button class="side-btn active" data-target="doctors"><span class="icon">👨‍⚕️</span><span class="label">Doctors</span></button>
-    <button class="side-btn logout-btn"><span class="icon">🚪</span><span class="label">Logout</span></button>
+    <button class="side-btn" data-target="dashboard"><i class="bi bi-house-door-fill icon"></i><span class="label">Dashboard</span></button>
+    <button class="side-btn" data-target="users"><i class="bi bi-people-fill icon"></i><span class="label">Users</span></button>
+    <button class="side-btn active" data-target="doctors"><i class="bi bi-person-hearts icon"></i><span class="label">Doctors</span></button>
+    <button class="side-btn logout-btn"><i class="bi bi-box-arrow-right icon"></i><span class="label">Logout</span></button>
   </nav>
   </aside>
 
@@ -216,6 +218,7 @@ if ($statsQuery && $statsResult = $statsQuery->fetch_assoc()) {
 
 <!-- Script loading order (IMPORTANT: app.js MUST be first) -->
 <script src="../../assets/js/app.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="../../assets/js/components/toast.js"></script>
 <script src="../../assets/js/admin/doctors_script.js"></script>
 </body>

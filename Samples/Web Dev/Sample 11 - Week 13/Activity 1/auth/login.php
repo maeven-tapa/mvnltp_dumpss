@@ -85,87 +85,167 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Login - Tails and Trails</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
   <link rel="stylesheet" href="../assets/css/auth/login.css">
 </head>
-<body>
+<body class="login-page">
   <div class="login-container">
+    <!-- Welcome Section with Carousel -->
     <div class="welcome-section">
+      <!-- Logo -->
       <div class="logo-section">
-  <img src="../assets/images/logo.png" alt="Logo" style="width: 20%; height: 20%; object-fit: contain;">
+        <img src="../assets/images/logo.png" alt="Tails and Trails Logo" class="logo-img">
       </div>
 
-      <div class="slideshow">
-        <div class="slide active">
-          <div class="welcome-content">
-            <h1>YOUR PET'S SECOND HOME</h1>
-            <p>Log in and let's keep your furry friend happy and healthy!</p>
+      <!-- Carousel/Slideshow with Background Image -->
+      <div id="loginCarousel" class="carousel slide carousel-fade slideshow-image-container" data-bs-ride="carousel" data-bs-interval="4000">
+        <div class="carousel-inner slideshow">
+          <!-- Slide with Image and Gradient Tint -->
+          <div class="carousel-item slide-image active">
+            <img src="../assets/images/slide.jpg" alt="Tails and Trails Service" class="slide-image-bg">
+            <div class="slide-gradient-overlay"></div>
+            <div class="welcome-content">
+              <div class="content-icon mb-4">
+                <i class="bi bi-heart-fill"></i>
+              </div>
+              <h1 class="welcome-title">YOUR PET'S SECOND HOME</h1>
+              <p class="welcome-subtitle">Log in and let's keep your furry friend happy and healthy!</p>
+            </div>
+          </div>
+
+          <!-- Slide 2 with Image -->
+          <div class="carousel-item slide-image">
+            <img src="../assets/images/slide.jpg" alt="Tails and Trails Service" class="slide-image-bg">
+            <div class="slide-gradient-overlay"></div>
+            <div class="welcome-content">
+              <div class="content-icon mb-4">
+                <i class="bi bi-star-fill"></i>
+              </div>
+              <h1 class="welcome-title">Grooming. Caring. Loving.</h1>
+              <p class="welcome-subtitle">It all happens here — expert care from vets & groomers who love animals.</p>
+            </div>
+          </div>
+
+          <!-- Slide 3 with Image -->
+          <div class="carousel-item slide-image">
+            <img src="../assets/images/slide.jpg" alt="Tails and Trails Service" class="slide-image-bg">
+            <div class="slide-gradient-overlay"></div>
+            <div class="welcome-content">
+              <div class="content-icon mb-4">
+                <i class="bi bi-flower1"></i>
+              </div>
+              <h1 class="welcome-title">Trust & Excellence</h1>
+              <p class="welcome-subtitle">Professional service with a personal touch for every pet in our care.</p>
+            </div>
           </div>
         </div>
 
-        <div class="slide">
-          <div class="welcome-content">
-            <h1>Grooming. Caring. Loving.</h1>
-            <p>It all happens here — expert care from vets & groomers who love animals.</p>
-          </div>
+        <!-- Carousel Indicators (Custom) -->
+        <div class="slideshow-indicators">
+          <button class="indicator active" data-bs-target="#loginCarousel" data-bs-slide-to="0" aria-label="Slide 1"></button>
+          <button class="indicator" data-bs-target="#loginCarousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
+          <button class="indicator" data-bs-target="#loginCarousel" data-bs-slide-to="2" aria-label="Slide 3"></button>
         </div>
-
-        <div class="slide image-full"></div>
-      </div>
-
-      <div class="slideshow-indicators">
-        <div class="indicator active" data-target="0"></div>
-        <div class="indicator" data-target="1"></div>
-        <div class="indicator" data-target="2"></div>
       </div>
     </div>
 
+    <!-- Login Section -->
     <div class="login-section">
-      <div class="login-form-container">
-        <h1 class="login-title">LOG IN</h1>
-        
-        <?php if (!empty($error_message)): ?>
-          <div class="error-box" id="errorBox">
-            <div class="error-icon">⚠</div>
-            <div class="error-content">
-              <div class="error-title">Login Failed</div>
-              <div class="error-message"><?php echo htmlspecialchars($error_message); ?></div>
+      <div class="login-form-wrapper">
+        <div class="login-form-container">
+          <div class="text-center mb-4">
+            <h1 class="login-title">Welcome Back</h1>
+            <p class="login-subtitle">Sign in to your account</p>
+          </div>
+
+          <?php if (!empty($error_message)): ?>
+            <div class="alert alert-danger alert-dismissible fade show" id="errorBox" role="alert">
+              <div class="d-flex align-items-start">
+                <i class="bi bi-exclamation-circle-fill me-3 mt-1"></i>
+                <div>
+                  <strong>Login Failed</strong>
+                  <p class="mb-0"><?php echo htmlspecialchars($error_message); ?></p>
+                </div>
+              </div>
+              <button type="button" class="btn-close" onclick="closeErrorBox()"></button>
             </div>
-            <button class="error-close" onclick="closeErrorBox()">×</button>
-          </div>
-        <?php endif; ?>
+          <?php endif; ?>
 
-        <form id="loginForm" action="login.php" method="POST">
-          <div class="form-group">
-            <label for="username">Email</label>
-            <input id="username" name="email" type="email" class="form-control" required />
-          </div>
-
-          <div class="form-group">
-            <label for="password">Password</label>
-            <div class="input-wrapper" style="position: relative;">
-              <input id="password" name="pass" type="password" class="form-control" required />
-              <img
-                id="togglePassword"
-                src="../assets/images/eye-open.png"
-                alt="Show Password"
-                class="password-toggle"
-                style="width: 20px; height: 20px; position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer;"
-              />
+          <form id="loginForm" action="login.php" method="POST" class="needs-validation" novalidate>
+            <!-- Email Field -->
+            <div class="form-group mb-3">
+              <label for="username" class="form-label fw-600">Email Address</label>
+              <div class="input-group">
+                <span class="input-group-text bg-light border-end-0">
+                  <i class="bi bi-envelope-fill" style="color: var(--primary); font-size: 1.1rem;"></i>
+                </span>
+                <input 
+                  id="username" 
+                  name="email" 
+                  type="email" 
+                  class="form-control form-control-lg bg-light border-start-0" 
+                  placeholder="your@email.com"
+                  required 
+                />
+              </div>
+              <div class="invalid-feedback">Please enter a valid email address.</div>
             </div>
+
+            <!-- Password Field -->
+            <div class="form-group mb-3">
+              <label for="password" class="form-label fw-600">Password</label>
+              <div class="input-group">
+                <span class="input-group-text bg-light border-end-0">
+                  <i class="bi bi-lock-fill" style="color: var(--primary); font-size: 1.1rem;"></i>
+                </span>
+                <input 
+                  id="password" 
+                  name="pass" 
+                  type="password" 
+                  class="form-control form-control-lg bg-light border-start-0 border-end-0" 
+                  placeholder="Enter your password"
+                  required 
+                />
+                <button 
+                  type="button" 
+                  id="togglePassword"
+                  class="btn btn-light border-start-0" 
+                  aria-label="Toggle password visibility"
+                >
+                  <i class="bi bi-eye-fill" style="color: var(--primary); font-size: 1.1rem;"></i>
+                </button>
+              </div>
+              <div class="invalid-feedback">Password is required.</div>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" name="submit" class="btn btn-primary btn-lg w-100 fw-600 mb-3">
+              <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
+            </button>
+          </form>
+
+          <!-- Divider -->
+          <div class="text-center mb-3">
+            <small class="text-muted">Don't have an account?</small>
           </div>
 
+          <!-- Register Link -->
+          <a href="register.php" class="btn btn-outline-primary btn-lg w-100 fw-600">
+            <i class="bi bi-person-plus me-2"></i>Create Account
+          </a>
+        </div>
 
-          <button class="btn-login" name="submit" type="submit">Log In</button>
-        </form>
-
-        <div class="register-link">
-          Don't have an account? <a href="register.php">Register Now</a>
+        <!-- Footer -->
+        <div class="text-center mt-4 pt-3 border-top">
+          <small class="text-muted">© 2025 Tails and Trails. All rights reserved.</small>
         </div>
       </div>
     </div>
   </div>
 
   <!-- Script loading order (IMPORTANT: app.js MUST be first) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="../assets/js/app.js"></script>
   <script src="../assets/js/auth/login.js"></script>
 </body>
