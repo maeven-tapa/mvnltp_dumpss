@@ -23,14 +23,12 @@ body {
   align-items: center;
   justify-content: center;
 
-  /* Use accent colors for the page background so it matches the brand */
-  background: 
-    linear-gradient(
-      135deg,
-      rgba(103, 197, 187, 0.55),
-      rgba(83, 62, 133, 0.55)
-    ),
-    url("../images/signupbg.png") no-repeat center center;
+  /* Match the hero section background: a gradient from primary to secondary */
+  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+  /* keep the decorative background image subtly on top if present */
+  background-image: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%), url("../images/signupbg.png");
+  background-repeat: no-repeat;
+  background-position: center center;
   background-size: cover;
   background-attachment: fixed;
   color: var(--dark);
