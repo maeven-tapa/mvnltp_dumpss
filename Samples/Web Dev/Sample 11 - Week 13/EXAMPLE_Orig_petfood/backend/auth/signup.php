@@ -1,6 +1,6 @@
 <?php
 session_start();
-require __DIR__ . '/../backend/db.php'; // Connect to DB safely
+require __DIR__ . '/../db.php'; 
 
 $alert = '';
 

@@ -1,8 +1,8 @@
 <?php
 $host = 'localhost:3307';
-$db   = 'petshop'; // change to your database name
+$db   = 'petshop'; 
 $user = 'root';
-$pass = 'amiel2004'; // leave blank for XAMPP default
+$pass = 'amiel2004'; 
 
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$db;charset=utf8mb4", $user, $pass);
