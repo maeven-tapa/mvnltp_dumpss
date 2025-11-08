@@ -2,6 +2,6 @@
 session_start();
 session_unset();
 session_destroy();
-header('Location: login.php');
+header('Location: /EXAMPLE_Orig_petfood/backend/auth/login.php');
 exit;
 ?>

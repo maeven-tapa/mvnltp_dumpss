@@ -1,7 +1,9 @@
 <?php
 session_start();
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
-    header('Location: ../auth/login.php');
+
+// Allow only users (not admins) to access this page
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'user') {
+    header('Location: /EXAMPLE_Orig_petfood/backend/auth/login.php');
     exit;
 }
 ?>
@@ -9,14 +11,14 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
 <html>
 <head>
 <meta charset="utf-8">
-<title>Admin Dashboard</title>
-<link rel="stylesheet" href="../styles.css">
+<title>User Dashboard</title>
+<link rel="stylesheet" href="/EXAMPLE_Orig_petfood/css/styles.css">
 </head>
 <body>
 <div class="container">
-  <h1>Welcome, <?= htmlspecialchars($_SESSION['user_name']) ?> (Admin)</h1>
-  <p>This is the admin home page.</p>
-  <a href="../auth/logout.php">Logout</a>
+  <h1>Welcome, <?= htmlspecialchars($_SESSION['email']) ?>!</h1>
+  <p>This is the <strong>User</strong> home page.</p>
+  <a href="/EXAMPLE_Orig_petfood/backend/auth/logout.php">Logout</a>
 </div>
 </body>
 </html>

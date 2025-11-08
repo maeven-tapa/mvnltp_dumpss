@@ -1,8 +1,10 @@
 <?php
 session_start();
-include_once '../db.php'; // connect to DB
+include_once '../db.php'; // defines $pdo
 
-// If already logged in, send to correct home page
+$error = ''; // Initialize error message
+
+// Redirect already logged-in users
 if (isset($_SESSION['role'])) {
     if ($_SESSION['role'] === 'admin') {
         header("Location: /EXAMPLE_Orig_petfood/pages/admin/home.php");
@@ -13,39 +15,71 @@ if (isset($_SESSION['role'])) {
     }
 }
 
-// Check if the form was submitted
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $email = mysqli_real_escape_string($conn, $_POST['email']);
-    $password = mysqli_real_escape_string($conn, $_POST['password']);
+    $email = trim($_POST['email']);
+    $password = trim($_POST['password']);
 
-    // Find user in DB
-    $query = "SELECT * FROM users WHERE email = '$email' LIMIT 1";
-    $result = mysqli_query($conn, $query);
+    try {
+        $stmt = $pdo->prepare("SELECT * FROM users WHERE email = :email LIMIT 1");
+        $stmt->bindParam(':email', $email, PDO::PARAM_STR);
+        $stmt->execute();
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if ($result && mysqli_num_rows($result) === 1) {
-        $user = mysqli_fetch_assoc($result);
+        if ($user) {
+            $stored = $user['password'];
 
-        if (password_verify($password, $user['password'])) {
-            // Login success
-            $_SESSION['user_id'] = $user['id'];
-            $_SESSION['email'] = $user['email'];
-            $_SESSION['role'] = $user['role'];
+            // ✅ Step 1: Try modern password_verify()
+            if (password_verify($password, $stored)) {
 
-            if ($user['role'] === 'admin') {
-                header("Location: /EXAMPLE_Orig_petfood/pages/admin/home.php");
+                // Optional: rehash if algorithm changed
+                if (password_needs_rehash($stored, PASSWORD_DEFAULT)) {
+                    $newHash = password_hash($password, PASSWORD_DEFAULT);
+                    $update = $pdo->prepare("UPDATE users SET password = :newHash WHERE id = :id");
+                    $update->execute([':newHash' => $newHash, ':id' => $user['id']]);
+                }
+
+                // Success: set session and redirect
+                $_SESSION['user_id'] = $user['id'];
+                $_SESSION['email'] = $user['email'];
+                $_SESSION['role'] = $user['role'];
+
+                if ($user['role'] === 'admin') {
+                    header("Location: /EXAMPLE_Orig_petfood/pages/admin/home.php");
+                } else {
+                    header("Location: /EXAMPLE_Orig_petfood/pages/user/home.php");
+                }
+                exit;
+
+            // ✅ Step 2: Check if password matches old MD5 hash
+            } elseif (md5($password) === $stored) {
+                // Automatically upgrade old MD5 hash to new bcrypt
+                $newHash = password_hash($password, PASSWORD_DEFAULT);
+                $update = $pdo->prepare("UPDATE users SET password = :newHash WHERE id = :id");
+                $update->execute([':newHash' => $newHash, ':id' => $user['id']]);
+
+                // Set session variables and redirect
+                $_SESSION['user_id'] = $user['id'];
+                $_SESSION['email'] = $user['email'];
+                $_SESSION['role'] = $user['role'];
+
+                if ($user['role'] === 'admin') {
+                    header("Location: /EXAMPLE_Orig_petfood/pages/admin/home.php");
+                } else {
+                    header("Location: /EXAMPLE_Orig_petfood/pages/user/home.php");
+                }
+                exit;
+
             } else {
-                header("Location: /EXAMPLE_Orig_petfood/pages/user/home.php");
+                $error = "Invalid email or password.";
             }
-            exit;
         } else {
-            $error = "Incorrect password!";
+            $error = "Invalid email or password.";
         }
-    } else {
-        $error = "User not found!";
+    } catch (PDOException $e) {
+        $error = "Database error: " . htmlspecialchars($e->getMessage());
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -97,7 +131,8 @@ button:hover {
 </head>
 <body>
 
-<form method="POST" action="">
+<!-- ✅ Absolute path ensures correct action -->
+<form method="POST" action="/EXAMPLE_Orig_petfood/backend/auth/login.php">
     <h2>Login</h2>
     <?php if (!empty($error)) echo "<p class='error'>$error</p>"; ?>
     <input type="email" name="email" placeholder="Email" required>
