@@ -1,4 +1,4 @@
-Pet Food Reservation Website — Database Setup
+Pet Food Reservation Website — Database Setup and README
 --------------------------------------------
 
 
@@ -6,12 +6,17 @@ Database name: petshop
 
 1. Upload files to XAMPP/Laragon htdocs folder.
 2. Start Apache and MySQL.
-3. Go to http://localhost/home_user.php to browse and reserve.
-4. Go to http://localhost/home_admin.php to log in as admin.
+3. To start admin, type admin credentials on Login Page
 
 Login:
 Admin email = admin@petfoodplace.com
 Admin password = admin123 (change this inside home_admin.php)
+
+Admin can:
+- view recent orders
+- add/edit/delete pet food items
+
+4. For users to buy items, you must first Sign Up. Then, Log-In your credentials to start buying pet foods.
 
 Database Setup:
 
