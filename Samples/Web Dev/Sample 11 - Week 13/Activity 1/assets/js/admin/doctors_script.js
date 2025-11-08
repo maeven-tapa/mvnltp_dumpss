@@ -13,6 +13,10 @@ document.addEventListener("DOMContentLoaded", () => {
   let currentPage = 1;
   let itemsPerPage = 15;
 
+  // Initialize sidebar and shared functionality
+  initializeSidebarToggle();
+  preventBackNavigation();
+
   loadDoctors();
 
   addDoctorBtn.addEventListener("click", () => openModal("Add Doctor"));
@@ -138,17 +142,17 @@ document.addEventListener("DOMContentLoaded", () => {
     const available_dates = selectedDays.join(',');
 
     if (!name || !email || !contact) {
-      alert("Please fill in all required fields");
+      toast.warning("Please fill in all required fields");
       return;
     }
 
     if (selectedTimes.length === 0) {
-      alert("Please select at least one available time");
+      toast.warning("Please select at least one available time");
       return;
     }
 
     if (selectedDays.length === 0) {
-      alert("Please select at least one available day");
+      toast.warning("Please select at least one available day");
       return;
     }
 
@@ -177,11 +181,11 @@ document.addEventListener("DOMContentLoaded", () => {
     .then(response => response.json())
     .then(data => {
       if (data.success) {
-        alert(data.message);
+        toast.success(data.message);
         closeModal();
         loadDoctors();
       } else {
-        alert('Error: ' + data.message);
+        toast.error('Error: ' + data.message);
       }
     })
     .catch(error => console.error('Error:', error));
@@ -315,10 +319,10 @@ document.addEventListener("DOMContentLoaded", () => {
     .then(response => response.json())
     .then(data => {
       if (data.success) {
-        alert(data.message);
+        toast.success(data.message);
         loadDoctors();
       } else {
-        alert('Error: ' + data.message);
+        toast.error('Error: ' + data.message);
       }
     })
     .catch(error => console.error('Error:', error));
@@ -349,7 +353,7 @@ document.addEventListener("DOMContentLoaded", () => {
         updateDropdownColor(dropdown, newStatus);
         loadDoctors();
       } else {
-        alert('Error: ' + data.message);
+        toast.error('Error: ' + data.message);
         // Revert the dropdown
         if (doctor) {
           dropdown.value = doctor.status;
@@ -359,7 +363,7 @@ document.addEventListener("DOMContentLoaded", () => {
     })
     .catch(error => {
       console.error('Error:', error);
-      alert('Error updating doctor status');
+      toast.error('Error updating doctor status');
     });
   }
 
@@ -464,102 +468,4 @@ document.addEventListener("DOMContentLoaded", () => {
     btn.classList.add("active");
   }
 
-  // --- Sidebar toggle and nav wiring ---
-  const leftPanel = document.getElementById('leftPanel');
-  const panelToggle = document.getElementById('panelToggle');
-
-  if (leftPanel && panelToggle) {
-    // initialize collapsed state
-    leftPanel.classList.add('closed');
-    leftPanel.setAttribute('aria-hidden', 'true');
-    panelToggle.setAttribute('aria-expanded', 'false');
-    panelToggle.innerHTML = '▶';
-
-    panelToggle.addEventListener('click', () => {
-      const isClosed = leftPanel.classList.contains('closed');
-      if (isClosed) {
-        // expand
-        leftPanel.classList.remove('closed');
-        leftPanel.setAttribute('aria-hidden', 'false');
-        panelToggle.setAttribute('aria-expanded', 'true');
-        panelToggle.innerHTML = '◀';
-      } else {
-        // collapse
-        leftPanel.classList.add('closed');
-        leftPanel.setAttribute('aria-hidden', 'true');
-        panelToggle.setAttribute('aria-expanded', 'false');
-        panelToggle.innerHTML = '▶';
-      }
-    });
-
-    // basic stub handlers for sidebar buttons
-    document.querySelectorAll('.side-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        if (btn.classList.contains('logout-btn')) {
-          showLogoutConfirmation();
-          return;
-        }
-
-        const target = btn.dataset.target;
-        if (target === 'dashboard') {
-          window.location.href = 'dashboard.php';
-        } else if (target === 'users') {
-          window.location.href = 'users.php';
-        } else if (target === 'doctors') {
-          window.location.href = 'doctors.php';
-        }
-      });
-    });
-    
-    // Function to show logout confirmation modal
-    function showLogoutConfirmation() {
-      const logoutModal = document.createElement('div');
-      logoutModal.id = 'logoutConfirmModal';
-      logoutModal.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 10000;
-      `;
-      
-      logoutModal.innerHTML = `
-        <div style="background-color: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); max-width: 400px; text-align: center;">
-          <h3 style="margin-top: 0; margin-bottom: 15px; color: #333;">Confirm Logout</h3>
-          <p style="margin-bottom: 25px; color: #666; font-size: 15px;">Are you sure you want to logout? You will need to log in again to access your account.</p>
-          <div style="display: flex; gap: 10px; justify-content: center;">
-            <button id="logoutConfirmBtn" style="padding: 10px 20px; background-color: #e74c3c; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600;">Logout</button>
-            <button id="logoutCancelBtn" style="padding: 10px 20px; background-color: #95a5a6; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600;">Cancel</button>
-          </div>
-        </div>
-      `;
-      
-      document.body.appendChild(logoutModal);
-      
-      document.getElementById('logoutConfirmBtn').addEventListener('click', function(){
-        try{ localStorage.clear(); sessionStorage.clear(); }catch(e){ }
-        window.location.href = '../../auth/logout.php';
-      });
-      
-      document.getElementById('logoutCancelBtn').addEventListener('click', function(){
-        logoutModal.remove();
-      });
-    }
-  }
 });
-
-// Prevent browser back button to go back if logged out
-(function(){
-  // Add history entry on page load
-  window.history.pushState(null, null, window.location.href);
-  
-  // Handle back button
-  window.addEventListener('popstate', function(){
-    window.history.pushState(null, null, window.location.href);
-  });
-})();

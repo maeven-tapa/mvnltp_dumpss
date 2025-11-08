@@ -21,8 +21,9 @@ async function fetchAvailableDoctors() {
 }
 
 /**
- * Parse time range string (e.g., "7-12" or "7am-12pm") to hours
+ * Parse time range string (e.g., "7-12" or "7am-12pm" or "12-5") to hours
  * Returns [startHour, endHour]
+ * Handles cases where end hour is less than start hour (e.g., "12-5" = 12 PM to 5 PM = 12 to 17 in 24-hour format)
  */
 function parseTimeRange(timeRange) {
   if (!timeRange) return [8, 17]; // Default 8 AM to 5 PM
@@ -31,10 +32,23 @@ function parseTimeRange(timeRange) {
   const parts = cleanStr.split('-').map(s => s.trim());
   
   if (parts.length === 2) {
-    const start = parseInt(parts[0], 10);
-    const end = parseInt(parts[1], 10);
+    let start = parseInt(parts[0], 10);
+    let end = parseInt(parts[1], 10);
     
     if (!isNaN(start) && !isNaN(end)) {
+      // Handle case where end hour is less than start hour
+      // This typically means the time range spans from afternoon to evening
+      // e.g., "12-5" should be interpreted as 12:00 to 17:00 (12 PM to 5 PM)
+      if (end <= start) {
+        // If end is 5 or less and start is 12 or more, assume PM hours
+        if (start >= 12 && end <= 5) {
+          end = end + 12;
+        }
+        // If end equals start, it's likely an error, return default
+        else if (end === start) {
+          return [8, 17];
+        }
+      }
       return [start, end];
     }
   }

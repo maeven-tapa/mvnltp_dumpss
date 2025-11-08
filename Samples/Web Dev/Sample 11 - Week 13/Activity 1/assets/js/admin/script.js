@@ -1,5 +1,8 @@
 document.addEventListener("DOMContentLoaded", () => {
-  
+  // Initialize sidebar and shared functionality
+  initializeSidebarToggle();
+  preventBackNavigation();
+
   const addBtn = document.getElementById("addAdminBtn");
   const modal = document.getElementById("adminModal");
   const cancelBtn = document.getElementById("adminCancelBtn");
@@ -644,57 +647,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("prevPage").disabled = currentPage === 1;
     document.getElementById("nextPage").disabled = currentPage === totalPages || totalPages === 0;
 
-    renderPageNumbers(totalPages);
-  }
-
-  function renderPageNumbers(totalPages) {
-    const pageNumbersDiv = document.getElementById("pageNumbers");
-    pageNumbersDiv.innerHTML = '';
-
-    if (totalPages <= 1) return;
-
-    const maxVisible = 7;
-    let pages = [];
-
-    if (totalPages <= maxVisible) {
-      pages = Array.from({ length: totalPages }, (_, i) => i + 1);
-    } else {
-      if (currentPage <= 3) {
-        pages = [1, 2, 3, 4, '...', totalPages];
-      } else if (currentPage >= totalPages - 2) {
-        pages = [1, '...', totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
-      } else {
-        pages = [1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages];
-      }
-    }
-
-    pages.forEach(page => {
-      const pageBtn = document.createElement('div');
-      if (page === '...') {
-        pageBtn.className = 'page-number ellipsis';
-        pageBtn.textContent = '...';
-      } else {
-        pageBtn.className = 'page-number';
-        if (page === currentPage) {
-          pageBtn.classList.add('active');
-        }
-        pageBtn.textContent = page;
-        pageBtn.addEventListener('click', () => {
-          currentPage = page;
-          renderTable();
-        });
-      }
-      pageNumbersDiv.appendChild(pageBtn);
-    });
-  }
-
-  function capitalizeWords(text) {
-    return text.replace(/\b\w/g, char => char.toUpperCase());
-  }
-
-  function timeToMinutes(timeStr) {
-    const [hours, minutes] = timeStr.split(":").map(Number);
-    return hours * 60 + minutes;
+    renderPageNumbers(currentPage, totalPages);
   }
 
   function updateDropdownColor(dropdown) {
@@ -723,103 +676,5 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // --- Sidebar toggle and nav wiring ---
-  const leftPanel = document.getElementById('leftPanel');
-  const panelToggle = document.getElementById('panelToggle');
-
-  if (leftPanel && panelToggle) {
-  // initialize collapsed state
-  leftPanel.classList.add('closed');
-  leftPanel.setAttribute('aria-hidden', 'true');
-  panelToggle.setAttribute('aria-expanded', 'false');
-  panelToggle.innerHTML = '▶';
-
-    panelToggle.addEventListener('click', () => {
-      const isClosed = leftPanel.classList.contains('closed');
-      if (isClosed) {
-        // expand
-        leftPanel.classList.remove('closed');
-        leftPanel.setAttribute('aria-hidden', 'false');
-        panelToggle.setAttribute('aria-expanded', 'true');
-        // show left-pointing arrow to indicate collapse action
-        panelToggle.innerHTML = '◀';
-      } else {
-        // collapse
-        leftPanel.classList.add('closed');
-        leftPanel.setAttribute('aria-hidden', 'true');
-        panelToggle.setAttribute('aria-expanded', 'false');
-        // show right-pointing arrow / hamburger to indicate expand action
-        panelToggle.innerHTML = '▶';
-      }
-    });
-
-    // basic stub handlers for sidebar buttons
-    document.querySelectorAll('.side-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        if (btn.classList.contains('logout-btn')) {
-          showLogoutConfirmation();
-          return;
-        }
-
-        const target = btn.dataset.target;
-        if (target === 'dashboard') {
-          window.location.href = 'dashboard.php';
-        } else if (target === 'users') {
-          window.location.href = 'users.php';
-        } else if (target === 'doctors') {
-          window.location.href = 'doctors.php';
-        }
-      });
-    });
-    
-    // Function to show logout confirmation modal
-    function showLogoutConfirmation() {
-      const logoutModal = document.createElement('div');
-      logoutModal.id = 'logoutConfirmModal';
-      logoutModal.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 10000;
-      `;
-      
-      logoutModal.innerHTML = `
-        <div style="background-color: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); max-width: 400px; text-align: center;">
-          <h3 style="margin-top: 0; margin-bottom: 15px; color: #333;">Confirm Logout</h3>
-          <p style="margin-bottom: 25px; color: #666; font-size: 15px;">Are you sure you want to logout? You will need to log in again to access your account.</p>
-          <div style="display: flex; gap: 10px; justify-content: center;">
-            <button id="logoutConfirmBtn" style="padding: 10px 20px; background-color: #e74c3c; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600;">Logout</button>
-            <button id="logoutCancelBtn" style="padding: 10px 20px; background-color: #95a5a6; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600;">Cancel</button>
-          </div>
-        </div>
-      `;
-      
-      document.body.appendChild(logoutModal);
-      
-      document.getElementById('logoutConfirmBtn').addEventListener('click', function(){
-        try{ localStorage.clear(); sessionStorage.clear(); }catch(e){ }
-        window.location.href = '../../auth/logout.php';
-      });
-      
-      document.getElementById('logoutCancelBtn').addEventListener('click', function(){
-        logoutModal.remove();
-      });
-    }
-  }
+  // Already handled by initializeSidebarToggle() from app.js
 });
-
-// Prevent browser back button to go back if logged out
-(function(){
-  // Add history entry on page load
-  window.history.pushState(null, null, window.location.href);
-  
-  // Handle back button
-  window.addEventListener('popstate', function(){
-    window.history.pushState(null, null, window.location.href);
-  });
-})();

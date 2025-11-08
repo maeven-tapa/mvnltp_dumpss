@@ -70,6 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/base.css">
   <link rel="stylesheet" href="assets/css/booking-date-picker.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
   <style>
     .invalid-date {
       border-color: #f44336 !important;
@@ -219,6 +220,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <section class="contact-info" id="visit">
     <div class="contact-container">
       <h2 class="section-title" style="text-align: center;">Visit Us</h2>
+      <p class="tagline" style="text-align: center; font-size: 1.1em; color: #67C5BB; margin-bottom: 2rem; font-weight: 500;">
+        <strong>Conveniently Located</strong><br>Find your nearest Tails and Trails location.
+      </p>
+      <div id="map" style="width: 100%; height: 400px; border-radius: 12px; margin-bottom: 2rem; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);"></div>
       <div class="info-grid">
         <div class="info-card">
           <h3>Contact</h3>
@@ -310,6 +315,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
   <script src="assets/js/components/booking-date-picker.js"></script>
   <script src="assets/js/utils/appointment.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
   <script>
     const menuToggle = document.getElementById('menuToggle');
     const navLinks = document.getElementById('navLinks');
@@ -402,9 +408,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       const header = document.querySelector('header');
       const currentScroll = window.pageYOffset;
       if (currentScroll > 100) {
-        header.style.padding = '0.8rem 0';
+        header.style.padding = '0.2rem 0';
       } else {
-        header.style.padding = '1.2rem 0';
+        header.style.padding = '0.8rem 0';
       }
     });
 
@@ -514,7 +520,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       });
     }
 
+    // Initialize map
+    function initializeMap() {
+      const clinicLat = 14.3451;
+      const clinicLng = 120.9661;
+      
+      // Create map centered at clinic location
+      const map = L.map('map').setView([clinicLat, clinicLng], 17);
+      
+      // Add OpenStreetMap tiles
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        maxZoom: 19
+      }).addTo(map);
+      
+      // Add custom marker with clinic icon
+      const marker = L.marker([clinicLat, clinicLng], {
+        icon: L.icon({
+          iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
+          shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+          iconSize: [25, 41],
+          iconAnchor: [12, 41],
+          popupAnchor: [1, -34],
+          shadowSize: [41, 41]
+        })
+      }).addTo(map);
+      
+      // Add popup to marker
+      marker.bindPopup('<strong>Tails and Trails Clinic</strong><br>Carlos Q. Trinidad Ave, Salawag, Dasmarinas City').openPopup();
+    }
+
     initializeGuestBooking();
+    initializeMap();
   </script>
 </body>
 </html>

@@ -143,6 +143,8 @@ if ($_SERVER["REQUEST_METHOD"] === 'POST') {
             </form>
         </div>
     </div>
+    <!-- Script loading order (IMPORTANT: app.js MUST be first) -->
+    <script src="../assets/js/app.js"></script>
     <script src="../assets/js/auth/signup.js"></script>
 </body>
 </html>

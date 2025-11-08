@@ -1,4 +1,8 @@
 document.addEventListener("DOMContentLoaded", () => {
+  // Initialize sidebar and shared functionality
+  initializeSidebarToggle();
+  preventBackNavigation();
+
   const addBtn = document.getElementById("addBtn");
   const modal = document.getElementById("modal");
   const cancelBtn = document.getElementById("cancelBtn");

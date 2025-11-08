@@ -89,7 +89,7 @@ if (empty($userFullName)) {
       <div class="logo"><img src="../../assets/images/logo.png" alt="Tails & Trails Logo" class="logo-img"> <span>Tails & Trails</span></div>
       <div class="header-right" style="display:flex;align-items:center;gap:0.75rem;">
         <span id="welcomeText" style="font-weight:600;">Welcome, <?php echo htmlspecialchars($userFullName); ?></span>
-        <button id="logoutBtn" class="btn" aria-label="Logout" onclick="window.location.href='../../auth/logout.php'">Logout</button>
+        <button id="logoutBtn" class="btn" aria-label="Logout">Logout</button>
         <button id="addBtn" class="btn primary-btn" aria-label="Book New Appointment">+ Book New Appointment</button>
       </div>
     </header>
@@ -239,43 +239,8 @@ if (empty($userFullName)) {
     if(logoutBtn){
       logoutBtn.addEventListener('click', function(e){
         e.preventDefault();
-        // Create logout confirmation modal
-        const logoutModal = document.createElement('div');
-        logoutModal.id = 'logoutConfirmModal';
-        logoutModal.style.cssText = `
-          position: fixed;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background-color: rgba(0, 0, 0, 0.5);
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          z-index: 10000;
-        `;
-        
-        logoutModal.innerHTML = `
-          <div style="background-color: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); max-width: 400px; text-align: center;">
-            <h3 style="margin-top: 0; margin-bottom: 15px; color: #333;">Confirm Logout</h3>
-            <p style="margin-bottom: 25px; color: #666; font-size: 15px;">Are you sure you want to logout? You will need to log in again to access your account.</p>
-            <div style="display: flex; gap: 10px; justify-content: center;">
-              <button id="logoutConfirmBtn" style="padding: 10px 20px; background-color: #e74c3c; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600;">Logout</button>
-              <button id="logoutCancelBtn" style="padding: 10px 20px; background-color: #95a5a6; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600;">Cancel</button>
-            </div>
-          </div>
-        `;
-        
-        document.body.appendChild(logoutModal);
-        
-        document.getElementById('logoutConfirmBtn').addEventListener('click', function(){
-          try{ localStorage.clear(); sessionStorage.clear(); }catch(e){ }
-          window.location.href = '../../auth/logout.php';
-        });
-        
-        document.getElementById('logoutCancelBtn').addEventListener('click', function(){
-          logoutModal.remove();
-        });
+        // Use shared logout confirmation from app.js
+        showLogoutConfirmation();
       });
     }
   })();
@@ -291,9 +256,12 @@ if (empty($userFullName)) {
     });
   })();
 </script>
+
+<!-- Script loading order (IMPORTANT: app.js MUST be first) -->
+<script src="../../assets/js/app.js"></script>
 <script src="../../assets/js/components/booking-date-picker.js"></script>
-<script src="../../assets/js/utils/appointment.js"></script>
 <script src="../../assets/js/components/toast.js"></script>
+<script src="../../assets/js/utils/appointment.js"></script>
 <script src="../../assets/js/user/script.js"></script>
 </body>
 </html>

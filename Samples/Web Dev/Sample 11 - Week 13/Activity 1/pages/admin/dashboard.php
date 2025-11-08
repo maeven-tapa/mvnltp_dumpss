@@ -285,9 +285,11 @@ if ($statsQuery && $statsResult = $statsQuery->fetch_assoc()) {
   </div>
 </div>
 
+<!-- Script loading order (IMPORTANT: app.js MUST be first) -->
+<script src="../../assets/js/app.js"></script>
 <script src="../../assets/js/components/booking-date-picker.js"></script>
-<script src="../../assets/js/utils/appointment.js"></script>
 <script src="../../assets/js/components/toast.js"></script>
+<script src="../../assets/js/utils/appointment.js"></script>
 <script src="../../assets/js/admin/script.js"></script>
 </body>
 </html>
