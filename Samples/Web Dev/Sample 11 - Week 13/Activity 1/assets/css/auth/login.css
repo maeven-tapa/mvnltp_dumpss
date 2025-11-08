@@ -372,6 +372,13 @@ body.login-page {
 .invalid-feedback {
   font-size: 0.85rem;
   margin-top: 0.4rem;
+  /* Hide feedback by default; show only when form has been validated or input marked invalid */
+  display: none;
+}
+
+/* Show validation feedback only when the form has been validated or the control has is-invalid */
+.was-validated .form-control:invalid ~ .invalid-feedback,
+.form-control.is-invalid ~ .invalid-feedback {
   display: block;
 }
 

@@ -188,8 +188,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                   placeholder="your@email.com"
                   required 
                 />
-              </div>
-              <div class="invalid-feedback">Please enter a valid email address.</div>
+                <div class="invalid-feedback">Please enter a valid email address.</div>
+                </div>
             </div>
 
             <!-- Password Field -->
@@ -215,8 +215,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 >
                   <i class="bi bi-eye-fill" style="color: var(--primary); font-size: 1.1rem;"></i>
                 </button>
-              </div>
-              <div class="invalid-feedback">Password is required.</div>
+                <div class="invalid-feedback">Password is required.</div>
+                </div>
             </div>
 
             <!-- Submit Button -->
