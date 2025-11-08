@@ -1,10 +1,9 @@
-/* styles.css — warm brown/beige theme, responsive, pure CSS */
+
 :root{
-  --bg:#f7f3ee;       /* light beige */
+  --bg:#f7f3eed5;       
   --card:#ffffff;
-  --accent:#6b3e26;   /* warm brown */
-  --accent-2:#d97706; /* caramel/orange */
-  --muted:#7a6b61;
+  --accent:#77472e;   
+  --accent-2:#b3650c;
   --shadow: 0 6px 18px rgba(31,22,15,0.06);
   --radius:12px;
   --maxw:1100px;
@@ -42,7 +41,7 @@ body{
 .header a{color:var(--muted);text-decoration:none;font-size:14px}
 .header a.cta{background:var(--accent-2);color:#fff;padding:8px 12px;border-radius:10px;text-decoration:none;font-weight:600}
 
-/* Grid for items */
+
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:var(--gap)}
 .card{
   background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;
@@ -57,7 +56,7 @@ body{
 .price{font-weight:700;color:var(--accent);font-size:15px}
 .actions{margin-top:auto;display:flex;gap:8px;align-items:center}
 
-/* Form elements */
+
 input[type="text"], input[type="number"], textarea, select{
   width:100%;padding:10px;border-radius:10px;border:1px solid #e6dfd8;background:#fff;outline:none;
 }
@@ -66,7 +65,7 @@ button.btn{
 }
 button.secondary{background:#fff;border:1px solid #e6dfd8;color:var(--accent);}
 
-/* Admin table */
+
 .table{width:100%;border-collapse:collapse}
 .table th, .table td{padding:10px;border-bottom:1px solid #f0ebe6;text-align:left;font-size:14px}
 .table th{background:#fff;color:var(--muted);font-weight:700}
@@ -75,7 +74,7 @@ button.secondary{background:#fff;border:1px solid #e6dfd8;color:var(--accent);}
 .status.completed{background:#e8f5ea;color:#137d3b}
 .status.cancelled{background:#fdecea;color:#b33a2b}
 
-/* small screens */
+
 @media (max-width:720px){
   .header{flex-direction:column;align-items:flex-start}
   .brand h1{font-size:18px}
@@ -84,10 +83,10 @@ button.secondary{background:#fff;border:1px solid #e6dfd8;color:var(--accent);}
 }
 
 .btn-delete {
-  background-color: #7b4b24;      /* rich brown color */
-  color: #fff;                    /* white text */
+  background-color: #7b4b24;      
+  color: #fff;                    
   padding: 6px 14px;
-  border-radius: 20px;            /* makes the button rounded */
+  border-radius: 20px;           
   text-decoration: none;
   font-weight: bold;
   font-size: 14px;
@@ -95,11 +94,11 @@ button.secondary{background:#fff;border:1px solid #e6dfd8;color:var(--accent);}
 }
 
 .btn-delete:hover {
-  background-color: #9c6133;      /* lighter brown on hover */
-  transform: scale(1.05);         /* slight hover pop */
+  background-color: #9c6133;      
+  transform: scale(1.05);     
 }
 
-/* General button base */
+
 .btn {
   display: inline-block;
   padding: 8px 18px;
@@ -113,17 +112,17 @@ button.secondary{background:#fff;border:1px solid #e6dfd8;color:var(--accent);}
   cursor: pointer;
 }
 
-/* Brown color for main theme */
+
 .btn-brown {
-  background-color: #7b4b24; /* deep brown */
+  background-color: #7b4b24; 
 }
 
 .btn-brown:hover {
-  background-color: #9c6133; /* lighter on hover */
+  background-color: #9c6133; 
   transform: scale(1.05);
 }
 
-/* Lighter tone for secondary buttons */
+
 .btn-light-brown {
   background-color: #c2783b;
 }
@@ -133,7 +132,7 @@ button.secondary{background:#fff;border:1px solid #e6dfd8;color:var(--accent);}
   transform: scale(1.05);
 }
 
-/* Special styling for danger actions (delete) */
+
 .btn-danger {
   background-color: #a3412f;
 }
