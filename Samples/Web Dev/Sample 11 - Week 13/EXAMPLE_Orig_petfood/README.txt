@@ -10,6 +10,7 @@ Database name: petshop
 4. Go to http://localhost/home_admin.php to log in as admin.
 
 Login:
+Admin email = admin@petfoodplace.com
 Admin password = admin123 (change this inside home_admin.php)
 
 Database Setup:
