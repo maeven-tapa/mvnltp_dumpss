@@ -20,6 +20,7 @@ if (empty($userFullName)) {
 <title>Tails & Trails - My Appointments</title>
 <link rel="stylesheet" href="../../assets/css/user/style.css">
 <link rel="stylesheet" href="../../assets/css/custom-date-picker.css">
+<link rel="stylesheet" href="../../assets/css/toast.css">
 </head>
 <body>
 
@@ -171,6 +172,7 @@ if (empty($userFullName)) {
 </script>
 <script src="../../assets/js/custom-date-picker.js"></script>
 <script src="../../assets/js/appointment-utils.js"></script>
+<script src="../../assets/js/toast.js"></script>
 <script src="../../assets/js/user/script.js"></script>
 </body>
 </html>

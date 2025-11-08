@@ -245,7 +245,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const vet = document.getElementById('vet') ? document.getElementById('vet').value.trim() : '';
 
     if (!petName || !service || !date || !timeValue) {
-      alert('Please fill in all fields.');
+      toast.warning('Please fill in all fields.');
       return;
     }
 
@@ -264,12 +264,13 @@ document.addEventListener("DOMContentLoaded", () => {
         if (resp && resp.success && resp.appointment) {
           allAppointments.push(resp.appointment);
           addRowFromServer(resp.appointment);
+          toast.success('Appointment created successfully!');
           showReceipt({ petName: resp.appointment.pet_name, service: resp.appointment.service, date: resp.appointment.appt_date, time: formatTime(resp.appointment.appt_time), vet: resp.appointment.vet || 'Not assigned', status: resp.appointment.status });
         } else {
-          alert('Unable to create appointment.');
+          toast.error('Unable to create appointment.');
         }
       })
-      .catch(() => alert('Unable to create appointment.'));
+      .catch(() => toast.error('Unable to create appointment.'));
 
     closeModal();
     form.reset();
@@ -309,9 +310,10 @@ document.addEventListener("DOMContentLoaded", () => {
               appt.id == id ? { ...appt, status: 'cancelled' } : appt
             );
             pastTableBody.appendChild(row);
-          } else alert('Unable to cancel appointment');
+            toast.success('Appointment cancelled successfully');
+          } else toast.error('Unable to cancel appointment');
         })
-        .catch(() => alert('Unable to cancel appointment'));
+        .catch(() => toast.error('Unable to cancel appointment'));
     });
   }
 

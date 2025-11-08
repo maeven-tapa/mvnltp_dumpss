@@ -8,6 +8,17 @@ toggle.addEventListener('click', () => {
   toggle.alt = isPassword ? 'Hide Password' : 'Show Password';
 });
 
+// Close error box function
+function closeErrorBox() {
+  const errorBox = document.getElementById('errorBox');
+  if (errorBox) {
+    errorBox.style.animation = 'slideUp 0.3s ease-out forwards';
+    setTimeout(() => {
+      errorBox.remove();
+    }, 300);
+  }
+}
+
 const slides = document.querySelectorAll('.slide');
 const indicators = document.querySelectorAll('.indicator');
 let current = 0;

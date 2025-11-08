@@ -276,7 +276,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (!petName || !doctor || !service || !date || !time) {
-      alert("Please fill in all required fields");
+      toast.warning("Please fill in all required fields");
       return;
     }
 
@@ -287,7 +287,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (bookingType === 'registered') {
       const userId = document.getElementById("adminUserId").value.trim();
       if (!userId) {
-        alert("Please enter User ID");
+        toast.warning("Please enter User ID");
         return;
       }
       formData.append('user_id', userId);
@@ -297,7 +297,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const guestContact = document.getElementById("adminGuestContact").value.trim();
       
       if (!guestName || !guestEmail || !guestContact) {
-        alert("Please fill in all guest information");
+        toast.warning("Please fill in all guest information");
         return;
       }
       
@@ -324,11 +324,11 @@ document.addEventListener("DOMContentLoaded", () => {
     .then(response => response.json())
     .then(data => {
       if (data.success) {
-        alert(data.message);
+        toast.success(data.message);
         closeModal();
         loadAppointments();
       } else {
-        alert('Error: ' + data.message);
+        toast.error('Error: ' + data.message);
       }
     })
     .catch(error => console.error('Error:', error));
@@ -601,7 +601,7 @@ document.addEventListener("DOMContentLoaded", () => {
           loadAppointments();
         }
       } else {
-        alert('Error: ' + data.message);
+        toast.error('Error: ' + data.message);
         // Revert the dropdown
         const apt = appointments.find(a => a.id === appointmentId);
         if (apt) {
@@ -611,7 +611,7 @@ document.addEventListener("DOMContentLoaded", () => {
     })
     .catch(error => {
       console.error('Error:', error);
-      alert('Error updating appointment');
+      toast.error('Error updating appointment');
     });
   }
 

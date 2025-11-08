@@ -55,6 +55,7 @@ if ($statsQuery && $statsResult = $statsQuery->fetch_assoc()) {
 <title>Tails & Trails - Admin Dashboard</title>
 <link rel="stylesheet" href="../../assets/css/admin/style.css">
 <link rel="stylesheet" href="../../assets/css/custom-date-picker.css">
+<link rel="stylesheet" href="../../assets/css/toast.css">
 <style>
   .date-time-section {
     display: none;
@@ -232,6 +233,7 @@ if ($statsQuery && $statsResult = $statsQuery->fetch_assoc()) {
 
 <script src="../../assets/js/custom-date-picker.js"></script>
 <script src="../../assets/js/appointment-utils.js"></script>
+<script src="../../assets/js/toast.js"></script>
 <script src="../../assets/js/admin/script.js"></script>
 </body>
 </html>

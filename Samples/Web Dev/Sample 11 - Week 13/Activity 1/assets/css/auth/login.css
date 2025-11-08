@@ -216,6 +216,90 @@ body {
 .register-link a { color: var(--primary); font-weight:600; text-decoration:none; }
 .register-link a:hover { text-decoration:underline; color:var(--secondary); }
 
+/* Error Message Box Styles */
+.error-box {
+  background: #fee;
+  border-left: 4px solid #d32f2f;
+  border-radius: 8px;
+  padding: 1.1rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.9rem;
+  animation: slideDown 0.3s ease-out;
+  box-shadow: 0 2px 8px rgba(211, 47, 47, 0.15);
+}
+
+.error-icon {
+  font-size: 1.5rem;
+  color: #d32f2f;
+  font-weight: bold;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+.error-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.error-title {
+  font-weight: 600;
+  color: #c62828;
+  font-size: 0.95rem;
+  margin-bottom: 0.3rem;
+}
+
+.error-message {
+  color: #d32f2f;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  word-wrap: break-word;
+}
+
+.error-close {
+  background: none;
+  border: none;
+  color: #d32f2f;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: color 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+}
+
+.error-close:hover {
+  color: #c62828;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}
+
 @media (max-width: 980px){
   .login-container { flex-direction: column; }
   .welcome-section { min-height: 40vh; padding:1.4rem; }

@@ -12,60 +12,57 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
+$error_message = '';
+
 // Handle POST (login attempt)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = isset($_POST['email']) ? trim($_POST['email']) : '';
     $pass = isset($_POST['pass']) ? $_POST['pass'] : '';
 
     if ($email === '' || $pass === '') {
-        echo "<script>alert('Please enter email and password.'); window.location.href='login.php';</script>";
-        exit();
-    }
-
-    $query = $conn->prepare("SELECT * FROM tbl_users WHERE email = ? AND pass = ?");
-    $query->bind_param("ss", $email, $pass);
-    $query->execute();
-    $result = $query->get_result();
-
-    if ($result && $result->num_rows > 0) {
-      $user = $result->fetch_assoc();
-      $fullname = $user['fname'] . ' ' . $user['lname'];
-
-      // Check account status first
-      if (isset($user['status']) && strtolower($user['status']) !== 'active') {
-        echo "<script>alert('Your account is currently inactive.\\nPlease contact the administrator for reactivation.'); window.location.href='login.php';</script>";
-        exit();
-      }
-
-  // Set session values (store first and last name separately and keep fullname for compatibility)
-  $_SESSION['fname'] = isset($user['fname']) ? $user['fname'] : '';
-  $_SESSION['lname'] = isset($user['lname']) ? $user['lname'] : '';
-  $_SESSION['name'] = $fullname;
-  // Support both new `user_id` string column or legacy `id` numeric column
-  $_SESSION['user_id'] = isset($user['user_id']) ? $user['user_id'] : (isset($user['id']) ? $user['id'] : null);
-  $_SESSION['role'] = isset($user['role']) ? $user['role'] : 'user';
-
-      // Redirect based on role. For now, admin will be redirected to the same dashboard as a placeholder.
-      $role = strtolower($_SESSION['role']);
-      if ($role === 'user') {
-        // redirect to the user dashboard (pages/user/dashboard.php)
-        echo "<script>window.location.href='../pages/user/dashboard.php';</script>";
-        exit();
-      } elseif ($role === 'admin') {
-        // Redirect to the admin dashboard (pages/admin/dashboard.php)
-        echo "<script>window.location.href='../pages/admin/dashboard.php';</script>";
-        exit();
-      } else {
-        // Unknown role -> default to user dashboard
-        echo "<script>window.location.href='../pages/user/dashboard.php';</script>";
-        exit();
-      }
+        $error_message = 'Please enter both email and password.';
     } else {
-          echo "<script>alert('Wrong Email or Password'); window.location.href='login.php';</script>";
-          exit();
-      }
-  // Note: connections/statements are intentionally left open here because each branch above exits after
-  // redirecting or showing an alert. If you prefer explicit closes, move these before redirects.
+        $query = $conn->prepare("SELECT * FROM tbl_users WHERE email = ? AND pass = ?");
+        $query->bind_param("ss", $email, $pass);
+        $query->execute();
+        $result = $query->get_result();
+
+        if ($result && $result->num_rows > 0) {
+            $user = $result->fetch_assoc();
+            $fullname = $user['fname'] . ' ' . $user['lname'];
+
+            // Check account status first
+            if (isset($user['status']) && strtolower($user['status']) !== 'active') {
+                $error_message = 'Your account is currently inactive. Please contact the administrator for reactivation.';
+            } else {
+                // Set session values (store first and last name separately and keep fullname for compatibility)
+                $_SESSION['fname'] = isset($user['fname']) ? $user['fname'] : '';
+                $_SESSION['lname'] = isset($user['lname']) ? $user['lname'] : '';
+                $_SESSION['name'] = $fullname;
+                // Support both new `user_id` string column or legacy `id` numeric column
+                $_SESSION['user_id'] = isset($user['user_id']) ? $user['user_id'] : (isset($user['id']) ? $user['id'] : null);
+                $_SESSION['role'] = isset($user['role']) ? $user['role'] : 'user';
+
+                // Redirect based on role. For now, admin will be redirected to the same dashboard as a placeholder.
+                $role = strtolower($_SESSION['role']);
+                if ($role === 'user') {
+                    // redirect to the user dashboard (pages/user/dashboard.php)
+                    header("Location: ../pages/user/dashboard.php");
+                    exit();
+                } elseif ($role === 'admin') {
+                    // Redirect to the admin dashboard (pages/admin/dashboard.php)
+                    header("Location: ../pages/admin/dashboard.php");
+                    exit();
+                } else {
+                    // Unknown role -> default to user dashboard
+                    header("Location: ../pages/user/dashboard.php");
+                    exit();
+                }
+            }
+        } else {
+            $error_message = 'Invalid email or password. Please try again.';
+        }
+    }
 }
 
 // If not POST, show login form
@@ -114,6 +111,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="login-section">
       <div class="login-form-container">
         <h1 class="login-title">LOG IN</h1>
+        
+        <?php if (!empty($error_message)): ?>
+          <div class="error-box" id="errorBox">
+            <div class="error-icon">⚠</div>
+            <div class="error-content">
+              <div class="error-title">Login Failed</div>
+              <div class="error-message"><?php echo htmlspecialchars($error_message); ?></div>
+            </div>
+            <button class="error-close" onclick="closeErrorBox()">×</button>
+          </div>
+        <?php endif; ?>
+
         <form id="loginForm" action="login.php" method="POST">
           <div class="form-group">
             <label for="username">Email</label>

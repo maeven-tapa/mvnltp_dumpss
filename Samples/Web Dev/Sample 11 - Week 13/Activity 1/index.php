@@ -231,7 +231,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <p>Get pet health tips, clinic updates, and special care guides.</p>
       <form class="newsletter-form" id="newsletterForm">
         <input type="email" class="newsletter-input" placeholder="you@example.com" required id="newsletterEmail">
-        <button type="submit" class="btn btn-primary">Confirm</button>
+        <button type="submit" class="btn-book-now">Confirm</button>
       </form>
       <p class="newsletter-note">We respect your privacy. Unsubscribe anytime.</p>
     </div>
@@ -290,7 +290,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           </div>
         </div>
         <!-- symptoms and pet gender removed per design; simplified guest booking -->
-        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Book Now</button>
+        <button type="submit" class="btn-book-now" style="width: 100%; margin-top: 1rem;">Book Now</button>
       </form>
     </div>
   </div>
