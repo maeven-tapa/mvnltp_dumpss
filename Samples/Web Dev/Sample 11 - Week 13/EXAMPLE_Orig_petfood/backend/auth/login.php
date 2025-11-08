@@ -30,7 +30,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             // ✅ Step 1: Try modern password_verify()
             if (password_verify($password, $stored)) {
-
                 // Optional: rehash if algorithm changed
                 if (password_needs_rehash($stored, PASSWORD_DEFAULT)) {
                     $newHash = password_hash($password, PASSWORD_DEFAULT);
@@ -38,7 +37,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $update->execute([':newHash' => $newHash, ':id' => $user['id']]);
                 }
 
-                // Success: set session and redirect
+                // ✅ If admin is still using the default password "admin123"
+                if ($user['role'] === 'admin' && password_verify('admin123', $stored)) {
+                    $_SESSION['user_id'] = $user['id'];
+                    $_SESSION['email'] = $user['email'];
+                    $_SESSION['role'] = $user['role'];
+                    $_SESSION['force_change_password'] = true; // mark as forced change
+                    header("Location: /EXAMPLE_Orig_petfood/backend/auth/change_password.php?force=1");
+                    exit;
+                }
+
+                // ✅ Normal login flow
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['email'] = $user['email'];
                 $_SESSION['role'] = $user['role'];
@@ -50,25 +59,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
                 exit;
 
-            // ✅ Step 2: Check if password matches old MD5 hash
+            // ✅ Step 2: Handle legacy MD5 passwords
             } elseif (md5($password) === $stored) {
-                // Automatically upgrade old MD5 hash to new bcrypt
+                // Upgrade old MD5 to bcrypt
                 $newHash = password_hash($password, PASSWORD_DEFAULT);
                 $update = $pdo->prepare("UPDATE users SET password = :newHash WHERE id = :id");
                 $update->execute([':newHash' => $newHash, ':id' => $user['id']]);
 
-                // Set session variables and redirect
+                // Set session
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['email'] = $user['email'];
                 $_SESSION['role'] = $user['role'];
 
+                // Force change if default admin password
+                if ($user['role'] === 'admin' && $password === 'admin123') {
+                    $_SESSION['force_change_password'] = true;
+                    header("Location: /EXAMPLE_Orig_petfood/backend/auth/change_password.php?force=1");
+                    exit;
+                }
+
+                // Normal redirect
                 if ($user['role'] === 'admin') {
                     header("Location: /EXAMPLE_Orig_petfood/pages/admin/home.php");
                 } else {
                     header("Location: /EXAMPLE_Orig_petfood/pages/user/home.php");
                 }
                 exit;
-
             } else {
                 $error = "Invalid email or password.";
             }
@@ -127,18 +143,34 @@ button:hover {
     font-size: 0.9em;
     margin-bottom: 10px;
 }
+.btn-light-brown {
+    background: #c49a6c;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 5px;
+    text-decoration: none;
+}
 </style>
 </head>
 <body>
+<div class="login-container" style="max-width:400px;margin:80px auto;background:white;padding:30px;border-radius:10px;box-shadow:0 5px 15px rgba(0,0,0,0.1);">
+  <h2>Login</h2>
 
-<!-- ✅ Absolute path ensures correct action -->
-<form method="POST" action="/EXAMPLE_Orig_petfood/backend/auth/login.php">
-    <h2>Login</h2>
-    <?php if (!empty($error)) echo "<p class='error'>$error</p>"; ?>
-    <input type="email" name="email" placeholder="Email" required>
-    <input type="password" name="password" placeholder="Password" required>
-    <button type="submit">Log In</button>
-</form>
+  <?php if ($error): ?>
+  <div style="color:red;margin-bottom:10px;"><?= htmlspecialchars($error) ?></div>
+  <?php endif; ?>
 
+  <form method="POST">
+    <label>Email</label><br>
+    <input type="email" name="email" required>
+    <label>Password</label><br>
+    <input type="password" name="password" required>
+    <button type="submit">Login</button>
+  </form>
+
+  <div style="margin-top:20px;text-align:center;">
+    <a href="../../index.php" class="btn-light-brown">← Back to Homepage</a>
+  </div>
+</div>
 </body>
 </html>

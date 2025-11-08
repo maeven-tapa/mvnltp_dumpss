@@ -1,24 +1,58 @@
 <?php
 session_start();
+require '../../backend/db.php';
 
-// Allow only users (not admins) to access this page
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'user') {
-    header('Location: /EXAMPLE_Orig_petfood/backend/auth/login.php');
-    exit;
+function e($str) {
+    return htmlspecialchars($str, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 }
+
+// fetch items
+$items = $pdo->query("SELECT * FROM items ORDER BY created_at DESC")->fetchAll();
 ?>
 <!doctype html>
 <html>
 <head>
 <meta charset="utf-8">
-<title>User Dashboard</title>
-<link rel="stylesheet" href="/EXAMPLE_Orig_petfood/css/styles.css">
+<title>Pet Food — Browse</title>
+<link rel="stylesheet" href="../../assets/css/styles1.css">
 </head>
 <body>
 <div class="container">
-  <h1>Welcome, <?= htmlspecialchars($_SESSION['email']) ?>!</h1>
-  <p>This is the <strong>User</strong> home page.</p>
-  <a href="/EXAMPLE_Orig_petfood/backend/auth/logout.php">Logout</a>
+  <div class="header">
+    <div class="brand">
+      <div class="logo">PF</div>
+      <h1>Pet Food Place</h1>
+    </div>
+    <div class="links">
+      <a href="../../backend/auth/logout.php" class="btn btn-danger">Logout</a>
+    </div>
+  </div>
+
+  <section>
+    <h2 style="margin-top:0">Best Pet Foods</h2>
+    <div class="grid">
+      <?php foreach($items as $it): ?>
+        <div class="card">
+          <div class="thumb"><?= e($it['item_code'] ?? '') ?></div>
+          <h3><?= e($it['name']) ?></h3>
+          <div class="meta"><?= nl2br(e($it['description'])) ?></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+            <div>
+              <div class="price">₱<?= number_format($it['price'],2) ?></div>
+              <div class="meta">Stock: <?= (int)$it['stock'] ?></div>
+            </div>
+            <div class="actions">
+              <?php if($it['stock'] > 0): ?>
+				<a href="../user/order_page.php?id=<?= (int)$it['id'] ?>">Order Now</a>
+              <?php else: ?>
+                <button class="secondary" disabled>Out of stock</button>
+              <?php endif; ?>
+            </div>
+          </div>
+        </div>
+      <?php endforeach; ?>
+    </div>
+  </section>
 </div>
 </body>
 </html>
