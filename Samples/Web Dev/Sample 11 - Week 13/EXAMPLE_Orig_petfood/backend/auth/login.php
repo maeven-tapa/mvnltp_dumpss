@@ -1,8 +1,8 @@
 <?php
 session_start();
-include_once '../db.php'; // defines $pdo
+include_once '../db.php';
 
-$error = ''; // Initialize error message
+$error = '';
 
 // Redirect already logged-in users
 if (isset($_SESSION['role'])) {
@@ -28,26 +28,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($user) {
             $stored = $user['password'];
 
-            // ✅ Step 1: Try modern password_verify()
             if (password_verify($password, $stored)) {
-                // Optional: rehash if algorithm changed
                 if (password_needs_rehash($stored, PASSWORD_DEFAULT)) {
                     $newHash = password_hash($password, PASSWORD_DEFAULT);
                     $update = $pdo->prepare("UPDATE users SET password = :newHash WHERE id = :id");
                     $update->execute([':newHash' => $newHash, ':id' => $user['id']]);
                 }
 
-                // ✅ If admin is still using the default password "admin123"
                 if ($user['role'] === 'admin' && password_verify('admin123', $stored)) {
                     $_SESSION['user_id'] = $user['id'];
                     $_SESSION['email'] = $user['email'];
                     $_SESSION['role'] = $user['role'];
-                    $_SESSION['force_change_password'] = true; // mark as forced change
+                    $_SESSION['force_change_password'] = true;
                     header("Location: /EXAMPLE_Orig_petfood/backend/auth/change_password.php?force=1");
                     exit;
                 }
 
-                // ✅ Normal login flow
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['email'] = $user['email'];
                 $_SESSION['role'] = $user['role'];
@@ -59,26 +55,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
                 exit;
 
-            // ✅ Step 2: Handle legacy MD5 passwords
             } elseif (md5($password) === $stored) {
-                // Upgrade old MD5 to bcrypt
                 $newHash = password_hash($password, PASSWORD_DEFAULT);
                 $update = $pdo->prepare("UPDATE users SET password = :newHash WHERE id = :id");
                 $update->execute([':newHash' => $newHash, ':id' => $user['id']]);
 
-                // Set session
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['email'] = $user['email'];
                 $_SESSION['role'] = $user['role'];
 
-                // Force change if default admin password
                 if ($user['role'] === 'admin' && $password === 'admin123') {
                     $_SESSION['force_change_password'] = true;
                     header("Location: /EXAMPLE_Orig_petfood/backend/auth/change_password.php?force=1");
                     exit;
                 }
 
-                // Normal redirect
                 if ($user['role'] === 'admin') {
                     header("Location: /EXAMPLE_Orig_petfood/pages/admin/home.php");
                 } else {
@@ -102,75 +93,59 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Login — Pet Food Place</title>
-<style>
-body {
-    font-family: Arial, sans-serif;
-    background: linear-gradient(135deg, #f9f4e6, #f1d1a2);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-}
-form {
-    background: white;
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    width: 320px;
-}
-input {
-    width: 100%;
-    padding: 10px;
-    margin: 8px 0;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-}
-button {
-    width: 100%;
-    background: #8B4513;
-    color: white;
-    border: none;
-    padding: 12px;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-top: 10px;
-}
-button:hover {
-    background: #6e3510;
-}
-.error {
-    color: red;
-    font-size: 0.9em;
-    margin-bottom: 10px;
-}
-.btn-light-brown {
-    background: #c49a6c;
-    color: white;
-    padding: 8px 12px;
-    border-radius: 5px;
-    text-decoration: none;
-}
-</style>
+<link rel="stylesheet" href="../../assets/css/shared.css">
 </head>
 <body>
-<div class="login-container" style="max-width:400px;margin:80px auto;background:white;padding:30px;border-radius:10px;box-shadow:0 5px 15px rgba(0,0,0,0.1);">
-  <h2>Login</h2>
 
-  <?php if ($error): ?>
-  <div style="color:red;margin-bottom:10px;"><?= htmlspecialchars($error) ?></div>
-  <?php endif; ?>
+<!-- Floating Paw Prints -->
+<div id="paw-container"></div>
 
-  <form method="POST">
-    <label>Email</label><br>
-    <input type="email" name="email" required>
-    <label>Password</label><br>
-    <input type="password" name="password" required>
-    <button type="submit">Login</button>
-  </form>
+<!-- Header -->
+<header class="header">
+  <div class="brand">
+    <div class="logo">PF</div>
+    <h2>Pet Food Place</h2>
+  </div>
+  <nav class="links">
+    <a href="../../index.php">Home</a>
+    <a href="signup.php">Sign Up</a>
+  </nav>
+</header>
 
-  <div style="margin-top:20px;text-align:center;">
-    <a href="../../index.php" class="btn-light-brown">← Back to Homepage</a>
+<!-- Main Content -->
+<div class="container">
+  <div class="content-wrapper narrow">
+    <h2 style="text-align: center; margin-bottom: 30px; color: var(--text-dark); font-size: 2rem;">Welcome Back</h2>
+    
+    <?php if ($error): ?>
+    <div class="alert error"><?= htmlspecialchars($error) ?></div>
+    <?php endif; ?>
+
+    <form method="POST">
+      <div>
+        <label>Email Address</label>
+        <input type="email" name="email" required placeholder="Enter your email">
+      </div>
+      
+      <div>
+        <label>Password</label>
+        <input type="password" name="password" required placeholder="Enter your password">
+      </div>
+      
+      <button type="submit" class="btn btn-brown w-full">Login</button>
+    </form>
+
+    <div style="margin-top: 24px; text-align: center; color: var(--text-soft);">
+      Don't have an account? <a href="signup.php" style="color: var(--brown); font-weight: 600; text-decoration: none;">Sign Up</a>
+    </div>
   </div>
 </div>
+
+<!-- Footer -->
+<footer>
+  &copy; <?= date('Y') ?> Pet Food Place. All rights reserved.
+</footer>
+
+<script src="../../assets/js/paw-animation.js"></script>
 </body>
 </html>
