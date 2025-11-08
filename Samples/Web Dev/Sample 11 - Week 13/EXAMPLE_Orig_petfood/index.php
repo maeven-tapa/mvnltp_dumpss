@@ -4,6 +4,7 @@ session_start();
 <!doctype html>
 <html lang="en">
 <head>
+<base href="/Example_Orig_petfood/">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Pet Food Place — Home</title>
@@ -256,8 +257,8 @@ footer {
     <h2>Pet Food Place</h2>
   </div>
   <nav class="links">
-    <a href="auth/login.php">Log In</a>
-    <a href="auth/signup.php">Sign Up</a>
+	<a href="backend/auth/login.php">Log In</a>
+	<a href="backend/auth/signup.php">Sign Up</a>
   </nav>
 </header>
 
@@ -267,8 +268,8 @@ footer {
     <h1>Healthy Food for Your Pets</h1>
     <p>Welcome to Pet Food Place — where nutrition meets love. Discover fresh, balanced meals for dogs and cats of every breed, size, and personality.</p>
     <div class="hero-buttons">
-      <a href="auth/signup.php" class="btn-brown">Get Started</a>
-      <a href="auth/login.php" class="btn-outline">Login</a>
+      <a href="backend/auth/signup.php" class="btn-brown">Get Started</a>
+      <a href="backend/auth/login.php" class="btn-outline">Login</a>
     </div>
   </div>
   <div class="hero-image">
