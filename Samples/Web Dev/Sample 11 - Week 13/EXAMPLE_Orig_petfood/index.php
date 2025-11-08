@@ -4,7 +4,6 @@ session_start();
 <!doctype html>
 <html lang="en">
 <head>
-<base href="/Example_Orig_petfood/">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Pet Food Place — Home</title>
@@ -257,8 +256,8 @@ footer {
     <h2>Pet Food Place</h2>
   </div>
   <nav class="links">
-	<a href="backend/auth/login.php">Log In</a>
-	<a href="backend/auth/signup.php">Sign Up</a>
+  	<a href="backend/auth/login.php">Log In</a>
+  	<a href="backend/auth/signup.php">Sign Up</a>
   </nav>
 </header>
 
