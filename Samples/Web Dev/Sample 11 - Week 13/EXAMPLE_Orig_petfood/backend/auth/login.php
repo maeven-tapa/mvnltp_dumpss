@@ -5,81 +5,89 @@ include_once '../db.php';
 $error = '';
 
 // Redirect already logged-in users
-if ($_SESSION['role'] === 'admin') {
-    header("Location: ../../pages/admin/home.php");
-    exit;
-} else {
-    header("Location: ../../pages/user/home.php");
-    exit;
+if (isset($_SESSION['role'])) {
+    if ($_SESSION['role'] === 'admin') {
+        header("Location: ../../pages/admin/home.php");
+        exit;
+    } else {
+        header("Location: ../../pages/user/home.php");
+        exit;
+    }
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $email = trim($_POST['email']);
-    $password = trim($_POST['password']);
+    $email = trim($_POST['email'] ?? '');
+    $password = trim($_POST['password'] ?? '');
 
-    try {
-        $stmt = $pdo->prepare("SELECT * FROM users WHERE email = :email LIMIT 1");
-        $stmt->bindParam(':email', $email, PDO::PARAM_STR);
-        $stmt->execute();
-        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+    // Basic validation
+    if (empty($email) || empty($password)) {
+        $error = "Please enter both email and password.";
+    } else {
+        try {
+            $stmt = $pdo->prepare("SELECT * FROM users WHERE email = :email LIMIT 1");
+            $stmt->bindParam(':email', $email, PDO::PARAM_STR);
+            $stmt->execute();
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if ($user) {
-            $stored = $user['password'];
+            if ($user) {
+                $stored = $user['password'];
+                $passwordMatch = false;
 
-            if (password_verify($password, $stored)) {
-                if (password_needs_rehash($stored, PASSWORD_DEFAULT)) {
+                // Check if password is hashed with password_hash()
+                if (password_verify($password, $stored)) {
+                    $passwordMatch = true;
+                    
+                    // Rehash if needed (security improvement)
+                    if (password_needs_rehash($stored, PASSWORD_DEFAULT)) {
+                        $newHash = password_hash($password, PASSWORD_DEFAULT);
+                        $update = $pdo->prepare("UPDATE users SET password = :newHash WHERE id = :id");
+                        $update->execute([':newHash' => $newHash, ':id' => $user['id']]);
+                    }
+                } 
+                // Check if password is old MD5 format
+                elseif (md5($password) === $stored) {
+                    $passwordMatch = true;
+                    
+                    // Upgrade to modern password_hash
                     $newHash = password_hash($password, PASSWORD_DEFAULT);
                     $update = $pdo->prepare("UPDATE users SET password = :newHash WHERE id = :id");
                     $update->execute([':newHash' => $newHash, ':id' => $user['id']]);
                 }
 
-                if ($user['role'] === 'admin' && password_verify('admin123', $stored)) {
+                if ($passwordMatch) {
+                    // Set session variables
                     $_SESSION['user_id'] = $user['id'];
                     $_SESSION['email'] = $user['email'];
+                    $_SESSION['name'] = $user['name'];
                     $_SESSION['role'] = $user['role'];
-                    $_SESSION['force_change_password'] = true;
-                    header("Location: ../auth/change_password.php");
+                    
+                    // Regenerate session ID for security
+                    session_regenerate_id(true);
+
+                    // Force admin to change default password
+                    if ($user['role'] === 'admin' && $password === 'admin123') {
+                        $_SESSION['force_change_password'] = true;
+                        header("Location: change_password.php");
+                        exit;
+                    }
+
+                    // Redirect based on role
+                    if ($user['role'] === 'admin') {
+                        header("Location: ../../pages/admin/home.php");
+                    } else {
+                        header("Location: ../../pages/user/home.php");
+                    }
                     exit;
-                }
-
-                $_SESSION['user_id'] = $user['id'];
-                $_SESSION['email'] = $user['email'];
-                $_SESSION['role'] = $user['role'];
-
-                if ($user['role'] === 'admin') {
-                    header("Location: ../../pages/admin/home.php");
                 } else {
-                    header("Location: ../../pages/user/home.php");
+                    $error = "Invalid email or password.";
                 }
-                }
-                exit;
-
-            } elseif (md5($password) === $stored) {
-                $newHash = password_hash($password, PASSWORD_DEFAULT);
-                $update = $pdo->prepare("UPDATE users SET password = :newHash WHERE id = :id");
-                $update->execute([':newHash' => $newHash, ':id' => $user['id']]);
-
-                $_SESSION['user_id'] = $user['id'];
-                $_SESSION['email'] = $user['email'];
-                $_SESSION['role'] = $user['role'];
-
-                if ($user['role'] === 'admin' && $password === 'admin123') {
-                    $_SESSION['force_change_password'] = true;
-                    header("Location: ../auth/change_password.php");
-                    exit;
-                }
-
-                if ($user['role'] === 'admin') {
-                    header("Location: ../../pages/admin/home.php");
-                } else {
-                    header("Location: ../../pages/user/home.php");
-                }
-                exit;
             } else {
                 $error = "Invalid email or password.";
+            }
+        } catch (PDOException $e) {
+            $error = "Database error. Please try again later.";
+            error_log("Login error: " . $e->getMessage());
         }
-    } catch (PDOException $e) {
-        $error = "Database error: " . htmlspecialchars($e->getMessage());
     }
 }
 ?>
@@ -117,10 +125,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="alert error"><?= htmlspecialchars($error) ?></div>
     <?php endif; ?>
 
-    <form method="POST">
+    <form method="POST" action="">
       <div>
         <label>Email Address</label>
-        <input type="email" name="email" required placeholder="Enter your email">
+        <input type="email" name="email" required placeholder="Enter your email" value="<?= htmlspecialchars($email ?? '') ?>">
       </div>
       
       <div>
@@ -142,6 +150,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   &copy; <?= date('Y') ?> Pet Food Place. All rights reserved.
 </footer>
 
+<script>
+window.PAW_IMAGE_PATH = '../../assets/image/paw-print.png';
+</script>
 <script src="../../assets/js/paw-animation.js"></script>
 </body>
 </html>

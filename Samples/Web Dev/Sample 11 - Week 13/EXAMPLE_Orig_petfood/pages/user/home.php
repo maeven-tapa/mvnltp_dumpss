@@ -6,6 +6,12 @@ function e($str) {
     return htmlspecialchars($str, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 }
 
+// CHECK IF USER IS LOGGED IN
+if (!isset($_SESSION['user_id']) || !isset($_SESSION['role'])) {
+    header("Location: ../../backend/auth/login.php");
+    exit;
+}
+
 $items = $pdo->query("SELECT * FROM items ORDER BY created_at DESC")->fetchAll();
 ?>
 <!doctype html>
@@ -28,6 +34,7 @@ $items = $pdo->query("SELECT * FROM items ORDER BY created_at DESC")->fetchAll()
     <h1>Pet Food Place</h1>
   </div>
   <nav class="links">
+    <span style="color: var(--text-soft); margin-right: 15px;">Welcome, <?= e($_SESSION['name'] ?? $_SESSION['email']) ?>!</span>
     <a href="../../index.php">Home</a>
     <a href="../../backend/auth/logout.php" class="btn btn-danger">Logout</a>
   </nav>

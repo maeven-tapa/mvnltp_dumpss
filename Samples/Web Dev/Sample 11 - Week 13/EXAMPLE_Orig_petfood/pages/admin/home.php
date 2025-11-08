@@ -6,15 +6,22 @@ function e($str) {
     return htmlspecialchars($str, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 }
 
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+// CHECK IF USER IS LOGGED IN
+if (!isset($_SESSION['user_id']) || !isset($_SESSION['role'])) {
     header("Location: ../../backend/auth/login.php");
     exit;
 }
 
-if (!empty($_SESSION['password_change_required'])) {
-    header("Location: ../../backend/auth/change_password.php");
-  exit;
+// CHECK IF USER IS ADMIN
+if ($_SESSION['role'] !== 'admin') {
+    header("Location: ../../backend/auth/login.php");
+    exit;
+}
 
+// CHECK IF FORCED PASSWORD CHANGE
+if (!empty($_SESSION['force_change_password'])) {
+    header("Location: ../../backend/auth/change_password.php");
+    exit;
 }
 
 $stmt = $pdo->query("SELECT * FROM items ORDER BY created_at DESC");
@@ -40,6 +47,7 @@ $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <h1>Admin Dashboard</h1>
   </div>
   <nav class="links">
+    <span style="color: var(--text-soft); margin-right: 15px;">Welcome, <?= e($_SESSION['name'] ?? $_SESSION['email']) ?>!</span>
     <a href="../../backend/orders/view_orders.php" class="btn btn-light-brown">View Orders</a>
     <a href="../../backend/auth/change_password.php" class="btn btn-outline">Change Password</a>
     <a href="../../backend/auth/logout.php" class="btn btn-danger">Logout</a>
