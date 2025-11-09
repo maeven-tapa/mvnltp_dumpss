@@ -1,0 +1,307 @@
+/* === Modernized & Polished Theme === */
+:root {
+  --bg: linear-gradient(180deg, #f8f5f2, #f1e9e3);
+  --card: #ffffff;
+  --accent: #77472e;
+  --accent-2: #b3650c;
+  --accent-3: #d9884b;
+  --shadow: 0 8px 24px rgba(40, 26, 17, 0.08);
+  --radius: 18px;
+  --maxw: 1100px;
+  --gap: 20px;
+  --text: #2b2b2b;
+  --muted: #7a6e65;
+}
+
+/* === Base === */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Poppins", "Nunito Sans", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.55;
+}
+
+/* === Layout === */
+.container {
+  max-width: var(--maxw);
+  margin: 32px auto;
+  padding: 24px;
+}
+
+/* === Header === */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.brand .logo {
+  width: 60px;
+  height: 60px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #6b3d23, #9c6133);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: 700;
+  font-size: 22px;
+  box-shadow: var(--shadow);
+}
+
+.brand h1 {
+  font-size: 22px;
+  margin: 0;
+  color: var(--accent);
+  letter-spacing: 0.5px;
+  font-weight: 700;
+}
+
+/* === Header Links === */
+.header .links {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+
+.header a {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 15px;
+  transition: color 0.3s ease;
+}
+
+.header a:hover {
+  color: var(--accent);
+}
+
+.header a.cta {
+  background: linear-gradient(135deg, var(--accent-2), var(--accent-3));
+  color: #fff;
+  padding: 10px 16px;
+  border-radius: 30px;
+  text-decoration: none;
+  font-weight: 600;
+  box-shadow: var(--shadow);
+  transition: all 0.3s ease;
+}
+
+.header a.cta:hover {
+  transform: translateY(-2px);
+  opacity: 0.9;
+}
+
+/* === Cards === */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--gap);
+}
+
+.card {
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px rgba(40, 26, 17, 0.1);
+}
+
+.card .thumb {
+  height: 160px;
+  border-radius: 16px;
+  background: linear-gradient(145deg, #f9f3ed, #ffffff);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.card h3 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.meta {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.price {
+  font-weight: 700;
+  color: var(--accent);
+  font-size: 16px;
+}
+
+.actions {
+  margin-top: auto;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+/* === Inputs & Buttons === */
+input[type="text"],
+input[type="number"],
+textarea,
+select {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid #e2d8d1;
+  background: #fff;
+  outline: none;
+  font-family: inherit;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--accent-2);
+  box-shadow: 0 0 0 3px rgba(179, 101, 12, 0.2);
+}
+
+button.btn {
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  color: #fff;
+  padding: 10px 16px;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+button.btn:hover {
+  transform: scale(1.05);
+  opacity: 0.9;
+}
+
+button.secondary {
+  background: #fff;
+  border: 1px solid #e6dfd8;
+  color: var(--accent);
+}
+
+/* === Table === */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  padding: 12px 10px;
+  border-bottom: 1px solid #f0ebe6;
+  text-align: left;
+  font-size: 14px;
+}
+
+.table th {
+  background: #fff;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.status {
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.status.reserved {
+  background: #fff4e6;
+  color: #b45a00;
+}
+
+.status.completed {
+  background: #e8f5ea;
+  color: #137d3b;
+}
+
+.status.cancelled {
+  background: #fdecea;
+  color: #b33a2b;
+}
+
+/* === Buttons (Extra Variants) === */
+.btn {
+  display: inline-block;
+  padding: 10px 20px;
+  border-radius: 999px;
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+  color: #fff !important;
+  transition: all 0.25s ease;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-brown {
+  background: linear-gradient(135deg, #7b4b24, #9c6133);
+}
+.btn-brown:hover {
+  background: linear-gradient(135deg, #9c6133, #b37445);
+  transform: scale(1.05);
+}
+
+.btn-light-brown {
+  background: linear-gradient(135deg, #c2783b, #e5904a);
+}
+.btn-light-brown:hover {
+  background: linear-gradient(135deg, #e5904a, #f3a55e);
+  transform: scale(1.05);
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, #a3412f, #c85b48);
+}
+.btn-danger:hover {
+  background: linear-gradient(135deg, #c85b48, #e06f5d);
+  transform: scale(1.05);
+}
+
+/* === Mobile === */
+@media (max-width: 720px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .brand h1 {
+    font-size: 18px;
+  }
+  .card .thumb {
+    height: 120px;
+  }
+  .actions {
+    flex-direction: column;
+  }
+}
