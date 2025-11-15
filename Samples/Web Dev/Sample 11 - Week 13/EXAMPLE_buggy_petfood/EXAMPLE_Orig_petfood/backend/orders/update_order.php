@@ -15,7 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($order_id > 0 && in_array($new_status, ['reserved', 'completed', 'cancelled'])) {
 
         // Get current order details
-        $stmt = $pdo->prepare("SELECT item_id, quantity, status FROM orders WHERE id = ?");
+        $stmt = $pdo->prepare("SELECT item_code, quantity, status FROM orders WHERE id = ?");
         $stmt->execute([$order_id]);
         $order = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -23,8 +23,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             // If order is changed to cancelled → restock items only ONCE
             if ($new_status === 'cancelled' && $order['status'] !== 'cancelled') {
-                $restore = $pdo->prepare("UPDATE items SET stock = stock + ? WHERE id = ?");
-                $restore->execute([$order['quantity'], $order['item_id']]);
+                $restore = $pdo->prepare("UPDATE items SET stock = stock + ? WHERE item_code = ?");
+                $restore->execute([$order['quantity'], $order['item_code']]);
             }
 
             // Update order status

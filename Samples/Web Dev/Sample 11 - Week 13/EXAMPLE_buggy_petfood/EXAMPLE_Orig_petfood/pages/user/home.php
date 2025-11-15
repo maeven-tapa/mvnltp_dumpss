@@ -69,7 +69,7 @@ $items = $pdo->query("SELECT * FROM items
           </div>
           <div>
             <?php if($it['stock'] > 0): ?>
-              <a href="order_page.php?id=<?= (int)$it['id'] ?>" class="btn btn-brown" style="padding: 10px 20px;">Order Now</a>
+              <a href="order_page.php?item_code=<?= rawurlencode($it['item_code']) ?>" class="btn btn-brown" style="padding: 10px 20px;">Order Now</a>
             <?php else: ?>
               <button class="secondary" disabled style="padding: 10px 20px; opacity: 0.5; cursor: not-allowed;">Out of Stock</button>
             <?php endif; ?>

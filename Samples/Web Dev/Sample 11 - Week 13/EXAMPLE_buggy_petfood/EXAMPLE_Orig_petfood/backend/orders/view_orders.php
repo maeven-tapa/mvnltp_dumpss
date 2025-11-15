@@ -14,17 +14,18 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
 // Fetch all orders with item details
 $sql = "
     SELECT 
-        o.id,
-        o.order_code,
-        o.customer_name,
-        o.customer_contact,
-        o.status,
-        o.quantity,
-        o.created_at,
-        i.name AS item_name,
-        i.price
+      o.id,
+      o.order_code,
+      o.customer_name,
+      o.customer_contact,
+      o.status,
+      o.quantity,
+      o.created_at,
+      o.item_code,
+      i.name AS item_name,
+      i.price
     FROM orders o
-    INNER JOIN items i ON o.item_id = i.id
+    INNER JOIN items i ON o.item_code = i.item_code
     ORDER BY o.created_at DESC
 ";
 

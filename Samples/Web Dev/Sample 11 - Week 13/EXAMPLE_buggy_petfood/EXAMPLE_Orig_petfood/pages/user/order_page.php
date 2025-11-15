@@ -22,15 +22,16 @@ function generateOrderCode($pdo) {
     return sprintf("ORD-%04d", $num);
 }
 
+
 /* -----------------------------------------------------------
-   GET ITEM BY item_code instead of numeric ID
+   GET ITEM BY item_code (string like PF-0001)
 ------------------------------------------------------------ */
-if (!isset($_GET['id'])) {
-    header("Location: home.php");
-    exit;
+if (!isset($_GET['item_code']) || strlen(trim($_GET['item_code'])) === 0) {
+  header("Location: home.php");
+  exit;
 }
 
-$item_code = $_GET['id'];
+$item_code = trim($_GET['item_code']);
 
 $stmt = $pdo->prepare("SELECT * FROM items WHERE item_code = ?");
 $stmt->execute([$item_code]);

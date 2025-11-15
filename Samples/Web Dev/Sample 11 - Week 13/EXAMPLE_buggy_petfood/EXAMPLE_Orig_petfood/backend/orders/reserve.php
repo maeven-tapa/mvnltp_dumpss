@@ -13,18 +13,19 @@ function generateOrderCode($pdo) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $item_id = (int)$_POST['item_id'];
-    $name = trim($_POST['customer_name']);
-    $contact = trim($_POST['customer_contact']);
-    $qty = max(1, (int)$_POST['quantity']);
+    // Expect item_code (string) instead of numeric id
+    $item_code = trim($_POST['item_code'] ?? '');
+    $name = trim($_POST['customer_name'] ?? '');
+    $contact = trim($_POST['customer_contact'] ?? '');
+    $qty = max(1, (int)($_POST['quantity'] ?? 0));
 
-    if ($item_id && $name && $contact && $qty > 0) {
+    if ($item_code !== '' && $name !== '' && $contact !== '' && $qty > 0) {
         $order_code = generateOrderCode($pdo);
 
         $pdo->beginTransaction();
-        $pdo->prepare("INSERT INTO orders (order_code, item_id, customer_name, customer_contact, quantity, status, created_at)
-                       VALUES (?, ?, ?, ?, ?, 'reserved', NOW())")->execute([$order_code, $item_id, $name, $contact, $qty]);
-        $pdo->prepare("UPDATE items SET stock = stock - ? WHERE id = ?")->execute([$qty, $item_id]);
+        $pdo->prepare("INSERT INTO orders (order_code, item_code, customer_name, customer_contact, quantity, status, created_at)
+                       VALUES (?, ?, ?, ?, ?, 'reserved', NOW())")->execute([$order_code, $item_code, $name, $contact, $qty]);
+        $pdo->prepare("UPDATE items SET stock = stock - ? WHERE item_code = ?")->execute([$qty, $item_code]);
         $pdo->commit();
 
         echo "<p>Order placed! Your Order ID is <strong>" . e($order_code) . "</strong>.</p>";
