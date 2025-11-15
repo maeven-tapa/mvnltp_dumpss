@@ -7,17 +7,18 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     exit;
 }
 
-// Validate item ID
-if (!isset($_GET['item_code']) || !is_numeric($_GET['item_code'])) {
-    header("Location: ../../pages/admin/home.php?error=invalid_id");
-    exit;
+
+// Validate item_code (expecting string like PF-0001)
+if (!isset($_GET['item_code']) || strlen(trim($_GET['item_code'])) === 0) {
+  header("Location: ../../pages/admin/home.php?error=invalid_id");
+  exit;
 }
 
-$id = (int)$_GET['item_code'];
+$item_code = trim($_GET['item_code']);
 
-// Fetch existing item
+// Fetch existing item by item_code
 $stmt = $pdo->prepare("SELECT * FROM items WHERE item_code = ?");
-$stmt->execute([$id]);
+$stmt->execute([$item_code]);
 $item = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$item) {
@@ -33,13 +34,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $price = (float)$_POST['price'];
     $stock = (int)$_POST['stock'];
 
-    $update = $pdo->prepare("
-        UPDATE items
-        SET name = ?, description = ?, price = ?, stock = ?
-        WHERE item_code = ?
-    ");
+    $update = $pdo->prepare("UPDATE items
+      SET name = ?, description = ?, price = ?, stock = ?
+      WHERE item_code = ?");
 
-    $update->execute([$name, $desc, $price, $stock, $id]);
+    $update->execute([$name, $desc, $price, $stock, $item_code]);
 
     $_SESSION['message'] = "Item updated successfully!";
     header("Location: ../../pages/admin/home.php");
