@@ -84,8 +84,8 @@ $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
           </div>
         </div>
         <div style="display: flex; gap: 8px; flex-direction: column;">
-          <a href="../../backend/items/edit_item.php?id=<?= (int)$it['item_code'] ?>" class="btn btn-light-brown" style="padding: 8px 16px; font-size: 0.9rem;">Edit</a>
-          <a href="../../backend/items/delete_item.php?id=<?= (int)$it['item_code'] ?>" class="btn btn-danger" style="padding: 8px 16px; font-size: 0.9rem;" onclick="return confirm('Delete this item?')">Delete</a>
+          <a href="../../backend/items/edit_item.php?item_code=<?= rawurlencode($it['item_code']) ?>" class="btn btn-light-brown" style="padding: 8px 16px; font-size: 0.9rem;">Edit</a>
+          <a href="../../backend/items/delete_item.php?item_code=<?= rawurlencode($it['item_code']) ?>" class="btn btn-danger" style="padding: 8px 16px; font-size: 0.9rem;" onclick="return confirm('Delete this item?')">Delete</a>
         </div>
       </div>
     </div>
