@@ -29,7 +29,12 @@ $sql = "
     ORDER BY o.created_at DESC
 ";
 
-$orders = $pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
+try {
+  $orders = $pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+  $orders = [];
+  $errorMsg = $e->getMessage();
+}
 ?>
 <!doctype html>
 <html>

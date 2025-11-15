@@ -53,50 +53,54 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $contact = trim($_POST['customer_contact'] ?? '');
     $qty = max(1, intval($_POST['quantity'] ?? 1));
 
-    // Fetch latest stock
-    $stmt = $pdo->prepare("SELECT stock FROM items WHERE item_code = ?");
-    $stmt->execute([$item_code]);
-    $stock = intval($stmt->fetchColumn());
+    // Fetch latest stock and reserve row for update to avoid race
+    $stmt = $pdo->prepare("SELECT stock FROM items WHERE item_code = ? FOR UPDATE");
 
-    if ($stock < $qty) {
+    try {
+      $pdo->beginTransaction();
+      $stmt->execute([$item_code]);
+      $stock = intval($stmt->fetchColumn());
+
+      if ($stock < $qty) {
+        $pdo->rollBack();
         $alert = "Not enough stock available.";
-    } elseif ($name === '' || $contact === '') {
+      } elseif ($name === '' || $contact === '') {
+        $pdo->rollBack();
         $alert = "Please fill in all required fields.";
-    } else {
+      } else {
 
-        try {
-            $pdo->beginTransaction();
+        $order_code = generateOrderCode($pdo);
 
-            $order_code = generateOrderCode($pdo);
+        // Insert order using item_code (no numeric ids)
+        $ins = $pdo->prepare(
+          "INSERT INTO orders (order_code, user_id, item_code, quantity, total, created_at)
+          VALUES (?, ?, ?, ?, ?, NOW())"
+        );
 
-            // Insert order using item_code (no numeric ids)
-            $ins = $pdo->prepare("
-                INSERT INTO orders (order_code, user_id, item_code, quantity, total, created_at)
-                VALUES (?, ?, ?, ?, ?, NOW())
-            ");
+        $total = $item['price'] * $qty;
+        $ins->execute([
+          $order_code,
+          $_SESSION['user_id'], // user ID session value
+          $item_code,
+          $qty,
+          $total
+        ]);
 
-            $total = $item['price'] * $qty;
-            $ins->execute([
-                $order_code,
-                $_SESSION['user_id'], // user ID session value
-                $item_code,
-                $qty,
-                $total
-            ]);
+        // Update stock
+        $upd = $pdo->prepare("UPDATE items SET stock = stock - ? WHERE item_code = ?");
+        $upd->execute([$qty, $item_code]);
 
-            // Update stock
-            $upd = $pdo->prepare("UPDATE items SET stock = stock - ? WHERE item_code = ?");
-            $upd->execute([$qty, $item_code]);
+        $pdo->commit();
 
-            $pdo->commit();
+        $alert = "success|Order placed successfully! Your Order ID: $order_code";
+      }
 
-            $alert = "success|Order placed successfully! Your Order ID: $order_code";
-
-        } catch (Exception $e) {
-            $pdo->rollBack();
-            $alert = "Failed to place order: " . $e->getMessage();
-        }
+    } catch (Exception $e) {
+      if ($pdo->inTransaction()) $pdo->rollBack();
+      $alert = "Failed to place order: " . $e->getMessage();
     }
+    // end POST handling
+
 }
 ?>
 <!doctype html>
@@ -172,6 +176,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
       <form method="POST">
 
+        <input type="hidden" name="item_code" value="<?= htmlspecialchars($item_code) ?>">
+
         <div>
           <label>Your Full Name</label>
           <input type="text" name="customer_name" required>
@@ -218,16 +224,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <script src="../../assets/js/paw-animation.js"></script>
 
 <script>
-// Live total price calculator
-const price = <?= $item['price'] ?>;
+// Live total price calculator + clamp quantity to available stock
+const price = Number(<?= json_encode($item['price']) ?>);
 const qtyInput = document.querySelector('input[name="quantity"]');
 const totalOutput = document.getElementById('total');
+const maxStock = Number(<?= (int)$item['stock'] ?>);
 
-qtyInput.addEventListener('input', () => {
-  const qty = parseInt(qtyInput.value) || 1;
+function clampQty() {
+  let v = qtyInput.value.replace(/,/g, '').trim();
+  // remove non-digits
+  v = v.replace(/[^0-9]/g, '');
+  let n = parseInt(v, 10);
+  if (isNaN(n) || n < 1) n = 1;
+  if (n > maxStock) n = maxStock;
+  qtyInput.value = n;
+  return n;
+}
+
+function updateTotal() {
+  const qty = clampQty();
   const total = price * qty;
   totalOutput.textContent = total.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-});
+}
+
+qtyInput.addEventListener('input', updateTotal);
+qtyInput.addEventListener('change', updateTotal);
+// initialize
+updateTotal();
 </script>
 
 </body>

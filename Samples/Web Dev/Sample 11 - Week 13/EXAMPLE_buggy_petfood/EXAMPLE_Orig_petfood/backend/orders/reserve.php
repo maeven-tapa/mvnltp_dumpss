@@ -20,15 +20,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $qty = max(1, (int)($_POST['quantity'] ?? 0));
 
     if ($item_code !== '' && $name !== '' && $contact !== '' && $qty > 0) {
-        $order_code = generateOrderCode($pdo);
+        // Verify stock before committing
+        $stmt = $pdo->prepare("SELECT stock FROM items WHERE item_code = ? FOR UPDATE");
+        try {
+            $pdo->beginTransaction();
+            $stmt->execute([$item_code]);
+            $stock = (int)$stmt->fetchColumn();
 
-        $pdo->beginTransaction();
-        $pdo->prepare("INSERT INTO orders (order_code, item_code, customer_name, customer_contact, quantity, status, created_at)
-                       VALUES (?, ?, ?, ?, ?, 'reserved', NOW())")->execute([$order_code, $item_code, $name, $contact, $qty]);
-        $pdo->prepare("UPDATE items SET stock = stock - ? WHERE item_code = ?")->execute([$qty, $item_code]);
-        $pdo->commit();
+            if ($stock < $qty) {
+                $pdo->rollBack();
+                echo "<p style='color:red;'>Not enough stock available.</p>";
+                exit;
+            }
 
-        echo "<p>Order placed! Your Order ID is <strong>" . e($order_code) . "</strong>.</p>";
+            $order_code = generateOrderCode($pdo);
+
+            $pdo->prepare("INSERT INTO orders (order_code, item_code, customer_name, customer_contact, quantity, status, created_at)
+                           VALUES (?, ?, ?, ?, ?, 'reserved', NOW())")->execute([$order_code, $item_code, $name, $contact, $qty]);
+            $pdo->prepare("UPDATE items SET stock = stock - ? WHERE item_code = ?")->execute([$qty, $item_code]);
+            $pdo->commit();
+
+            echo "<p>Order placed! Your Order ID is <strong>" . e($order_code) . "</strong>.</p>";
+
+        } catch (Exception $e) {
+            if ($pdo->inTransaction()) $pdo->rollBack();
+            echo "<p style='color:red;'>Failed to place order: " . e($e->getMessage()) . "</p>";
+        }
+
     } else {
         echo "<p style='color:red;'>Please fill all fields.</p>";
     }

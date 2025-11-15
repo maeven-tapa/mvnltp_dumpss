@@ -30,7 +30,7 @@ try {
         exit;
     }
 
-    // Delete the item by item_code
+    // Delete the item by item_code (dependent orders will be removed if FK uses ON DELETE CASCADE)
     $stmt = $pdo->prepare("DELETE FROM items WHERE item_code = ?");
     $stmt->execute([$item_code]);
 
