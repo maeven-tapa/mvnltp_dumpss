@@ -99,7 +99,7 @@ try {
 
           <td>
             <form method="POST" action="update_order.php" style="display:flex; gap:8px;">
-              <input type="hidden" name="order_id" value="<?= (int)$o['id'] ?>">
+              <input type="hidden" name="order_code" value="<?= htmlspecialchars($o['order_code']) ?>">
 
               <select name="status" required style="padding: 8px 12px; border-radius: 8px;">
                 <option value="reserved"  <?= $o['status'] === 'reserved'  ? 'selected' : '' ?>>Reserved</option>

@@ -9,14 +9,15 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    $order_id   = (int)($_POST['order_id'] ?? 0);
+    // Use order_code (string) as the identifier
+    $order_code = trim($_POST['order_code'] ?? '');
     $new_status = trim($_POST['status'] ?? '');
 
-    if ($order_id > 0 && in_array($new_status, ['reserved', 'completed', 'cancelled'])) {
+    if ($order_code !== '' && in_array($new_status, ['reserved', 'completed', 'cancelled'])) {
 
-        // Get current order details
-        $stmt = $pdo->prepare("SELECT item_code, quantity, status FROM orders WHERE id = ?");
-        $stmt->execute([$order_id]);
+        // Get current order details by order_code
+        $stmt = $pdo->prepare("SELECT item_code, quantity, status FROM orders WHERE order_code = ?");
+        $stmt->execute([$order_code]);
         $order = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if ($order) {
@@ -28,8 +29,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             // Update order status
-            $upd = $pdo->prepare("UPDATE orders SET status = ? WHERE id = ?");
-            $upd->execute([$new_status, $order_id]);
+            $upd = $pdo->prepare("UPDATE orders SET status = ? WHERE order_code = ?");
+            $upd->execute([$new_status, $order_code]);
         }
     }
 }
