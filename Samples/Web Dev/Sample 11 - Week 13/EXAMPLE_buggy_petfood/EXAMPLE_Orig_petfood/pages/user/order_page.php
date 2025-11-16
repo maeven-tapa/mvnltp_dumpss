@@ -90,9 +90,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $upd = $pdo->prepare("UPDATE items SET stock = stock - ? WHERE item_code = ?");
         $upd->execute([$qty, $item_code]);
 
-        $pdo->commit();
+            $pdo->commit();
 
-        $alert = "success|Order placed successfully! Your Order ID: $order_code";
+            // Redirect back to user dashboard with a success flag and order code
+            header("Location: home.php?ordered=" . urlencode($order_code));
+            exit;
       }
 
     } catch (Exception $e) {

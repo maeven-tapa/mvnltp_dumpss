@@ -11,28 +11,30 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     exit;
 }
 
-// Fetch all orders with item details
+// Fetch all orders with item and user details (use columns that exist in the DB)
 $sql = "
-    SELECT 
-      o.id,
+    SELECT
       o.order_code,
-      o.customer_name,
-      o.customer_contact,
-      o.status,
-      o.quantity,
-      o.created_at,
+      o.user_id,
       o.item_code,
+      o.quantity,
+      o.total,
+      o.created_at,
       i.name AS item_name,
-      i.price
+      u.name AS customer_name,
+      u.email AS customer_contact
     FROM orders o
-    INNER JOIN items i ON o.item_code = i.item_code
+    LEFT JOIN items i ON o.item_code = i.item_code
+    LEFT JOIN users u ON o.user_id = u.id
     ORDER BY o.created_at DESC
 ";
 
+$orders = [];
 try {
   $orders = $pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
   $orders = [];
+  // keep $errorMsg for debug if needed
   $errorMsg = $e->getMessage();
 }
 ?>
@@ -72,9 +74,7 @@ try {
           <th>Item</th>
           <th>Qty</th>
           <th>Total</th>
-          <th>Status</th>
           <th>Date</th>
-          <th>Action</th>
         </tr>
       </thead>
       <tbody>
@@ -87,31 +87,9 @@ try {
           <td><?= e($o['item_name']) ?></td>
           <td><?= (int)$o['quantity'] ?></td>
 
-          <td><strong>₱<?= number_format($o['price'] * $o['quantity'], 2) ?></strong></td>
-
-          <td>
-            <span class="status <?= strtolower($o['status']) ?>">
-              <?= e(ucfirst($o['status'])) ?>
-            </span>
-          </td>
+          <td><strong>₱<?= number_format($o['total'], 2) ?></strong></td>
 
           <td><?= date('M d, Y', strtotime($o['created_at'])) ?></td>
-
-          <td>
-            <form method="POST" action="update_order.php" style="display:flex; gap:8px;">
-              <input type="hidden" name="order_code" value="<?= htmlspecialchars($o['order_code']) ?>">
-
-              <select name="status" required style="padding: 8px 12px; border-radius: 8px;">
-                <option value="reserved"  <?= $o['status'] === 'reserved'  ? 'selected' : '' ?>>Reserved</option>
-                <option value="completed" <?= $o['status'] === 'completed' ? 'selected' : '' ?>>Completed</option>
-                <option value="cancelled" <?= $o['status'] === 'cancelled' ? 'selected' : '' ?>>Cancelled</option>
-              </select>
-
-              <button type="submit" class="btn btn-brown" style="padding:8px 16px;">
-                Update
-              </button>
-            </form>
-          </td>
         </tr>
         <?php endforeach; ?>
 
