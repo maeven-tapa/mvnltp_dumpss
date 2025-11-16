@@ -15,6 +15,7 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
 $sql = "
     SELECT
       o.order_code,
+      o.status,
       o.user_id,
       o.item_code,
       o.quantity,
@@ -74,6 +75,8 @@ try {
           <th>Item</th>
           <th>Qty</th>
           <th>Total</th>
+          <th>Status</th>
+          <th style="text-align: right;">Actions</th>
           <th>Date</th>
         </tr>
       </thead>
@@ -88,6 +91,22 @@ try {
           <td><?= (int)$o['quantity'] ?></td>
 
           <td><strong>₱<?= number_format($o['total'], 2) ?></strong></td>
+
+          <td>
+            <span class="status <?= htmlspecialchars($o['status'] ?? 'reserved') ?>"><?= ucfirst(htmlspecialchars($o['status'] ?? 'reserved')) ?></span>
+          </td>
+
+          <td style="text-align: right;">
+            <form method="POST" action="update_order.php" style="display:inline-flex; gap:6px; align-items:center;">
+              <input type="hidden" name="order_code" value="<?= e($o['order_code']) ?>">
+              <select name="status" style="padding:6px;border-radius:6px;">
+                <option value="reserved" <?= ($o['status'] === 'reserved') ? 'selected' : '' ?>>Reserved</option>
+                <option value="completed" <?= ($o['status'] === 'completed') ? 'selected' : '' ?>>Completed</option>
+                <option value="cancelled" <?= ($o['status'] === 'cancelled') ? 'selected' : '' ?>>Cancelled</option>
+              </select>
+              <button class="btn btn-light-brown" type="submit">Set</button>
+            </form>
+          </td>
 
           <td><?= date('M d, Y', strtotime($o['created_at'])) ?></td>
         </tr>

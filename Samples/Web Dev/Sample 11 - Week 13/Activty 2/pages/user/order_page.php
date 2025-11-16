@@ -71,10 +71,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $order_code = generateOrderCode($pdo);
 
-        // Insert order using item_code (no numeric ids)
+        // Insert order using item_code (no numeric ids); set default status to 'reserved'
         $ins = $pdo->prepare(
-          "INSERT INTO orders (order_code, user_id, item_code, quantity, total, created_at)
-          VALUES (?, ?, ?, ?, ?, NOW())"
+          "INSERT INTO orders (order_code, user_id, item_code, quantity, total, status, created_at)
+          VALUES (?, ?, ?, ?, ?, 'reserved', NOW())"
         );
 
         $total = $item['price'] * $qty;
@@ -140,7 +140,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <h1>Place Order</h1>
   </div>
   <nav class="links">
-    <a href="home.php" class="btn btn-light-brown">← Back to Products</a>
+    <!-- Home button removed per request -->
   </nav>
 </header>
 

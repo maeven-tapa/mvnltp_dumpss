@@ -1,8 +1,0 @@
-body { font-family: Arial, Helvetica, sans-serif; margin: 16px; background:#f8fafb; }
-.container { max-width:900px; margin:0 auto; }
-.card{ background:#fff; padding:12px; box-shadow:0 1px 3px rgba(0,0,0,0.08); margin-bottom:12px; border-radius:8px}
-.item-row{ display:flex; align-items:center; justify-content:space-between }
-.form-field{ margin:6px 0 }
-button{ padding:8px 12px; border-radius:6px; cursor:pointer }
-.admin-bar{ margin-bottom:12px }
-small.meta{ color:#666 }

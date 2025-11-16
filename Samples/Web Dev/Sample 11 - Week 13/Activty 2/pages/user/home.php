@@ -12,7 +12,9 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['role'])) {
     exit;
 }
 
-$items = $pdo->query("SELECT * FROM items ORDER BY created_at DESC")->fetchAll();
+$items = $pdo->query("SELECT * FROM items 
+    ORDER BY CAST(SUBSTRING(item_code, 4) AS UNSIGNED) ASC")->fetchAll();
+
 ?>
 <!doctype html>
 <html>
@@ -35,7 +37,6 @@ $items = $pdo->query("SELECT * FROM items ORDER BY created_at DESC")->fetchAll()
   </div>
   <nav class="links">
     <span style="color: var(--text-soft); margin-right: 15px;">Welcome, <?= e($_SESSION['name'] ?? $_SESSION['email']) ?>!</span>
-    <a href="../../index.php">Home</a>
     <a href="../../backend/auth/logout.php" class="btn btn-danger">Logout</a>
   </nav>
 </header>
@@ -67,7 +68,7 @@ $items = $pdo->query("SELECT * FROM items ORDER BY created_at DESC")->fetchAll()
           </div>
           <div>
             <?php if($it['stock'] > 0): ?>
-              <a href="order_page.php?id=<?= (int)$it['id'] ?>" class="btn btn-brown" style="padding: 10px 20px;">Order Now</a>
+              <a href="order_page.php?item_code=<?= rawurlencode($it['item_code']) ?>" class="btn btn-brown" style="padding: 10px 20px;">Order Now</a>
             <?php else: ?>
               <button class="secondary" disabled style="padding: 10px 20px; opacity: 0.5; cursor: not-allowed;">Out of Stock</button>
             <?php endif; ?>

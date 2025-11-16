@@ -32,7 +32,7 @@ Step 2.)
 Type this command for the items and orders table.
 
 CREATE TABLE IF NOT EXISTS items (
-    item_code VARCHAR(20) NOT NULL,   -- PF-0001 etc.
+    item_code VARCHAR(20) NOT NULL,   
     name VARCHAR(255) NOT NULL,
     description TEXT NOT NULL,
     price DECIMAL(10,2) NOT NULL,
@@ -45,13 +45,13 @@ CREATE TABLE IF NOT EXISTS items (
 CREATE TABLE orders (
     id INT AUTO_INCREMENT PRIMARY KEY,
 
-    order_code VARCHAR(20) NOT NULL UNIQUE,   -- ORD-0001 etc.
+    order_code VARCHAR(20) NOT NULL UNIQUE,   
 
-    user_id INT NOT NULL,                     -- Customers table or users table
+    user_id INT NOT NULL,                     
     customer_name VARCHAR(100) NOT NULL,
     customer_contact VARCHAR(50) NOT NULL,
 
-    item_code VARCHAR(20) NOT NULL,           -- FK to items.item_code
+    item_code VARCHAR(20) NOT NULL,           
 
     quantity INT NOT NULL,
     total DECIMAL(10,2) NOT NULL,

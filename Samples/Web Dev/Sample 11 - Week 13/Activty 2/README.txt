@@ -48,6 +48,7 @@ CREATE TABLE orders (
     item_code VARCHAR(20) NOT NULL,
     quantity INT NOT NULL,
     total DECIMAL(10,2) NOT NULL,
+    status ENUM('reserved','completed','cancelled') NOT NULL DEFAULT 'reserved',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     PRIMARY KEY (order_code),
