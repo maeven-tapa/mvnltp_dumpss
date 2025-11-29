@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bites 'n Bowls Control Hub</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+
+    <header class="header-main">
+        <div class="header-branding">
+            <img src="../assets/images/header.png" alt="Bites 'n Bowls Logo" class="header-logo">
+        </div>
+    </header>
+	
+        
+        <div class="tabs-and-status-wrapper"> 
+            
+            <ul class="nav-tabs" id="dashboardTabs" role="tablist">
+                <li><button class="nav-link-custom active" data-target="feed-control-tab" type="button" role="tab">Feed Control</button></li>
+                <li><button class="nav-link-custom" data-target="system-history-tab" type="button" role="tab">System & History</button></li>
+            </ul>
+
+            <div class="header-status">
+                <span id="device-status-indicator" class="status-dot"></span>
+                <span class="status-text"></span>
+            </div>
+            </div>
+        <div class="tab-content">
+
+            <div class="tab-pane active" id="feed-control-tab" role="tabpanel">
+                <div class="card-grid">
+
+                    <div class="card" id="quick-feed-card">
+                        <div class="card-header-inner"> Quick Feed</div>
+                        <p style="color: var(--color-text-dark); margin-bottom: 1rem; flex-shrink: 0;">Dispense food immediately. Rounds control the portion size.</p>
+
+                        <div id="feed-feedback"></div>
+
+                        <div class="btn-action-group" style="display: flex; margin-bottom: 1rem; flex-shrink: 0; gap: 0.5rem;">
+                            <button class="btn btn-primary quick-feed-btn" data-rounds="1" style="flex-grow: 1;">1 Round</button>
+                            <button class="btn btn-primary quick-feed-btn" data-rounds="2" style="flex-grow: 1;">2 Rounds</button>
+                            <button class="btn btn-primary quick-feed-btn" data-rounds="5" style="flex-grow: 1;">5 Rounds</button>
+                        </div>
+                        <input type="number" id="custom-rounds-input" class="input-text" placeholder="Enter custom rounds (e.g., 3)..." min="1" style="flex-shrink: 0;">
+                        <button class="btn btn-secondary" id="dispense-now-btn">Dispense Now</button>
+                    </div>
+
+                    <div class="card" id="schedule-card">
+                        <div class="card-header-inner"> Active Feeding Schedule</div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; flex-shrink: 0;">
+                            <h6 style="margin: 0; font-size: 1rem; font-weight: 500; color: var(--color-text-dark);">Manage Scheduled Feedings:</h6>
+                            <button class="btn btn-primary btn-small-action" id="add-schedule-btn">Add New Schedule</button>
+                        </div>
+ <div class="table-wrapper">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Interval</th> 
+                <th>Time</th>
+                <th>Rounds</th>
+                <th>Days</th>
+                <th style="text-align: center;">Actions</th>
+            </tr>
+        </thead>
+        <tbody id="schedule-list">
+            </tbody>
+    </table>
+</div>
+                        <button class="btn btn-secondary" id="view-schedules-btn" style="margin-top: 1rem;">View All Schedules</button>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="tab-pane" id="system-history-tab" role="tabpanel">
+                <div class="card-grid system-grid">
+
+                    <div class="card" style="min-height: 250px;">
+                        <div class="card-header-inner"> Weight & Supply Status</div>
+                        <div class="weight-display">
+                            <h3 id="current-weight">500g</h3>
+                            <p>Stored Feed Remaining</p>
+                        </div>
+                        <ul class="info-list" style="margin-bottom: 1rem;">
+                            <li class="info-list-item">
+                                <span>Low Feed Warning:</span>
+                                <strong id="low-feed-warning" style="color: var(--color-status-success);">None</strong>
+                            </li>
+                        </ul>
+                        <p class="text-note" style="margin-top: -0.5rem; margin-bottom: 1rem; font-size: 1rem; color: var(--color-text-secondary);">
+                            *To ensure accurate measurement, empty the feed container before starting calibration.
+                        </p>
+                        <button class="btn btn-primary" id="recalibrate-btn">Recalibrate Sensor</button>
+                    </div>
+
+                    <div class="card" id="settings-status-card">
+                        <div class="card-header-inner"> Device & Network Status</div>
+                        <ul class="info-list" style="margin-bottom: 1.5rem;">
+                            <li class="info-list-item">
+                                <span>Wi-Fi Status:</span>
+                                <strong style="color: var(--color-status-success);">Connected</strong>
+                            </li>
+                            <li class="info-list-item">
+                                <span>Device Status:</span>
+                                <strong style="color: var(--color-status-success);">Normal</strong>
+                            </li>
+                            <li class="info-list-item">
+                                <span>Current Device Time:</span>
+                                <strong id="current-device-time"></strong>
+                            </li>
+                            <li class="info-list-item">
+                                <span>Firmware Version:</span>
+                                <strong>v2.1.0</strong>
+                            </li>
+                        </ul>
+                        <button class="btn btn-secondary" id="view-settings-btn">View Settings</button>
+                    </div>
+
+<div class="card" id="alerts-card" style="min-height: 250px;">
+    <div class="card-header-inner"> System Alerts & Notifications</div>
+
+    <ul id="alert-list" class="info-list" style="max-height: 150px; overflow-y: auto;">
+        <li id="no-alerts-placeholder" class="info-list-item" style="justify-content: center; border-bottom: none; color: #888;">
+              No active warnings or alerts.
+        </li>
+    </ul>
+
+    <button class="btn btn-primary" id="view-all-alerts-btn">View All Alerts</button>
+</div>
+
+                    <div class="card">
+                        <div class="card-header-inner"> Recent Feeding History</div>
+
+                        <div style="margin-bottom: 1rem; display: flex; gap: 1rem; flex-shrink: 0;">
+                            <input type="text" id="history-search-input" class="input-text" placeholder="Search by Date, Type, or Status..." style="flex-grow: 1; margin-bottom: 0;">
+                            <button class="btn btn-primary" style="margin-top: 0; padding: 0.75rem 1rem;">Search</button>
+                        </div>
+
+                        <div class="table-wrapper">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Time</th>
+                                        <th>Rounds</th>
+                                        <th>Type</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="history-list">
+                                    </tbody>
+                            </table>
+                        </div>
+                        <button class="btn btn-secondary" id="view-history-btn" style="margin-top: 1rem;">View All History</button>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="schedule-modal" class="modal-base">
+    <div class="modal-content">
+        <h3 id="schedule-modal-title">Add New Feeding Schedule</h3>
+        <input type="hidden" id="editing-schedule-index" value="-1">
+
+        <select id="schedule-interval" class="input-text" required>
+            <option value="">Select an Interval</option>
+            <option value="2h" title="For very young puppies or kittens needing frequent small meals.">Every 2 hours</option>
+            <option value="3h" title="For young pets that require steady energy and fast digestion.">Every 3 hours</option>
+            <option value="4h" title="Common for puppies/kittens; supports growth with regular meals.">Every 4 hours</option>
+            <option value="6h" title="Standard for older kittens and young dogs; moderate feeding schedule.">Every 6 hours</option>
+            <option value="8h" title="Good for adult cats and dogs; balanced daily feeding routine.">Every 8 hours</option>
+            <option value="10h" title="Suitable for adult or senior pets with low to moderate activity.">Every 10 hours</option>
+            <option value="12h" title="Most common for adult dogs and cats; morning and evening feeding.">Every 12 hours</option>
+            <option value="free" title="Food is available all day; ideal for cats that don’t overeat.">Free Feeding (Cats only)</option>
+        </select>
+        <label for="schedule-time">Start Time (HH:MM):</label>
+        <input type="time" id="schedule-time" class="input-text" required>
+		
+		<label>Rounds (Portion Size):</label>
+<div id="rounds-display-container" class="input-text" style="/ ... your styles ... /">
+    Select Time and Interval to calculate rounds.
+</div>
+<input type="hidden" id="schedule-rounds" value="0">
+
+
+        <label for="schedule-frequency">Frequency:</label>
+        <select id="schedule-frequency" class="input-text" required>
+            <option value="daily">Daily</option>
+            <option value="weekdays">Weekdays (Mon–Fri)</option>
+            <option value="weekends">Weekends (Sat–Sun)</option>
+            <option value="custom">Custom Days</option>
+        </select>
+
+        <div id="custom-days-container" style="display: none; margin-top: 1rem;">
+            <label for="custom-days-input">Enter Custom Days (e.g., Mon, Wed, Fri):</label>
+            <input type="text" id="custom-days-input" class="input-text" placeholder="Type days or dates here">
+        </div>
+
+
+        <div class="btn-action-group" style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+            <button class="btn btn-primary" id="save-schedule-btn" style="flex-grow: 1;">Save Schedule</button>
+            <button class="btn btn-tertiary" id="cancel-schedule-btn" style="flex-grow: 1;">Cancel</button>
+        </div>
+    </div>
+</div>
+
+
+	<div class="modal-base" id="all-alerts-modal">
+    <div class="modal-content modal-large-content">
+        <h3> All System Alerts</h3>
+        <div class="table-wrapper modal-table-wrapper">
+            <ul id="all-alerts-list" class="info-list" style="padding: 0 1rem;">
+                </ul>
+        </div>
+        <button class="btn btn-primary" id="close-all-alerts-btn">Close</button>
+    </div>
+</div>
+
+    <div id="settings-modal" class="modal-base">
+        <div class="modal-content">
+            <h3>Device Settings</h3>
+
+            <label for="wifi-ssid">Wi-Fi SSID:</label>
+            <input type="text" id="wifi-ssid" class="input-text" placeholder="Enter new Wi-Fi name">
+
+            <label for="wifi-password">Wi-Fi Password:</label>
+            <input type="password" id="wifi-password" class="input-text" placeholder="Enter new Wi-Fi password">
+
+            <label for="timezone-setting">Timezone:</label>
+            <select id="timezone-setting" class="input-text">
+                <option value="PST">PST (UTC-8)</option>
+                <option value="EST">EST (UTC-5)</option>
+                <option value="GMT">GMT (UTC+0)</option>
+                <option value="CET">CET (UTC+1)</option>
+                <option value="PHT" selected>PHT (UTC+8)</option>
+            </select>
+
+            <p style="font-size: 0.8rem; margin-top: -0.5rem; margin-bottom: 1rem; color: var(--color-accent-dark);">Saving Wi-Fi settings will restart the device.</p>
+
+            <div class="btn-action-group" style="display: flex; gap: 1rem;">
+                <button class="btn btn-primary" id="save-settings-btn" style="flex-grow: 1; margin-top: 0;">Save Settings</button>
+                <button class="btn btn-tertiary" id="cancel-settings-btn" style="flex-grow: 1; margin-top: 0;">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="all-schedules-modal" class="modal-base">
+        <div class="modal-content modal-large-content">
+            <h3>All Feeding Schedules</h3>
+
+            <div class="modal-table-wrapper">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                                                        <th>Interval</th>
+                            <th>Time</th>
+                            <th>Rounds</th>
+                            <th>Days</th>
+                            <th style="text-align: center;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="all-schedules-list">
+                        </tbody>
+                </table>
+            </div>
+
+            <button class="btn btn-tertiary" id="close-all-schedules-btn" style="margin-top: 0;">Close View</button>
+        </div>
+    </div>
+
+    <div id="all-history-modal" class="modal-base">
+        <div class="modal-content modal-large-content">
+            <h3>Full Feeding History Log</h3>
+
+            <div style="margin-bottom: 1rem; display: flex; gap: 1rem; flex-shrink: 0;">
+                <input type="text" id="modal-history-search-input" class="input-text" placeholder="Search entire log..." style="flex-grow: 1; margin-bottom: 0;">
+            </div>
+
+            <div class="modal-table-wrapper">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Rounds</th>
+                            <th>Type</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="all-history-list">
+                        </tbody>
+                </table>
+            </div>
+
+            <button class="btn btn-tertiary" id="close-all-history-btn" style="margin-top: 0;">Close View</button>
+        </div>
+    </div>
+	
+	<div class="modal-base" id="tutorial-welcome-modal">
+    <div class="modal-content-small">
+        <h3 style="margin-bottom: 1rem;">Welcome to AquaFeed! 👋</h3>
+        <p style="margin-bottom: 2rem;">It looks like this is your first time here. Would you like a quick, guided tour of the dashboard's features?</p>
+        <div class="btn-group-row">
+            <button class="btn btn-secondary" id="skip-tutorial-btn">Skip Tour</button>
+            <button class="btn btn-primary" id="start-tutorial-btn">Proceed with Tour</button>
+        </div>
+    </div>
+</div>
+
+<div class="tutorial-guide-modal" id="tutorial-guide-modal" style="display: none;">
+    <h4 id="guide-title"></h4>
+    <p id="guide-text"></p>
+    <div class="tutorial-actions">
+        <button class="btn btn-secondary btn-small-action" id="guide-prev-btn" style="display: none;">Previous</button>
+        <div class="step-counter" id="guide-step-counter"></div>
+        <button class="btn btn-primary btn-small-action" id="guide-next-btn">Next</button>
+    </div>
+</div>
+
+    <script src="../assets/js/script.js"></script>
+</body>
+</html>
