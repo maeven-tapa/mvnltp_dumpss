@@ -1,0 +1,364 @@
+:root {
+    --color-background: #ffe4cf; 
+    --color-surface: #F8F4F0;
+    --color-primary: #6F4E37;
+    --color-accent-dark: #524339;
+    
+    --color-text-dark: var(--color-accent-dark);
+    --color-text-light-on-dark: #F8F4F0;
+    --color-border: #D6D2CC;
+    --color-tab-inactive: var(--color-background);
+    
+    --color-status-success: #28a745;
+    --color-status-error: #dc3545;
+    --color-status-warning: #ffc107;
+}
+}
+
+body {
+    background: var(--color-background); 
+    font-family: 'Inter', sans-serif; 
+    color: var(--color-text-dark);
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    line-height: 1.6;
+}
+
+
+.header-main {
+    background-color: var(--color-background); 
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: none;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    height: 200px;
+}
+
+
+.header-branding {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+}
+
+.header-logo {
+    height: 100%; 
+    width: 100%;
+    object-fit: contain; 
+    border-radius: 0;
+    border: none;
+    display: block; 
+    margin: 0 auto; 
+}
+
+
+.nav-tabs {
+    display: flex;
+    border-bottom: 2px solid var(--color-border);
+    list-style: none;
+    padding: 0;
+    margin-bottom: 2rem;
+}
+.nav-link-custom {
+    border: none;
+    border-radius: 10px 10px 0 0;
+    background: var(--color-tab-inactive);
+    color: var(--color-text-dark);
+    padding: 0.75rem 1.5rem;
+    margin-right: 0.5rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+}
+.nav-link-custom.active {
+    background: var(--color-surface);
+    color: var(--color-primary);
+    font-weight: 700;
+    box-shadow: 0px -2px 8px rgba(0,0,0,0.05);
+    border-top: 3px solid var(--color-primary);
+    padding-top: calc(0.75rem - 1px);
+}
+.tab-content .tab-pane { display: none; }
+.tab-content .tab-pane.active { display: block; }
+
+
+.main-container {
+    padding: 0 2rem; 
+}
+.card-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    align-items: stretch;
+}
+.system-grid {
+
+    display: grid; 
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto;
+    gap: 2rem;
+    align-items: stretch;
+}
+
+@media (max-width: 900px) {
+    .card-grid, .system-grid { grid-template-columns: 1fr; }
+}
+
+
+.card {
+    background: var(--color-surface);
+    border-radius: 16px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    min-height: 350px;
+    border: 1px solid var(--color-border);
+}
+.card-header-inner {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--color-accent-dark);
+    margin-bottom: 1rem;
+    border-bottom: 2px solid var(--color-border);
+    padding-bottom: 0.5rem;
+    flex-shrink: 0;
+}
+
+
+#quick-feed-card, #schedule-card,
+#alerts-card, #settings-status-card {
+    min-height: 380px; 
+}
+
+.card[style*="min-height: 250px"] {
+    min-height: 380px !important; 
+}
+
+
+.btn {
+    border-radius: 8px;
+    font-weight: 500;
+    padding: 0.7rem 1.4rem;
+    cursor: pointer;
+    text-align: center;
+    border: none;
+    margin-top: auto;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    font-family: inherit;
+}
+.btn-primary {
+    background: var(--color-primary);
+    color: var(--color-text-light-on-dark);
+}
+.btn-secondary {
+
+    background: var(--color-primary);
+    color: var(--color-text-light-on-dark);
+}
+.btn-tertiary {
+    background: var(--color-surface);
+    color: var(--color-text-dark);
+    border: 1px solid var(--color-border);
+}
+.input-text {
+    border-radius: 8px;
+    border: 1px solid var(--color-border);
+    padding: 0.75rem;
+    width: 100%;
+    margin-bottom: 1rem;
+    box-sizing: border-box;
+    font-family: inherit;
+    background-color: var(--color-surface);
+    color: var(--color-text-dark);
+}
+#feed-feedback {
+    padding: 0.5rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    text-align: center;
+    font-weight: 500;
+    color: var(--color-text-light-on-dark);
+    background-color: var(--color-status-success);
+    display: none;
+}
+
+
+.modal-base {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+.modal-content {
+    background: var(--color-surface);
+    padding: 2rem;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-large-content {
+    max-width: 700px;
+}
+
+.modal-content h3 {
+    color: var(--color-accent-dark);
+    margin-top: 0;
+    border-bottom: 2px solid var(--color-border);
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    text-align: left;
+}
+.table-wrapper {
+    flex-grow: 1;
+    overflow-y: auto;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    margin-top: 1rem;
+}
+
+.modal-table-wrapper {
+    flex-grow: 1;
+    overflow-y: auto;
+    margin-bottom: 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+}
+.data-table th, .data-table td {
+    padding: 0.75rem;
+    border-bottom: 1px solid var(--color-border);
+    vertical-align: middle;
+}
+.data-table th {
+    background-color: var(--color-accent-dark);
+    color: var(--color-text-light-on-dark);
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    position: sticky; top: 0; z-index: 10;
+}
+
+
+
+.weight-display {
+    background-color: var(--color-primary);
+    padding: 1.5rem;
+    border-radius: 16px;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    flex-shrink: 0;
+}
+.weight-display h3 {
+    font-size: 3.2rem;
+    margin: 0;
+    color: var(--color-text-light-on-dark);
+    font-weight: 700;
+}
+.weight-display p {
+    margin: 0;
+    font-size: 2;
+    color: var(--color-surface);
+}
+
+.info-list {
+    list-style: none;
+    padding: 0;
+}
+.info-list-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border-bottom: 1px dashed var(--color-border);
+    font-size: 0.95rem;
+}
+.info-list-item:last-child {
+    border-bottom: none;
+}
+
+/* --- Header Status Indicator Styling (Final Correction V2) --- */
+
+.header-status {
+    /* Set the background to the theme's surface color */
+    display: inline-flex; 
+    align-items: center;
+    padding: 8px 12px; 
+    border-radius: 8px; 
+    
+    /* Using your theme's surface color for better contrast */
+    background-color: var(--color-surface); 
+    
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    border: 1px solid var(--color-border); /* Use border variable */
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-left: 20px;
+    margin-bottom: 15px; 
+    flex-shrink: 0;
+    
+    /* Ensure the text is visible */
+    color: var(--color-text-dark); 
+}
+
+/* 1. Status Dot Styling */
+.header-status .status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 8px;
+    flex-shrink: 0;
+    transition: background-color 0.3s ease;
+}
+
+/* 2. Connected Status (Green) */
+.header-status.status-connected .status-dot {
+    background-color: var(--color-status-success); /* Green Dot */
+}
+/* IMPORTANT: The status text is already inside the header-status, so just target the text span */
+.header-status.status-connected .status-text {
+    color: var(--color-status-success); /* Green Text */
+}
+
+/* 3. Disconnected Status (Red) */
+.header-status.status-disconnected .status-dot {
+    background-color: var(--color-status-error); /* Red Dot */
+}
+.header-status.status-disconnected .status-text {
+    color: var(--color-status-error); /* Red Text */
+}
+    min-height: 380px !important;
+    padding-bottom: 1rem;
+}
+
+.btn-small-action {
+    padding: 0.3rem 0.6rem; 
+    font-size: 0.8rem; 
+    margin-top: 0;
+}
