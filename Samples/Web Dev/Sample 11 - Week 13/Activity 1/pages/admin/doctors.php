@@ -1,14 +1,14 @@
 <?php
-// Include comprehensive session validation
+
 require_once __DIR__ . '/../../includes/session-check.php';
 
-// Check if user is logged in and is an admin
+
 if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || strtolower($_SESSION['role']) !== 'admin') {
     header('Location: ../../auth/login.php');
     exit();
 }
 
-// Database connection
+
 $host = 'localhost';
 $username = 'root';
 $password = 'root';
@@ -20,10 +20,10 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Get admin name from session
+
 $adminFullName = isset($_SESSION['name']) ? $_SESSION['name'] : 'Admin';
 
-// Fetch doctor statistics
+
 $stats = [
     'total' => 0,
     'on_duty' => 0,
@@ -32,7 +32,7 @@ $stats = [
 ];
 
 $statsQuery = $conn->query("
-    SELECT 
+    SELECT
         COUNT(*) as total,
         SUM(CASE WHEN status = 'On Duty' THEN 1 ELSE 0 END) as on_duty,
         SUM(CASE WHEN status = 'Off Duty' THEN 1 ELSE 0 END) as off_duty,
@@ -60,10 +60,10 @@ if ($statsQuery && $statsResult = $statsQuery->fetch_assoc()) {
 </head>
 <body>
 
-<!-- App wrapper containing sidebar and main content -->
+
 <div class="app-wrapper">
 
-  <!-- Left floating panel (collapsed by default) -->
+
   <aside id="leftPanel" class="left-panel closed" aria-hidden="true">
   <div class="side-top">
     <div class="side-logo">🐾 <span>Tails & Trails</span></div>
@@ -216,7 +216,7 @@ if ($statsQuery && $statsResult = $statsQuery->fetch_assoc()) {
   </div>
 </div>
 
-<!-- Script loading order (IMPORTANT: app.js MUST be first) -->
+
 <script src="../../assets/js/app.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="../../assets/js/components/toast.js"></script>

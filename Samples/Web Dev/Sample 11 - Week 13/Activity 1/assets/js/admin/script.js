@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-  // Initialize sidebar and shared functionality
+
   initializeSidebarToggle();
   preventBackNavigation();
 
@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const modalTitle = document.getElementById("adminModalTitle");
   const tableBody = document.querySelector("#adminTable tbody");
   const searchInput = document.getElementById("adminSearch");
-  
+
   const bookingTypeSelect = document.getElementById("adminBookingType");
   const registeredFields = document.getElementById("registeredFields");
   const guestFields = document.getElementById("guestFields");
@@ -19,8 +19,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const timeSelect = document.getElementById("adminTime");
   const statusSelectModal = document.getElementById("adminStatus");
 
-  let editingId = null; 
-  let appointments = []; 
+  let editingId = null;
+  let appointments = [];
   let doctors = [];
   let currentPage = 1;
   let itemsPerPage = 15;
@@ -29,11 +29,11 @@ document.addEventListener("DOMContentLoaded", () => {
   let currentActiveFilter = 'all';
   let adminDatePicker = null;
   let allDoctors = [];
-  
-  // Get all filter buttons
+
+
   const filterButtons = document.querySelectorAll(".filter-btn");
-  
-  // Set up filter button listeners
+
+
   filterButtons.forEach(btn => {
     btn.addEventListener("click", () => {
       filterButtons.forEach(b => b.classList.remove("active"));
@@ -43,8 +43,8 @@ document.addEventListener("DOMContentLoaded", () => {
       renderTable();
     });
   });
-  
-  // Ensure the first filter button (All) is marked as active on initial load
+
+
   if (filterButtons[0]) {
     filterButtons[0].classList.add("active");
     currentActiveFilter = filterButtons[0].dataset.status;
@@ -55,14 +55,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
   addBtn.addEventListener("click", () => openModal("Add Appointment"));
   cancelBtn.addEventListener("click", closeModal);
-  
-  window.addEventListener("click", e => { 
-    if (e.target === modal) closeModal(); 
+
+  window.addEventListener("click", e => {
+    if (e.target === modal) closeModal();
   });
 
   form.addEventListener("submit", handleFormSubmit);
 
-  // Initialize booking date picker for admin form
+
   function initializeAdminDatePicker() {
     if (adminDatePicker) {
       adminDatePicker.updateAvailableDates([]);
@@ -71,13 +71,13 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Call it on modal open
+
   addBtn.addEventListener("click", () => {
     openModal("Add Appointment");
     setTimeout(() => initializeAdminDatePicker(), 0);
   });
 
-  // Handle booking type change
+
   bookingTypeSelect.addEventListener("change", () => {
     if (bookingTypeSelect.value === "registered") {
       registeredFields.style.display = "block";
@@ -88,15 +88,15 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Update available times and dates based on doctor selection
+
   doctorSelect.addEventListener("change", updateAvailableTimes);
-  
-  // Handle date input change to update available times
+
+
   dateInput.addEventListener("change", updateAvailableTimes);
 
   if (searchInput) {
     searchInput.addEventListener("input", () => {
-      currentPage = 1; 
+      currentPage = 1;
       renderTable();
     });
   }
@@ -119,33 +119,33 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document.getElementById("itemsPerPage").addEventListener("change", (e) => {
     itemsPerPage = e.target.value === 'all' ? Infinity : parseInt(e.target.value);
-    currentPage = 1; 
+    currentPage = 1;
     renderTable();
   });
 
   document.querySelectorAll("th.sortable").forEach(th => {
     th.addEventListener("click", () => {
       const column = th.dataset.sort;
-      
+
       if (sortColumn === column) {
         sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
       } else {
         sortColumn = column;
         sortDirection = 'asc';
       }
-      
+
       document.querySelectorAll("th.sortable").forEach(header => {
         header.classList.remove('asc', 'desc');
       });
       th.classList.add(sortDirection);
-      
+
       currentPage = 1;
       renderTable();
     });
   });
 
 
-  // Load appointments from server
+
   function loadAppointments() {
     fetch('api_appointments.php?action=getAppointments')
       .then(response => response.json())
@@ -161,13 +161,13 @@ document.addEventListener("DOMContentLoaded", () => {
       .catch(error => console.error('Error loading appointments:', error));
   }
 
-  // Load available doctors from server
+
   function loadAvailableDoctors() {
     const selectedDate = dateInput.value;
-    const url = selectedDate 
+    const url = selectedDate
       ? `api_appointments.php?action=getAvailableDoctors&date=${selectedDate}`
       : 'api_appointments.php?action=getAvailableDoctors';
-    
+
     fetch(url)
       .then(response => response.json())
       .then(data => {
@@ -181,18 +181,18 @@ document.addEventListener("DOMContentLoaded", () => {
       .catch(error => console.error('Error loading doctors:', error));
   }
 
-  // Update doctor dropdown with available doctors
+
   function updateDoctorDropdown() {
     const currentValue = doctorSelect.value;
     doctorSelect.innerHTML = '<option value="" disabled selected>Select doctor</option>';
-    
+
     doctors.forEach(doctor => {
       const option = document.createElement('option');
       option.value = doctor.name;
       option.textContent = doctor.name;
       doctorSelect.appendChild(option);
     });
-    
+
     if (currentValue && doctors.some(d => d.name === currentValue)) {
       doctorSelect.value = currentValue;
     }
@@ -219,12 +219,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const mm = String(today.getMonth() + 1).padStart(2, "0");
     const dd = String(today.getDate()).padStart(2, "0");
     dateInput.setAttribute("min", `${yyyy}-${mm}-${dd}`);
-    
+
     if (appointmentData) {
-      // Set booking type and show/hide appropriate fields
+
       const bookingType = appointmentData.booking_type || 'guest';
       document.getElementById("adminBookingType").value = bookingType;
-      
+
       if (bookingType === 'registered') {
         registeredFields.style.display = "block";
         guestFields.style.display = "none";
@@ -242,12 +242,12 @@ document.addEventListener("DOMContentLoaded", () => {
       document.getElementById("adminService").value = appointmentData.service || '';
       document.getElementById("adminDate").value = appointmentData.appt_date || '';
       document.getElementById("adminTime").value = appointmentData.appt_time || '';
-      
+
       editingId = appointmentData.id;
       setTimeout(() => updateAvailableTimes(), 0);
     }
     else {
-      // Set defaults for new appointment
+
       document.getElementById("adminBookingType").value = 'guest';
       registeredFields.style.display = "none";
       guestFields.style.display = "block";
@@ -259,7 +259,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function closeModal() {
     modal.classList.remove("show");
     form.reset();
-    editingId = null; 
+    editingId = null;
   }
 
   function handleFormSubmit(e) {
@@ -271,8 +271,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const service = document.getElementById("adminService").value.trim();
     const date = document.getElementById("adminDate").value;
     const time = document.getElementById("adminTime").value;
-    
-    // If editing, keep the existing status; if new, default to Pending
+
+
     let status = 'Pending';
     if (editingId) {
       const existingAppointment = appointments.find(apt => apt.id === editingId);
@@ -287,7 +287,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const formData = new FormData();
     formData.append('action', editingId ? 'updateAppointment' : 'addAppointment');
     formData.append('booking_type', bookingType);
-    
+
     if (bookingType === 'registered') {
       const userId = document.getElementById("adminUserId").value.trim();
       if (!userId) {
@@ -299,17 +299,17 @@ document.addEventListener("DOMContentLoaded", () => {
       const guestName = document.getElementById("adminGuestName").value.trim();
       const guestEmail = document.getElementById("adminGuestEmail").value.trim();
       const guestContact = document.getElementById("adminGuestContact").value.trim();
-      
+
       if (!guestName || !guestEmail || !guestContact) {
         toast.warning("Please fill in all guest information");
         return;
       }
-      
+
       formData.append('guest_name', guestName);
       formData.append('guest_email', guestEmail);
       formData.append('guest_contact', guestContact);
     }
-    
+
     formData.append('pet_name', petName);
     formData.append('vet', doctor);
     formData.append('service', service);
@@ -350,7 +350,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     timeSelect.innerHTML = '<option value="" disabled selected>Select time</option>';
 
-    // If no doctor selected, hide date-time section
+
     if (!selectedDoctor) {
       dateTimeSection.classList.remove('visible');
       dateInput.removeAttribute('required');
@@ -358,34 +358,34 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // Doctor selected, show date-time section
+
     dateTimeSection.classList.add('visible');
     dateInput.setAttribute('required', 'required');
     timeSelect.setAttribute('required', 'required');
 
-    // Update date picker with available dates for this doctor
+
     const doctor = doctors.find(d => d.name === selectedDoctor);
     if (doctor && doctor.available_dates && adminDatePicker) {
       const availableDates = getAvailableDatesForDoctor(doctor.available_dates);
       adminDatePicker.updateAvailableDates(availableDates);
     }
 
-    // If no date selected, don't populate times yet
+
     if (!selectedDate) {
       return;
     }
 
-    // Populate time slots based on doctor availability
+
     populateTimeSlotsForDoctor(selectedDoctor, selectedDate);
   }
 
-  // Populate time slots based on doctor's schedule
+
   function populateTimeSlotsForDoctor(doctorName, selectedDate) {
-    // Find the doctor from the loaded doctors list
+
     const doctor = doctors.find(d => d.name === doctorName);
-    
+
     if (!doctor || !doctor.available_times) {
-      // Fallback to default hours if no doctor info
+
       const defaultTimes = generateTimeSlots(['8-17']);
       defaultTimes.forEach(time => {
         const option = document.createElement('option');
@@ -396,16 +396,16 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // Generate time slots based on doctor's available_times
+
     const timeSlots = generateTimeSlots(doctor.available_times);
 
-    // Fetch booked times for this doctor and date
+
     fetch(`api_appointments.php?action=getBookedTimes&date=${selectedDate}&doctor=${doctorName}`)
       .then(response => response.json())
       .then(data => {
         const bookedTimes = data.data || [];
 
-        // Populate dropdown with available times only
+
         timeSlots.forEach(time => {
           if (!bookedTimes.includes(time)) {
             const option = document.createElement('option');
@@ -417,7 +417,7 @@ document.addEventListener("DOMContentLoaded", () => {
       })
       .catch(err => {
         console.error('Error fetching booked times:', err);
-        // If fetch fails, still show all available times
+
         timeSlots.forEach(time => {
           const option = document.createElement('option');
           option.value = time;
@@ -469,7 +469,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
 
-    // Use the currentActiveFilter variable instead of DOM query
+
     if (currentActiveFilter && currentActiveFilter.toLowerCase() !== 'all') {
       filtered = filtered.filter(apt => apt.status.toLowerCase() === currentActiveFilter.toLowerCase());
     }
@@ -499,15 +499,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function createTableRow(appointment) {
     const row = document.createElement("tr");
-    
-    // Determine owner/customer name based on booking type
+
+
     let ownerName = '-';
     if (appointment.booking_type === 'guest') {
       ownerName = appointment.guest_name || '-';
     } else if (appointment.booking_type === 'registered') {
       ownerName = appointment.user_name || '-';
     }
-    
+
     row.innerHTML = `
       <td>${appointment.pet_name}</td>
       <td>${ownerName}</td>
@@ -535,16 +535,16 @@ document.addEventListener("DOMContentLoaded", () => {
     const editBtn = row.querySelector(".edit-btn");
     const deleteBtn = row.querySelector('.delete-btn');
 
-    // disable dropdown for finished states
+
     if (appointment.status === "Completed" || appointment.status === "Cancelled") {
       statusDropdown.disabled = true;
       editBtn.style.display = "none";
     }
 
-    // status change from dropdown
+
     statusDropdown.addEventListener("change", () => {
       const newStatus = statusDropdown.value;
-      
+
       if (newStatus === "Cancelled" || newStatus === "Completed") {
         const confirmAction = confirm("Are you sure you want to confirm this action? This cannot be undone.");
         if (!confirmAction) {
@@ -552,7 +552,7 @@ document.addEventListener("DOMContentLoaded", () => {
           return;
         }
       }
-      
+
       if (newStatus === "Confirmed") {
         const confirmAction = confirm("Are you sure you want to confirm this appointment?");
         if (!confirmAction) {
@@ -560,7 +560,7 @@ document.addEventListener("DOMContentLoaded", () => {
           return;
         }
       }
-      
+
       if (newStatus === "Pending") {
         const confirmAction = confirm("Are you sure you want to set this appointment to Pending?");
         if (!confirmAction) {
@@ -606,7 +606,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       } else {
         toast.error('Error: ' + data.message);
-        // Revert the dropdown
+
         const apt = appointments.find(a => a.id === appointmentId);
         if (apt) {
           dropdown.value = apt.status;
@@ -675,6 +675,6 @@ document.addEventListener("DOMContentLoaded", () => {
     dropdown.style.color = "white";
   }
 
-  // --- Sidebar toggle and nav wiring ---
-  // Already handled by initializeSidebarToggle() from app.js
+
+
 });

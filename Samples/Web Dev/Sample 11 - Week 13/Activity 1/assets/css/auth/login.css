@@ -27,9 +27,9 @@ body.login-page {
   overflow-x: hidden;
 }
 
-/* ============================================================================ */
-/* LOGIN CONTAINER LAYOUT */
-/* ============================================================================ */
+
+
+
 
 .login-container {
   display: flex;
@@ -71,9 +71,9 @@ body.login-page {
   transform: scale(1.05);
 }
 
-/* ============================================================================ */
-/* CAROUSEL / SLIDESHOW */
-/* ============================================================================ */
+
+
+
 
 .slideshow {
   width: 100%;
@@ -84,16 +84,13 @@ body.login-page {
   z-index: 1;
 }
 
-#loginCarousel {
   width: 100%;
   height: 100%;
 }
 
-#loginCarousel .carousel-inner {
   height: 100%;
 }
 
-#loginCarousel .carousel-item {
   height: 100%;
   display: flex !important;
   position: relative;
@@ -124,7 +121,7 @@ body.login-page {
   min-height: 400px;
 }
 
-/* Slide with background image */
+
 .slide-image {
   position: relative;
   display: flex !important;
@@ -165,7 +162,7 @@ body.login-page {
   }
 }
 
-/* Gradient tint overlay */
+
 .slide-gradient-overlay {
   position: absolute;
   top: 0;
@@ -234,7 +231,7 @@ body.login-page {
   font-weight: 300;
 }
 
-/* Custom Indicators */
+
 .slideshow-indicators {
   position: absolute;
   bottom: 2rem;
@@ -270,9 +267,9 @@ body.login-page {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-/* ============================================================================ */
-/* LOGIN SECTION */
-/* ============================================================================ */
+
+
+
 
 .login-section {
   flex: 1;
@@ -311,9 +308,9 @@ body.login-page {
   font-weight: 400;
 }
 
-/* ============================================================================ */
-/* FORM STYLING */
-/* ============================================================================ */
+
+
+
 
 .form-group {
   margin-bottom: 1.5rem;
@@ -372,19 +369,19 @@ body.login-page {
 .invalid-feedback {
   font-size: 0.85rem;
   margin-top: 0.4rem;
-  /* Hide feedback by default; show only when form has been validated or input marked invalid */
+
   display: none;
 }
 
-/* Show validation feedback only when the form has been validated or the control has is-invalid */
+
 .was-validated .form-control:invalid ~ .invalid-feedback,
 .form-control.is-invalid ~ .invalid-feedback {
   display: block;
 }
 
-/* ============================================================================ */
-/* BUTTONS */
-/* ============================================================================ */
+
+
+
 
 .btn-primary {
   background: linear-gradient(135deg, var(--primary), var(--secondary-2)) !important;
@@ -427,9 +424,9 @@ body.login-page {
   box-shadow: 0 4px 15px rgba(103, 197, 187, 0.3);
 }
 
-/* ============================================================================ */
-/* ALERTS & MESSAGES */
-/* ============================================================================ */
+
+
+
 
 .alert {
   border-radius: 10px;
@@ -475,9 +472,9 @@ body.login-page {
   opacity: 1;
 }
 
-/* ============================================================================ */
-/* FOOTER */
-/* ============================================================================ */
+
+
+
 
 .border-top {
   border-top: 1px solid var(--border-color) !important;
@@ -488,9 +485,9 @@ small.text-muted {
   font-size: 0.85rem;
 }
 
-/* ============================================================================ */
-/* RESPONSIVE DESIGN */
-/* ============================================================================ */
+
+
+
 
 @media (max-width: 1024px) {
   .welcome-title {
@@ -639,9 +636,9 @@ small.text-muted {
   }
 }
 
-/* ============================================================================ */
-/* ACCESSIBILITY & MISC */
-/* ============================================================================ */
+
+
+
 
 .fw-600 {
   font-weight: 600;

@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-  // Initialize sidebar and shared functionality
+
   initializeSidebarToggle();
   preventBackNavigation();
 
@@ -27,7 +27,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const today = new Date().toISOString().split("T")[0];
   if (dateInput) dateInput.setAttribute("min", today);
 
-  // Add CSS for date-time-section
+
   const style = document.createElement('style');
   style.textContent = `
     .date-time-section {
@@ -50,11 +50,11 @@ document.addEventListener("DOMContentLoaded", () => {
     editRow = null;
     modal.classList.add("show");
     modal.classList.remove("hidden");
-    // Initialize custom date picker when modal opens
+
     setTimeout(() => initializeUserDatePicker(), 0);
   });
 
-  // Initialize custom date picker for user form
+
   function initializeUserDatePicker() {
     if (userDatePicker) {
       userDatePicker.updateAvailableDates([]);
@@ -68,7 +68,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (e.target === modal) closeModal();
   });
 
-  // Listen for vet and date changes to update available times
+
   vetSelect.addEventListener("change", updateAvailableTimes);
   dateInput.addEventListener("change", updateAvailableTimes);
 
@@ -77,7 +77,7 @@ document.addEventListener("DOMContentLoaded", () => {
     setTimeout(() => modal.classList.add("hidden"), 300);
   }
 
-  // Fetch all doctors and their availability
+
   async function loadAllDoctors() {
     try {
       const response = await fetch('../../pages/admin/api_doctors_public.php?action=getAvailableDoctors');
@@ -95,13 +95,13 @@ document.addEventListener("DOMContentLoaded", () => {
     vetSelect.innerHTML = '<option value="">No preference</option>';
     allDoctors.forEach(doctor => {
       const option = document.createElement('option');
-      option.value = doctor.name_without_prefix;  // Store name without prefix
-      option.textContent = doctor.name;  // Display with Dr. prefix
+      option.value = doctor.name_without_prefix;
+      option.textContent = doctor.name;
       vetSelect.appendChild(option);
     });
   }
 
-  // Update available times based on selected vet and date
+
   async function updateAvailableTimes() {
     const selectedVet = vetSelect.value;
     const selectedDate = dateInput.value;
@@ -109,7 +109,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     timeSelect.innerHTML = '<option value="" disabled selected>Select time</option>';
 
-    // If no vet selected, hide date and time section
+
     if (!selectedVet) {
       dateTimeSection.classList.remove('visible');
       dateInput.removeAttribute('required');
@@ -121,12 +121,12 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // Vet selected, show date and time section
+
     dateTimeSection.classList.add('visible');
     dateInput.setAttribute('required', 'required');
     timeSelect.setAttribute('required', 'required');
 
-    // Update date picker with available dates
+
     const doctor = allDoctors.find(d => d.name_without_prefix === selectedVet);
     if (doctor && doctor.available_dates && userDatePicker) {
       const availableDates = getAvailableDatesForDoctor(doctor.available_dates);
@@ -134,11 +134,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (!selectedDate) {
-      // Date picker is already initialized with available dates above
+
       return;
     }
 
-    // Get selected doctor's availability
+
     let doctorTimes = null;
     if (selectedVet) {
       const doctor = allDoctors.find(d => d.name_without_prefix === selectedVet);
@@ -147,7 +147,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
-    // Fetch booked times for this date and doctor
+
     let bookedTimes = [];
     if (selectedVet && selectedDate) {
       try {
@@ -159,19 +159,19 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
-    // If no vet selected, show default times
+
     if (!doctorTimes) {
-      const defaultTimes = generateTimeSlots(['8-17']);  // 8 AM to 5 PM
+      const defaultTimes = generateTimeSlots(['8-17']);
       populateTimeOptions(defaultTimes, selectedDate, bookedTimes);
       return;
     }
 
-    // Generate times based on doctor's available time slots
+
     const times = generateTimeSlots(doctorTimes);
     populateTimeOptions(times, selectedDate, bookedTimes);
   }
 
-  // Populate time dropdown with available times, excluding booked times
+
   function populateTimeOptions(availableTimes, selectedDate, bookedTimes = []) {
     availableTimes.forEach(time => {
       if (!bookedTimes.includes(time)) {
@@ -184,7 +184,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Load appointments from server
+
   function loadAppointments() {
     fetch('appointments.php')
       .then(r => r.json())
@@ -195,18 +195,18 @@ document.addEventListener("DOMContentLoaded", () => {
         pastTableBody.innerHTML = '';
         data.forEach(addRowFromServer);
       })
-      .catch(() => { /* ignore load errors for now */ });
+      .catch(() => {  });
   }
 
-  // Search functionality for upcoming appointments
+
   const upcomingSearchInput = document.getElementById('upcomingSearchInput');
   let upcomingFilterStatus = 'all';
-  
+
   if (upcomingSearchInput) {
     upcomingSearchInput.addEventListener('input', filterUpcomingTable);
   }
 
-  // Filter buttons for upcoming appointments
+
   document.querySelectorAll('.appointments-section:first-of-type .filter-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.currentTarget.parentElement.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -223,23 +223,23 @@ document.addEventListener("DOMContentLoaded", () => {
       const text = row.textContent.toLowerCase();
       const statusCell = row.querySelector('.status');
       const status = statusCell ? statusCell.textContent.toLowerCase() : '';
-      
+
       const matchesSearch = text.includes(searchTerm);
       const matchesFilter = upcomingFilterStatus === 'all' || status.includes(upcomingFilterStatus);
-      
+
       row.style.display = (matchesSearch && matchesFilter) ? '' : 'none';
     });
   }
 
-  // Search functionality for past appointments
+
   const pastSearchInput = document.getElementById('pastSearchInput');
   let pastFilterStatus = 'all';
-  
+
   if (pastSearchInput) {
     pastSearchInput.addEventListener('input', filterPastTable);
   }
 
-  // Filter buttons for past appointments
+
   document.querySelectorAll('.appointments-section:last-of-type .filter-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.currentTarget.parentElement.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -256,10 +256,10 @@ document.addEventListener("DOMContentLoaded", () => {
       const text = row.textContent.toLowerCase();
       const statusCell = row.querySelector('.status');
       const status = statusCell ? statusCell.textContent.toLowerCase() : '';
-      
+
       const matchesSearch = text.includes(searchTerm);
       const matchesFilter = pastFilterStatus === 'all' || status.includes(pastFilterStatus);
-      
+
       row.style.display = (matchesSearch && matchesFilter) ? '' : 'none';
     });
   }
@@ -269,13 +269,13 @@ document.addEventListener("DOMContentLoaded", () => {
     row.dataset.id = appt.id;
     const displayTime = formatTime(appt.appt_time);
     const statusLabel = appt.status ? appt.status : 'Pending';
-    
+
     const selectedDateTime = new Date(`${appt.appt_date}T${appt.appt_time}`);
     const now = new Date();
     const isPast = selectedDateTime < now || (appt.status && appt.status.toLowerCase() === 'cancelled');
-    
+
     if (isPast) {
-      // Past appointments: no action column
+
       row.innerHTML = `
         <td>${escapeHtml(appt.pet_name)}</td>
         <td>${escapeHtml(appt.service)}</td>
@@ -286,7 +286,7 @@ document.addEventListener("DOMContentLoaded", () => {
       `;
       pastTableBody.appendChild(row);
     } else {
-      // Upcoming appointments: include action column
+
       row.innerHTML = `
         <td>${escapeHtml(appt.pet_name)}</td>
         <td>${escapeHtml(appt.service)}</td>
@@ -319,9 +319,14 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // send to server
+
     const formData = new FormData();
-    formData.append('action', 'create');
+    if (editRow && editRow.dataset && editRow.dataset.id) {
+      formData.append('action', 'update');
+      formData.append('id', editRow.dataset.id);
+    } else {
+      formData.append('action', 'create');
+    }
     formData.append('pet_name', petName);
     formData.append('service', service);
     formData.append('appt_date', date);
@@ -332,25 +337,70 @@ document.addEventListener("DOMContentLoaded", () => {
       .then(r => r.json())
       .then(resp => {
         if (resp && resp.success && resp.appointment) {
-          allAppointments.push(resp.appointment);
-          addRowFromServer(resp.appointment);
-          toast.success('Appointment created successfully!');
-          showReceipt({ petName: resp.appointment.pet_name, service: resp.appointment.service, date: resp.appointment.appt_date, time: formatTime(resp.appointment.appt_time), vet: resp.appointment.vet || 'Not assigned', status: resp.appointment.status });
+          const appt = resp.appointment;
+          if (formData.get('action') === 'create') {
+            allAppointments.push(appt);
+            addRowFromServer(appt);
+            toast.success('Appointment created successfully!');
+            showReceipt({ petName: appt.pet_name, service: appt.service, date: appt.appt_date, time: formatTime(appt.appt_time), vet: appt.vet || 'Not assigned', status: appt.status });
+          } else {
+
+
+            let rowToUpdate = null;
+            if (editRow && editRow.dataset && editRow.dataset.id == appt.id) {
+              rowToUpdate = editRow;
+            } else {
+              rowToUpdate = document.querySelector(`#upcomingTable tbody tr[data-id=\"${appt.id}\"`)
+                        || document.querySelector(`#pastTable tbody tr[data-id=\"${appt.id}\"]`);
+
+              if (!rowToUpdate) {
+                rowToUpdate = document.querySelector(`tr[data-id=\"${appt.id}\"]`);
+              }
+            }
+
+            if (rowToUpdate) {
+
+              const duplicates = Array.from(document.querySelectorAll(`tr[data-id=\"${appt.id}\"]`));
+              if (duplicates.length > 1) {
+
+                duplicates.forEach(r => { if (r !== rowToUpdate) r.remove(); });
+              }
+
+
+              rowToUpdate.dataset.id = appt.id;
+              rowToUpdate.cells[0].textContent = appt.pet_name;
+              rowToUpdate.cells[1].textContent = appt.service;
+              rowToUpdate.cells[2].textContent = appt.vet || 'Not assigned';
+              rowToUpdate.cells[3].textContent = appt.appt_date;
+
+              if (rowToUpdate.cells[4]) rowToUpdate.cells[4].textContent = formatTime(appt.appt_time);
+              setStatus(rowToUpdate, appt.status || 'Pending');
+
+
+              allAppointments = allAppointments.map(a => a.id == appt.id ? appt : a);
+              toast.success('Appointment updated successfully!');
+            } else {
+
+              allAppointments.push(appt);
+              addRowFromServer(appt);
+            }
+          }
         } else {
-          toast.error('Unable to create appointment.');
+          toast.error('Unable to save appointment.');
         }
       })
-      .catch(() => toast.error('Unable to create appointment.'));
+      .catch(() => toast.error('Unable to save appointment.'));
 
     closeModal();
     form.reset();
+    editRow = null;
   });
 
   function attachRowActions(row) {
     const editBtn = row.querySelector('.edit-btn');
     const cancelBtn = row.querySelector('.cancel-btn');
     editBtn.addEventListener('click', () => {
-      // keep edits client-side for now
+
       editRow = row;
       document.getElementById('petName').value = row.cells[0].textContent;
       document.getElementById('service').value = row.cells[1].textContent;
@@ -376,7 +426,7 @@ document.addEventListener("DOMContentLoaded", () => {
             setStatus(row, 'Cancelled');
             const edit = row.querySelector('.edit-btn'); if (edit) edit.remove();
             const cancel = row.querySelector('.cancel-btn'); if (cancel) cancel.remove();
-            allAppointments = allAppointments.map(appt => 
+            allAppointments = allAppointments.map(appt =>
               appt.id == id ? { ...appt, status: 'cancelled' } : appt
             );
             pastTableBody.appendChild(row);
@@ -413,7 +463,7 @@ document.addEventListener("DOMContentLoaded", () => {
     return str.replace(/[&<>"']/g, function (c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[c]; });
   }
 
-  // initial load
+
   loadAllDoctors();
   loadAppointments();
 

@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-// If user is already logged in, redirect them to their appropriate dashboard
+
 if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
     $role = isset($_SESSION['role']) ? strtolower($_SESSION['role']) : 'user';
     if ($role === 'admin') {
@@ -12,7 +12,7 @@ if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
     exit();
 }
 
-// index.php — serves the homepage on GET and handles newsletter POST subscriptions on POST
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     header('Content-Type: application/json');
 
@@ -34,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit();
     }
 
-    // Check if email already exists
+
     $checkQuery = $conn->prepare("SELECT id FROM tbl_newsletter WHERE email = ?");
     $checkQuery->bind_param('s', $email);
     $checkQuery->execute();
@@ -78,7 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       background-color: #ffebee !important;
     }
 
-    /* Enhanced Date Picker Styling */
+
     input[type="date"] {
       cursor: pointer !important;
       transition: all 0.3s ease !important;
@@ -116,7 +116,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       border-color: #67C5BB !important;
     }
 
-    /* Hide date and time sections by default */
+
     .date-time-section {
       display: none;
       transition: opacity 0.3s ease;
@@ -136,7 +136,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       }
     }
 
-    /* Ensure modal scrolls when content expands */
+
     .modal-content {
       max-height: 90vh;
       overflow-y: auto;
@@ -182,10 +182,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   </header>
 
   <section class="hero" style="margin-top: 0; padding-top: 0; min-height: 100vh; background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); display: flex; align-items: center; position: relative; overflow: hidden; margin-top: -70px; padding-top: 70px;">
-    <!-- Animated Background Elements -->
+
     <div style="position: absolute; top: -50%; right: -10%; width: 600px; height: 600px; background: radial-gradient(circle, rgba(255,255,255,0.15), transparent); border-radius: 50%; animation: float 8s ease-in-out infinite;"></div>
     <div style="position: absolute; bottom: -30%; left: -5%; width: 500px; height: 500px; background: radial-gradient(circle, rgba(255,255,255,0.08), transparent); border-radius: 50%; animation: float 10s ease-in-out infinite 1s;"></div>
-    
+
     <div class="container-lg" style="position: relative; z-index: 2;">
       <div class="row align-items-center g-5 py-5">
         <div class="col-lg-6">
@@ -203,7 +203,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
         <div class="col-lg-6" style="animation: slideInRight 0.8s ease-out;">
           <div style="position: relative; display: flex; align-items: center; justify-content: center;">
-            <!-- Decorative circle background -->
+
             <div style="position: absolute; width: 420px; height: 420px; background: radial-gradient(circle, rgba(255,255,255,0.1), rgba(255,255,255,0.05)); border-radius: 50%; top: 50%; left: 50%; transform: translate(-50%, -50%);"></div>
             <img src="assets/images/catdog.png" alt="Happy pets at Tails and Trails" class="img-fluid" style="filter: drop-shadow(0 30px 60px rgba(0,0,0,0.25)); position: relative; z-index: 1; max-width: 100%; animation: float 4s ease-in-out infinite;">
           </div>
@@ -211,7 +211,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       </div>
     </div>
 
-    <!-- Decorative bottom wave -->
+
     <svg style="position: absolute; bottom: 0; left: 0; right: 0; width: 100%; height: 80px;" preserveAspectRatio="none" viewBox="0 0 1200 80" xmlns="http://www.w3.org/2000/svg">
       <path d="M0,40 Q300,0 600,40 T1200,40 L1200,80 L0,80 Z" fill="white"></path>
     </svg>
@@ -264,7 +264,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
       </div>
     </div>
-    <!-- Wave divider to Services section -->
+
     <svg style="position: absolute; bottom: -1px; left: 0; right: 0; width: 100%; height: 80px;" preserveAspectRatio="none" viewBox="0 0 1200 80" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <linearGradient id="waveGradient1" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -325,7 +325,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   </section>
 
   <section class="contact-info py-5 bg-white" id="visit" style="position: relative; margin-top: 0; padding-top: 100px !important;">
-    <!-- Wave divider from Services section -->
+
     <svg style="position: absolute; top: -1px; left: 0; right: 0; width: 100%; height: 80px;" preserveAspectRatio="none" viewBox="0 0 1200 80" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <linearGradient id="waveGradient" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -500,7 +500,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     bookingForm.addEventListener('submit', (e) => {
       e.preventDefault();
       const formData = new FormData(bookingForm);
-      // send booking to guest_book.php to persist into tbl_appointments
+
       fetch('includes/guest_book.php', {
         method: 'POST',
         body: formData
@@ -527,7 +527,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       e.preventDefault();
       const email = newsletterEmail.value.trim();
       if (email) {
-        // Send to PHP backend (this same file)
+
         const formData = new FormData();
         formData.append('email', email);
         fetch('index.php', {
@@ -557,7 +557,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       }
     });
 
-    // Initialize guest booking form with doctors and advanced filtering
+
     let guestAllDoctors = [];
     let guestAllAppointments = [];
     let guestDatePicker = null;
@@ -570,16 +570,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       const today = new Date().toISOString().split("T")[0];
       guestDateInput.setAttribute("min", today);
 
-      // Initialize custom date picker
+
       if (!guestDatePicker) {
         guestDatePicker = new BookingDatePicker(guestDateInput, []);
       }
 
-      // Load all doctors
+
       guestAllDoctors = await fetchAvailableDoctors();
       populateGuestDoctorSelect();
 
-      // Listen for changes
+
       guestDoctorSelect.addEventListener('change', onGuestDoctorChange);
       guestDateInput.addEventListener('change', onGuestDateChange);
     }
@@ -588,8 +588,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       guestDoctorSelect.innerHTML = '<option value="">No preference</option>';
       guestAllDoctors.forEach(doctor => {
         const option = document.createElement('option');
-        option.value = doctor.name_without_prefix;  // Store name without prefix for database
-        option.textContent = doctor.name;  // Display with Dr. prefix
+        option.value = doctor.name_without_prefix;
+        option.textContent = doctor.name;
         guestDoctorSelect.appendChild(option);
       });
     }
@@ -601,23 +601,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       const dateTimeSection = document.querySelector('.date-time-section');
 
       if (!selectedDoctor) {
-        // No doctor selected, hide date and time section
+
         dateTimeSection.classList.remove('visible');
         guestDateInput.removeAttribute('required');
         guestTimeSelect.removeAttribute('required');
-        // Clear date restrictions
+
         const today = new Date().toISOString().split("T")[0];
         guestDateInput.setAttribute("min", today);
         guestDateInput.removeAttribute("max");
         return;
       }
 
-      // Doctor selected, show date and time section
+
       dateTimeSection.classList.add('visible');
       guestDateInput.setAttribute('required', 'required');
       guestTimeSelect.setAttribute('required', 'required');
 
-      // Find doctor data and update date picker with available dates
+
       const doctor = guestAllDoctors.find(d => d.name_without_prefix === selectedDoctor);
       if (doctor && doctor.available_dates && guestDatePicker) {
         const availableDates = getAvailableDatesForDoctor(doctor.available_dates);
@@ -638,23 +638,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       let availableTimeSlots = [];
 
       if (selectedDoctorName) {
-        // Fetch booked times for this doctor and date
+
         const response = await fetch(`pages/admin/api_doctors_public.php?action=getBookedTimes&date=${selectedDate}&doctor=${selectedDoctorName}`);
         const bookedData = await response.json();
         const bookedTimes = bookedData.data || [];
 
-        // Get doctor's available times
+
         const doctor = guestAllDoctors.find(d => d.name_without_prefix === selectedDoctorName);
         if (doctor && doctor.available_times) {
           const timeSlots = generateTimeSlots(doctor.available_times);
           availableTimeSlots = timeSlots.filter(slot => !bookedTimes.includes(slot));
         }
       } else {
-        // No doctor selected - show default available hours (8 AM to 5 PM)
+
         availableTimeSlots = generateTimeSlots(['8-17']);
       }
 
-      // Populate time dropdown
+
       availableTimeSlots.forEach(time => {
         const option = document.createElement('option');
         option.value = time;
@@ -663,21 +663,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       });
     }
 
-    // Initialize map
+
     function initializeMap() {
       const clinicLat = 14.3451;
       const clinicLng = 120.9661;
-      
-      // Create map centered at clinic location
+
+
       const map = L.map('map').setView([clinicLat, clinicLng], 17);
-      
-      // Add OpenStreetMap tiles
+
+
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
         maxZoom: 19
       }).addTo(map);
-      
-      // Add custom marker with clinic icon
+
+
       const marker = L.marker([clinicLat, clinicLng], {
         icon: L.icon({
           iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
@@ -688,8 +688,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           shadowSize: [41, 41]
         })
       }).addTo(map);
-      
-      // Add popup to marker
+
+
       marker.bindPopup('<strong>Tails and Trails Clinic</strong><br>Carlos Q. Trinidad Ave, Salawag, Dasmarinas City').openPopup();
     }
 

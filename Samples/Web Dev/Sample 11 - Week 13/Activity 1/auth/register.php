@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-// If user is already logged in, redirect them to their appropriate dashboard
+
 if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
     $role = isset($_SESSION['role']) ? strtolower($_SESSION['role']) : 'user';
     if ($role === 'admin') {
@@ -23,24 +23,24 @@ if ($conn->connect_error) {
         die("Connection failed: " . $conn->connect_error);
 }
 
-// If the form was submitted, process registration
+
 if ($_SERVER["REQUEST_METHOD"] === 'POST') {
         $fname = isset($_POST['fname']) ? trim($_POST['fname']) : '';
         $lname = isset($_POST['lname']) ? trim($_POST['lname']) : '';
         $email = isset($_POST['email']) ? trim($_POST['email']) : '';
         $contact = isset($_POST['contact']) ? trim($_POST['contact']) : '';
         $pass = isset($_POST['password']) ? $_POST['password'] : '';
-        // Default role and status for newly registered accounts
+
         $role = 'user';
         $status = 'active';
 
-        // Basic validation
+
         if ($fname === '' || $lname === '' || $email === '' || $contact === '' || $pass === '') {
                 echo "<script>alert('Please fill in all required fields.'); window.location.href='register.php';</script>";
                 exit();
         }
 
-        // Check if user already exists
+
         $checkQuery = $conn->prepare("SELECT user_id FROM tbl_users WHERE email = ?");
         $checkQuery->bind_param("s", $email);
         $checkQuery->execute();
@@ -49,7 +49,7 @@ if ($_SERVER["REQUEST_METHOD"] === 'POST') {
         if ($result && $result->num_rows > 0) {
                 echo "<script>alert('Email already registered!'); window.location.href='register.php';</script>";
         } else {
-                // Generate a user_id like USR0001
+
                 $newId = 'USR0001';
                 $res = $conn->query("SELECT user_id FROM tbl_users WHERE user_id LIKE 'USR%' ORDER BY user_id DESC LIMIT 1");
                 if ($res && $res->num_rows > 0) {
@@ -59,9 +59,9 @@ if ($_SERVER["REQUEST_METHOD"] === 'POST') {
                     $newId = sprintf('USR%04d', $num + 1);
                 }
 
-                // Insert new user using prepared statement (include contact, role and status)
+
                 $insert = $conn->prepare("INSERT INTO tbl_users (user_id, fname, lname, email, contact, pass, role, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-                
+
                 if (!$insert) {
                     echo "<script>alert('Prepare failed: " . addslashes($conn->error) . "'); window.location.href='register.php';</script>";
                 } else {
@@ -80,7 +80,7 @@ if ($_SERVER["REQUEST_METHOD"] === 'POST') {
         exit();
 }
 
-// If not POST, fall through to show the registration form (HTML below)
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -89,7 +89,7 @@ if ($_SERVER["REQUEST_METHOD"] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign Up - Tails and Trails</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-    <!-- Bootstrap 5 -->
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/auth/signup.css">
 </head>
@@ -156,13 +156,13 @@ if ($_SERVER["REQUEST_METHOD"] === 'POST') {
             </form>
         </div>
     </div>
-        <!-- Bootstrap JS (Bundle includes Popper) -->
+
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-        <!-- Script loading order (IMPORTANT: app.js MUST be first) -->
+
         <script src="../assets/js/app.js"></script>
         <script src="../assets/js/auth/signup.js"></script>
         <script>
-        // Bootstrap form validation integration
+
         (function () {
             'use strict'
             const forms = document.querySelectorAll('.needs-validation')

@@ -1,6 +1,6 @@
-/* Booking Date Picker Styling - Specialized for index page booking modal */
 
-/* Wrapper for booking date picker input and widget */
+
+
 .booking-date-picker-wrapper {
   position: relative;
   display: block;
@@ -154,7 +154,7 @@
   background-color: #e8f5f4;
 }
 
-/* Available dates - Green */
+
 .booking-date-cell.available {
   border-color: #4caf50;
   background-color: #e8f5e9;
@@ -167,7 +167,7 @@
   box-shadow: inset 0 0 4px rgba(76, 175, 80, 0.2);
 }
 
-/* Unavailable dates - Red/Disabled */
+
 .booking-date-cell.unavailable {
   border-color: #e0e0e0;
   background-color: #ffebee;
@@ -181,13 +181,13 @@
   border-color: #e0e0e0;
 }
 
-/* Today highlight */
+
 .booking-date-cell.today {
   border-color: #67C5BB;
   border-width: 2px;
 }
 
-/* Selected date */
+
 .booking-date-cell.selected {
   background-color: #67C5BB;
   color: white;
@@ -200,7 +200,7 @@
   background: linear-gradient(135deg, #4caf50 0%, #67C5BB 100%);
 }
 
-/* Empty cells - maintain grid structure but invisible */
+
 .booking-date-cell.empty {
   cursor: default;
   background: none;

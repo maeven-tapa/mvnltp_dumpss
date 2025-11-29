@@ -1,10 +1,10 @@
 <?php
-// Include comprehensive session validation
+
 require_once __DIR__ . '/../../includes/session-check.php';
 
-// include helper that sets $userFirstName, $userLastName, $userFullName
+
 require_once __DIR__ . '/get_user.php';
-// Fallback if helper didn't set a fullname
+
 if (empty($userFullName)) {
   $userFullName = isset($_SESSION['name']) ? $_SESSION['name'] : '';
 }
@@ -37,7 +37,7 @@ if (empty($userFullName)) {
     }
   }
 
-  /* Ensure modal scrolls when content expands */
+
   .modal-content {
     max-height: 90vh;
     overflow-y: auto;
@@ -52,7 +52,7 @@ if (empty($userFullName)) {
     gap: 0;
   }
 
-  /* Compact form field spacing */
+
   .modal-content label {
     margin-top: 12px !important;
     margin-bottom: 4px !important;
@@ -65,7 +65,7 @@ if (empty($userFullName)) {
     margin-bottom: 0 !important;
   }
 
-  /* Booking date picker inside modal - position relative to modal */
+
   .modal-content .booking-date-picker-wrapper {
     position: relative;
     overflow: visible !important;
@@ -84,7 +84,7 @@ if (empty($userFullName)) {
 
 <div class="dashboard-box">
   <div class="dashboard-container">
-    
+
     <header class="dashboard-header">
       <div class="logo"><img src="../../assets/images/logo.png" alt="Tails & Trails Logo" class="logo-img"> <span>Tails & Trails</span></div>
       <div class="header-right" style="display:flex;align-items:center;gap:0.75rem;">
@@ -154,7 +154,7 @@ if (empty($userFullName)) {
         </table>
       </div>
     </section>
-    
+
   </div>
 </div>
 
@@ -162,7 +162,7 @@ if (empty($userFullName)) {
   <div class="modal-content">
     <h2 id="modalTitle">Book New Appointment</h2>
     <form id="appointmentForm">
-      
+
       <label for="petName">Pet Name:</label>
       <input type="text" id="petName" name="petName" placeholder="Enter your pet's name" required>
 
@@ -227,37 +227,37 @@ if (empty($userFullName)) {
   </div>
 </div>
 
-    <!-- Template for a hidden cancel button to be used in upcoming appointments' Action cell. -->
+
     <template id="cancel-template">
       <button class="btn cancel-btn hidden cancel-action" type="button" aria-hidden="true">Cancel</button>
     </template>
 
 <script>
-  // Logout handler with confirmation popup
+
   (function(){
     var logoutBtn = document.getElementById('logoutBtn');
     if(logoutBtn){
       logoutBtn.addEventListener('click', function(e){
         e.preventDefault();
-        // Use shared logout confirmation from app.js
+
         showLogoutConfirmation();
       });
     }
   })();
-  
-  // Prevent browser back button to go back if logged out
+
+
   (function(){
-    // Add history entry on page load
+
     window.history.pushState(null, null, window.location.href);
-    
-    // Handle back button
+
+
     window.addEventListener('popstate', function(){
       window.history.pushState(null, null, window.location.href);
     });
   })();
 </script>
 
-<!-- Script loading order (IMPORTANT: app.js MUST be first) -->
+
 <script src="../../assets/js/app.js"></script>
 <script src="../../assets/js/components/booking-date-picker.js"></script>
 <script src="../../assets/js/components/toast.js"></script>

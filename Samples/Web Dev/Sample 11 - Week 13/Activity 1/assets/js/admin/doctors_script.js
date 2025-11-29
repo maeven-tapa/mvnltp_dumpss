@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-  
+
   const modal = document.getElementById("doctorModal");
   const cancelBtn = document.getElementById("doctorCancelBtn");
   const form = document.getElementById("doctorForm");
@@ -7,13 +7,13 @@ document.addEventListener("DOMContentLoaded", () => {
   const tableBody = document.querySelector("#doctorTable tbody");
   const searchInput = document.getElementById("doctorSearch");
   const addDoctorBtn = document.getElementById("addDoctorBtn");
-  
-  let editingVetId = null; 
-  let doctors = []; 
+
+  let editingVetId = null;
+  let doctors = [];
   let currentPage = 1;
   let itemsPerPage = 15;
 
-  // Initialize sidebar and shared functionality
+
   initializeSidebarToggle();
   preventBackNavigation();
 
@@ -21,16 +21,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
   addDoctorBtn.addEventListener("click", () => openModal("Add Doctor"));
   cancelBtn.addEventListener("click", closeModal);
-  
-  window.addEventListener("click", e => { 
-    if (e.target === modal) closeModal(); 
+
+  window.addEventListener("click", e => {
+    if (e.target === modal) closeModal();
   });
 
   form.addEventListener("submit", handleFormSubmit);
 
   if (searchInput) {
     searchInput.addEventListener("input", () => {
-      currentPage = 1; 
+      currentPage = 1;
       renderTable();
     });
   }
@@ -62,11 +62,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document.getElementById("itemsPerPage").addEventListener("change", (e) => {
     itemsPerPage = e.target.value === 'all' ? Infinity : parseInt(e.target.value);
-    currentPage = 1; 
+    currentPage = 1;
     renderTable();
   });
 
-  // Load doctors from server
+
   function loadDoctors() {
     fetch('api_doctors.php?action=getDoctors')
       .then(response => response.json())
@@ -91,25 +91,25 @@ document.addEventListener("DOMContentLoaded", () => {
       document.getElementById("doctorName").value = doctorData.name || '';
       document.getElementById("doctorEmail").value = doctorData.email || '';
       document.getElementById("doctorContact").value = doctorData.contact || '';
-      
-      // Uncheck all checkboxes first
+
+
       document.querySelectorAll('.time-checkbox').forEach(cb => cb.checked = false);
       document.querySelectorAll('.day-checkbox').forEach(cb => cb.checked = false);
-      
-      // Check the appropriate time checkboxes
+
+
       const times = Array.isArray(doctorData.available_times) ? doctorData.available_times : (doctorData.available_times ? doctorData.available_times.split(',') : []);
       times.forEach(time => {
         const checkbox = document.querySelector(`.time-checkbox[value="${time.trim()}"]`);
         if (checkbox) checkbox.checked = true;
       });
-      
-      // Check the appropriate day checkboxes
+
+
       const days = Array.isArray(doctorData.available_dates) ? doctorData.available_dates : (doctorData.available_dates ? doctorData.available_dates.split(',') : []);
       days.forEach(day => {
         const checkbox = document.querySelector(`.day-checkbox[value="${day.trim()}"]`);
         if (checkbox) checkbox.checked = true;
       });
-      
+
       editingVetId = doctorData.vet_id;
     } else {
       form.reset();
@@ -122,7 +122,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function closeModal() {
     modal.classList.remove("show");
     form.reset();
-    editingVetId = null; 
+    editingVetId = null;
   }
 
   function handleFormSubmit(e) {
@@ -131,13 +131,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const name = document.getElementById("doctorName").value.trim();
     const email = document.getElementById("doctorEmail").value.trim();
     const contact = document.getElementById("doctorContact").value.trim();
-    const status = 'On Duty'; // Default status
-    
-    // Get selected times from checkboxes
+    const status = 'On Duty';
+
+
     const selectedTimes = Array.from(document.querySelectorAll('.time-checkbox:checked')).map(cb => cb.value);
     const available_times = selectedTimes.join(',');
-    
-    // Get selected days from checkboxes
+
+
     const selectedDays = Array.from(document.querySelectorAll('.day-checkbox:checked')).map(cb => cb.value);
     const available_dates = selectedDays.join(',');
 
@@ -157,13 +157,13 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const formData = new FormData();
-    
+
     if (editingVetId) {
-      // Update doctor
+
       formData.append('action', 'updateDoctor');
       formData.append('vet_id', editingVetId);
     } else {
-      // Add new doctor
+
       formData.append('action', 'addDoctor');
     }
 
@@ -241,13 +241,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function createTableRow(doctor) {
     const row = document.createElement("tr");
-    
-    const availableDays = Array.isArray(doctor.available_dates) 
-      ? doctor.available_dates.join(', ') 
+
+    const availableDays = Array.isArray(doctor.available_dates)
+      ? doctor.available_dates.join(', ')
       : (doctor.available_dates || 'N/A');
-    
-    const availableTimes = Array.isArray(doctor.available_times) 
-      ? doctor.available_times.join(', ') 
+
+    const availableTimes = Array.isArray(doctor.available_times)
+      ? doctor.available_times.join(', ')
       : (doctor.available_times || 'N/A');
 
     row.innerHTML = `
@@ -274,10 +274,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const editBtn = row.querySelector(".edit-btn");
     const deleteBtn = row.querySelector(".delete-btn");
 
-    // Update dropdown color based on status
+
     updateDropdownColor(statusDropdown, doctor.status);
 
-    // Status change from dropdown
+
     statusDropdown.addEventListener("change", () => {
       const newStatus = statusDropdown.value;
       const oldStatus = doctor.status;
@@ -329,7 +329,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function updateDoctorStatus(vet_id, newStatus, dropdown) {
-    // Find the current doctor to get their details
+
     const doctor = doctors.find(d => d.vet_id === vet_id);
     if (!doctor) return;
 
@@ -354,7 +354,7 @@ document.addEventListener("DOMContentLoaded", () => {
         loadDoctors();
       } else {
         toast.error('Error: ' + data.message);
-        // Revert the dropdown
+
         if (doctor) {
           dropdown.value = doctor.status;
           updateDropdownColor(dropdown, doctor.status);

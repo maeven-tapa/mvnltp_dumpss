@@ -1,5 +1,5 @@
 <?php
-// Session validation with same security headers
+
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -8,7 +8,7 @@ header('Content-Type: application/json');
 header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
 header('Pragma: no-cache');
 
-// Validate session for API endpoint
+
 if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
     echo json_encode(['success' => false, 'message' => 'Not authenticated']);
     exit();
@@ -42,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     exit();
 }
 
-// POST actions: create or cancel
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = isset($_POST['action']) ? $_POST['action'] : '';
     if ($action === 'create') {
@@ -57,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit();
         }
 
-        // Validate date is not in the past
+
         $selectedDate = new DateTime($date);
         $today = new DateTime();
         $today->setTime(0, 0, 0);
@@ -66,42 +66,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit();
         }
 
-        // If a doctor is selected, validate the appointment against their availability
+
         if ($vet !== '') {
-            // Check if doctor is available on the selected date
+
             $stmt = $conn->prepare("SELECT available_dates, available_times FROM tbl_vets WHERE name = ? AND status = 'On Duty'");
             if (!$stmt) {
                 echo json_encode(['success' => false, 'message' => 'Database error']);
                 exit();
             }
-            
+
             $stmt->bind_param('s', $vet);
             $stmt->execute();
             $result = $stmt->get_result();
-            
+
             if ($result->num_rows === 0) {
                 echo json_encode(['success' => false, 'message' => 'Selected doctor is not available']);
                 $stmt->close();
                 exit();
             }
-            
+
             $doctorRow = $result->fetch_assoc();
             $stmt->close();
-            
+
             $availableDates = json_decode($doctorRow['available_dates'], true);
             $availableTimes = json_decode($doctorRow['available_times'], true);
-            
+
             if (!is_array($availableDates)) $availableDates = [];
             if (!is_array($availableTimes)) $availableTimes = [];
-            
-            // Check if the selected date's day of week is in available days
-            $dayOfWeek = $selectedDate->format('l'); // e.g., "Monday"
+
+
+            $dayOfWeek = $selectedDate->format('l');
             if (!in_array($dayOfWeek, $availableDates)) {
                 echo json_encode(['success' => false, 'message' => 'Doctor is not available on the selected date']);
                 exit();
             }
-            
-            // Check if the selected time is within doctor's available hours
+
+
             $timeValid = false;
             foreach ($availableTimes as $timeRange) {
                 $timeRange = trim($timeRange);
@@ -110,41 +110,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $startHour = (int)trim($startHour);
                     $endHour = (int)trim($endHour);
                     $selectedHour = (int)substr($time, 0, 2);
-                    
+
                     if ($selectedHour >= $startHour && $selectedHour < $endHour) {
                         $timeValid = true;
                         break;
                     }
                 }
             }
-            
+
             if (!$timeValid) {
                 echo json_encode(['success' => false, 'message' => 'Selected time is not within doctor\'s available hours']);
                 exit();
             }
-            
-            // Check if the specific time slot is already booked
+
+
             $checkBooking = $conn->prepare("SELECT id FROM tbl_appointments WHERE vet = ? AND appt_date = ? AND appt_time = ? AND status NOT IN ('cancelled', 'rejected')");
             if (!$checkBooking) {
                 echo json_encode(['success' => false, 'message' => 'Database error']);
                 exit();
             }
-            
+
             $checkBooking->bind_param('sss', $vet, $date, $time);
             $checkBooking->execute();
             $bookingResult = $checkBooking->get_result();
-            
+
             if ($bookingResult->num_rows > 0) {
                 echo json_encode(['success' => false, 'message' => 'This time slot is already booked']);
                 $checkBooking->close();
                 exit();
             }
-            
+
             $checkBooking->close();
         }
 
-        // Registered users only (USR or ADM prefix)
-        // Guest bookings are done via guest_book.php from homepage
+
+
         $booking_type = 'registered';
         $insert_user_id = $user_id;
         $guest_name = null;
@@ -188,9 +188,123 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $conn->close();
         exit();
     }
+
+
+    if ($action === 'update') {
+        $id = isset($_POST['id']) ? intval($_POST['id']) : 0;
+        $pet = isset($_POST['pet_name']) ? trim($_POST['pet_name']) : '';
+        $service = isset($_POST['service']) ? trim($_POST['service']) : '';
+        $vet = isset($_POST['vet']) ? trim($_POST['vet']) : '';
+        $date = isset($_POST['appt_date']) ? $_POST['appt_date'] : '';
+        $time = isset($_POST['appt_time']) ? $_POST['appt_time'] : '';
+
+        if ($id <= 0 || $pet === '' || $service === '' || $date === '' || $time === '') {
+            echo json_encode(['success' => false, 'message' => 'Missing fields or invalid id']);
+            exit();
+        }
+
+
+        $selectedDate = new DateTime($date);
+        $today = new DateTime();
+        $today->setTime(0, 0, 0);
+        if ($selectedDate < $today) {
+            echo json_encode(['success' => false, 'message' => 'Cannot book appointments in the past']);
+            exit();
+        }
+
+
+        if ($vet !== '') {
+            $stmt = $conn->prepare("SELECT available_dates, available_times FROM tbl_vets WHERE name = ? AND status = 'On Duty'");
+            if (!$stmt) {
+                echo json_encode(['success' => false, 'message' => 'Database error']);
+                exit();
+            }
+            $stmt->bind_param('s', $vet);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            if ($result->num_rows === 0) {
+                echo json_encode(['success' => false, 'message' => 'Selected doctor is not available']);
+                $stmt->close();
+                exit();
+            }
+            $doctorRow = $result->fetch_assoc();
+            $stmt->close();
+
+            $availableDates = json_decode($doctorRow['available_dates'], true);
+            $availableTimes = json_decode($doctorRow['available_times'], true);
+            if (!is_array($availableDates)) $availableDates = [];
+            if (!is_array($availableTimes)) $availableTimes = [];
+
+            $dayOfWeek = $selectedDate->format('l');
+            if (!in_array($dayOfWeek, $availableDates)) {
+                echo json_encode(['success' => false, 'message' => 'Doctor is not available on the selected date']);
+                exit();
+            }
+
+            $timeValid = false;
+            foreach ($availableTimes as $timeRange) {
+                $timeRange = trim($timeRange);
+                if (strpos($timeRange, '-') !== false) {
+                    list($startHour, $endHour) = explode('-', $timeRange);
+                    $startHour = (int)trim($startHour);
+                    $endHour = (int)trim($endHour);
+                    $selectedHour = (int)substr($time, 0, 2);
+                    if ($selectedHour >= $startHour && $selectedHour < $endHour) {
+                        $timeValid = true;
+                        break;
+                    }
+                }
+            }
+            if (!$timeValid) {
+                echo json_encode(['success' => false, 'message' => 'Selected time is not within doctor\'s available hours']);
+                exit();
+            }
+
+
+            $checkBooking = $conn->prepare("SELECT id FROM tbl_appointments WHERE vet = ? AND appt_date = ? AND appt_time = ? AND id != ? AND status NOT IN ('cancelled', 'rejected')");
+            if (!$checkBooking) {
+                echo json_encode(['success' => false, 'message' => 'Database error']);
+                exit();
+            }
+            $checkBooking->bind_param('sssi', $vet, $date, $time, $id);
+            $checkBooking->execute();
+            $bookingResult = $checkBooking->get_result();
+            if ($bookingResult->num_rows > 0) {
+                echo json_encode(['success' => false, 'message' => 'This time slot is already booked']);
+                $checkBooking->close();
+                exit();
+            }
+            $checkBooking->close();
+        }
+
+
+        $u = $conn->prepare("UPDATE tbl_appointments SET pet_name = ?, service = ?, vet = ?, appt_date = ?, appt_time = ? WHERE id = ? AND user_id = ?");
+        if (!$u) {
+            echo json_encode(['success' => false, 'message' => 'Database error']);
+            exit();
+        }
+        $u->bind_param('sssssis', $pet, $service, $vet, $date, $time, $id, $user_id);
+        if ($u->execute()) {
+            $u->close();
+            $s = $conn->prepare("SELECT id, pet_name, service, vet, appt_date, appt_time, status FROM tbl_appointments WHERE id = ? LIMIT 1");
+            $s->bind_param('i', $id);
+            $s->execute();
+            $res = $s->get_result();
+            $row = $res->fetch_assoc();
+            echo json_encode(['success' => true, 'appointment' => $row]);
+            $s->close();
+            $conn->close();
+            exit();
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Update failed']);
+            $u->close();
+            $conn->close();
+            exit();
+        }
+    }
 }
 
-// default
+
 echo json_encode(['success' => false, 'message' => 'Invalid request']);
 $conn->close();
 exit();

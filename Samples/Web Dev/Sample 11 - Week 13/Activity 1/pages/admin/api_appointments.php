@@ -2,13 +2,13 @@
 header('Content-Type: application/json');
 session_start();
 
-// Check if user is logged in and is an admin
+
 if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || strtolower($_SESSION['role']) !== 'admin') {
     echo json_encode(['success' => false, 'message' => 'Unauthorized']);
     exit();
 }
 
-// Database connection
+
 $host = 'localhost';
 $username = 'root';
 $password = 'root';
@@ -21,23 +21,23 @@ if ($conn->connect_error) {
     exit();
 }
 
-// Get request method
+
 $method = $_SERVER['REQUEST_METHOD'];
 
-// Fetch all appointments (both registered users and guests)
+
 if ($method === 'GET' && isset($_GET['action']) && $_GET['action'] === 'getAppointments') {
     $status_filter = isset($_GET['status']) ? trim($_GET['status']) : 'all';
     $search = isset($_GET['search']) ? trim($_GET['search']) : '';
     $sort_by = isset($_GET['sort_by']) ? trim($_GET['sort_by']) : 'date';
     $sort_order = isset($_GET['sort_order']) ? trim($_GET['sort_order']) : 'DESC';
 
-    $query = "SELECT tbl_appointments.id, tbl_appointments.booking_type, tbl_appointments.user_id, 
+    $query = "SELECT tbl_appointments.id, tbl_appointments.booking_type, tbl_appointments.user_id,
               CONCAT(tbl_users.fname, ' ', tbl_users.lname) as user_name,
-              tbl_appointments.guest_name, tbl_appointments.guest_email, tbl_appointments.guest_contact, 
-              tbl_appointments.pet_name, tbl_appointments.service, tbl_appointments.vet, 
-              tbl_appointments.appt_date, tbl_appointments.appt_time, tbl_appointments.status 
-              FROM tbl_appointments 
-              LEFT JOIN tbl_users ON tbl_appointments.user_id = tbl_users.user_id 
+              tbl_appointments.guest_name, tbl_appointments.guest_email, tbl_appointments.guest_contact,
+              tbl_appointments.pet_name, tbl_appointments.service, tbl_appointments.vet,
+              tbl_appointments.appt_date, tbl_appointments.appt_time, tbl_appointments.status
+              FROM tbl_appointments
+              LEFT JOIN tbl_users ON tbl_appointments.user_id = tbl_users.user_id
               WHERE tbl_appointments.status != 'Archived'";
 
     if ($status_filter !== 'all') {
@@ -45,8 +45,8 @@ if ($method === 'GET' && isset($_GET['action']) && $_GET['action'] === 'getAppoi
     }
 
     if ($search !== '') {
-        $query .= " AND (tbl_appointments.pet_name LIKE '%" . $conn->real_escape_string($search) . "%' 
-                       OR tbl_appointments.service LIKE '%" . $conn->real_escape_string($search) . "%' 
+        $query .= " AND (tbl_appointments.pet_name LIKE '%" . $conn->real_escape_string($search) . "%'
+                       OR tbl_appointments.service LIKE '%" . $conn->real_escape_string($search) . "%'
                        OR tbl_appointments.vet LIKE '%" . $conn->real_escape_string($search) . "%'
                        OR tbl_appointments.guest_name LIKE '%" . $conn->real_escape_string($search) . "%'
                        OR CONCAT(tbl_users.fname, ' ', tbl_users.lname) LIKE '%" . $conn->real_escape_string($search) . "%')";
@@ -75,7 +75,7 @@ if ($method === 'GET' && isset($_GET['action']) && $_GET['action'] === 'getAppoi
     exit();
 }
 
-// Get available doctors (filtered by status and availability for a specific date)
+
 if ($method === 'GET' && isset($_GET['action']) && $_GET['action'] === 'getAvailableDoctors') {
     $appt_date = isset($_GET['date']) ? trim($_GET['date']) : '';
 
@@ -91,7 +91,7 @@ if ($method === 'GET' && isset($_GET['action']) && $_GET['action'] === 'getAvail
 
     $available_doctors = [];
     while ($row = $result->fetch_assoc()) {
-        // Handle both JSON and comma-separated formats
+
         if ($row['available_dates']) {
             $decoded = json_decode($row['available_dates'], true);
             $available_dates = is_array($decoded) ? $decoded : array_map('trim', explode(',', $row['available_dates']));
@@ -106,21 +106,21 @@ if ($method === 'GET' && isset($_GET['action']) && $_GET['action'] === 'getAvail
             $available_times = [];
         }
 
-        // If a specific date is provided, check if doctor is available on that day
+
         if ($appt_date) {
             $date_obj = new DateTime($appt_date);
-            $day_name = $date_obj->format('l'); // e.g., "Monday", "Tuesday"
+            $day_name = $date_obj->format('l');
 
-            // Check if doctor is available on this day
+
             if (!in_array($day_name, $available_dates)) {
-                continue; // Skip this doctor if not available on this day
+                continue;
             }
         }
 
         $available_doctors[] = [
             'vet_id' => $row['vet_id'],
-            'name' => 'Dr. ' . $row['name'],  // Add Dr. prefix
-            'name_without_prefix' => $row['name'],  // Store original name for database queries
+            'name' => 'Dr. ' . $row['name'],
+            'name_without_prefix' => $row['name'],
             'available_dates' => $available_dates,
             'available_times' => $available_times
         ];
@@ -131,7 +131,7 @@ if ($method === 'GET' && isset($_GET['action']) && $_GET['action'] === 'getAvail
     exit();
 }
 
-// Get booked times for a specific date and doctor
+
 if ($method === 'GET' && isset($_GET['action']) && $_GET['action'] === 'getBookedTimes') {
     $date = isset($_GET['date']) ? trim($_GET['date']) : '';
     $doctor_name = isset($_GET['doctor']) ? trim($_GET['doctor']) : '';
@@ -142,10 +142,10 @@ if ($method === 'GET' && isset($_GET['action']) && $_GET['action'] === 'getBooke
         exit();
     }
 
-    // Remove 'Dr. ' prefix if present for database lookup
+
     $doctor_name = str_replace('Dr. ', '', $doctor_name);
 
-    $query = "SELECT DISTINCT appt_time FROM tbl_appointments 
+    $query = "SELECT DISTINCT appt_time FROM tbl_appointments
               WHERE appt_date = ? AND vet = ? AND status NOT IN ('cancelled', 'rejected')";
 
     $stmt = $conn->prepare($query);
@@ -170,7 +170,7 @@ if ($method === 'GET' && isset($_GET['action']) && $_GET['action'] === 'getBooke
     exit();
 }
 
-// Add or update appointment
+
 if ($method === 'POST') {
     $action = isset($_POST['action']) ? $_POST['action'] : '';
 
@@ -182,8 +182,8 @@ if ($method === 'POST') {
         $appt_date = isset($_POST['date']) ? $_POST['date'] : '';
         $appt_time = isset($_POST['time']) ? $_POST['time'] : '';
         $status = isset($_POST['status']) ? trim($_POST['status']) : 'Pending';
-        
-        // Variables for both types
+
+
         $user_id = null;
         $guest_name = null;
         $guest_email = null;
@@ -199,7 +199,7 @@ if ($method === 'POST') {
             $guest_name = isset($_POST['guest_name']) ? trim($_POST['guest_name']) : '';
             $guest_email = isset($_POST['guest_email']) ? trim($_POST['guest_email']) : '';
             $guest_contact = isset($_POST['guest_contact']) ? trim($_POST['guest_contact']) : '';
-            
+
             if ($guest_name === '' || $guest_email === '' || $guest_contact === '') {
                 echo json_encode(['success' => false, 'message' => 'Guest name, email, and contact required']);
                 exit();

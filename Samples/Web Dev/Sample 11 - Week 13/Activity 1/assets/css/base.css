@@ -21,7 +21,7 @@ body {
   margin-top: 0;
 }
 
-/* Header & Navigation */
+
 header {
   position: fixed;
   top: 0;
@@ -79,7 +79,7 @@ header {
   transform: rotate(360deg);
 }
 
-/* Animations */
+
 @keyframes slideInLeft {
   from {
     opacity: 0;
@@ -112,15 +112,15 @@ header {
 }
 
 @keyframes float {
-  0%, 100% { 
-    transform: translateY(0) scale(1); 
+  0%, 100% {
+    transform: translateY(0) scale(1);
   }
-  50% { 
-    transform: translateY(-30px) scale(1.02); 
+  50% {
+    transform: translateY(-30px) scale(1.02);
   }
 }
 
-/* Cards */
+
 .card {
   transition: all 0.3s ease !important;
   border-radius: 15px !important;
@@ -135,7 +135,7 @@ header {
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1) !important;
 }
 
-/* Buttons */
+
 .btn {
   transition: all 0.3s ease !important;
   border-radius: 50px !important;
@@ -148,7 +148,7 @@ header {
   box-shadow: 0 8px 25px rgba(103, 197, 187, 0.3) !important;
 }
 
-/* Form Controls */
+
 .form-control,
 .form-select {
   border-radius: 10px !important;
@@ -167,7 +167,7 @@ header {
 
 
 
-/* Enhanced Date Picker Styling */
+
 input[type="date"] {
   cursor: pointer !important;
   transition: all 0.3s ease !important;
@@ -198,7 +198,7 @@ input[type="date"].date-picker-active {
   border-color: #67C5BB !important;
 }
 
-/* Styling for invalid date text */
+
 .invalid-date-message {
   color: #f44336;
   font-size: 12px;

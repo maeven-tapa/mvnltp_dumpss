@@ -1,33 +1,33 @@
 document.addEventListener("DOMContentLoaded", () => {
-  // Initialize sidebar and shared functionality
+
   initializeSidebarToggle();
   preventBackNavigation();
-  
+
   const modal = document.getElementById("userModal");
   const cancelBtn = document.getElementById("userCancelBtn");
   const form = document.getElementById("userForm");
   const modalTitle = document.getElementById("userModalTitle");
   const tableBody = document.querySelector("#userTable tbody");
   const searchInput = document.getElementById("userSearch");
-  
-  let editingUserId = null; 
-  let users = []; 
+
+  let editingUserId = null;
+  let users = [];
   let currentPage = 1;
   let itemsPerPage = 15;
 
   loadUsers();
 
   cancelBtn.addEventListener("click", closeModal);
-  
-  window.addEventListener("click", e => { 
-    if (e.target === modal) closeModal(); 
+
+  window.addEventListener("click", e => {
+    if (e.target === modal) closeModal();
   });
 
   form.addEventListener("submit", handleFormSubmit);
 
   if (searchInput) {
     searchInput.addEventListener("input", () => {
-      currentPage = 1; 
+      currentPage = 1;
       renderTable();
     });
   }
@@ -59,11 +59,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document.getElementById("itemsPerPage").addEventListener("change", (e) => {
     itemsPerPage = e.target.value === 'all' ? Infinity : parseInt(e.target.value);
-    currentPage = 1; 
+    currentPage = 1;
     renderTable();
   });
 
-  // Load users from server
+
   function loadUsers() {
     fetch('api_users.php?action=getUsers')
       .then(response => response.json())
@@ -100,7 +100,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function closeModal() {
     modal.classList.remove("show");
     form.reset();
-    editingUserId = null; 
+    editingUserId = null;
   }
 
   function handleFormSubmit(e) {
@@ -190,7 +190,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function createTableRow(user) {
     const row = document.createElement("tr");
-    
+
     row.innerHTML = `
       <td>${user.name}</td>
       <td>${user.user_id}</td>
@@ -292,9 +292,8 @@ document.addEventListener("DOMContentLoaded", () => {
     btn.classList.add("active");
   }
 
-  // --- Sidebar toggle and nav wiring ---
-  // Already handled by initializeSidebarToggle() from app.js
+
+
 });
 
-// Prevent browser back button to go back if logged out
-// Already handled by preventBackNavigation() from app.js
+

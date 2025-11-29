@@ -1,4 +1,4 @@
-/* moved from pages/user/style.css */
+
 body {
   font-family: 'Poppins', sans-serif;
   margin: 0;
@@ -375,15 +375,10 @@ td button {
   height: 40px;
   background: repeating-linear-gradient(
     90deg,
-    #000,
-    #000 2px,
-    #fff 2px,
-    #fff 4px
   );
   margin: 10px 0;
 }
 
-#closeReceiptBtn {
   padding: 10px 16px;
   border: none;
   border-radius: 10px;
@@ -395,7 +390,6 @@ td button {
   letter-spacing: 0.5px;
 }
 
-#closeReceiptBtn:hover {
   background-color: #4d9a97;
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(93, 171, 168, 0.3);
@@ -405,7 +399,7 @@ td button {
   display: none !important;
 }
 
-/* Enhanced Date Picker Styling for User Dashboard */
+
 input[type="date"] {
   cursor: pointer !important;
   transition: all 0.3s ease !important;
@@ -443,7 +437,7 @@ input[type="date"].date-picker-active {
   border-color: #5daba8 !important;
 }
 
-/* Availability indicator message */
+
 .date-availability-info {
   font-size: 0.85em;
   color: #666;

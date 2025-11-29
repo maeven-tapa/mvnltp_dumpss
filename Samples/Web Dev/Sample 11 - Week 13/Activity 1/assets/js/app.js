@@ -1,17 +1,10 @@
-/**
- * app.js
- * Central shared functions for the Veterinary Management System
- * Includes utility functions used across admin, user, and auth pages
- */
 
-// ============================================================================
-// SIDEBAR & NAVIGATION FUNCTIONS
-// ============================================================================
 
-/**
- * Initialize sidebar toggle functionality
- * Used by: admin/script.js, admin/doctors_script.js, admin/users_script.js, user/script.js
- */
+
+
+
+
+
 function initializeSidebarToggle() {
   const leftPanel = document.getElementById('leftPanel');
   const panelToggle = document.getElementById('panelToggle');
@@ -21,32 +14,32 @@ function initializeSidebarToggle() {
     return;
   }
 
-  // Initialize collapsed state
+
   leftPanel.classList.add('closed');
   leftPanel.setAttribute('aria-hidden', 'true');
   panelToggle.setAttribute('aria-expanded', 'false');
   panelToggle.innerHTML = '☰';
 
-  // Use mousedown and click for better browser compatibility
+
   function toggleSidebar(e) {
     if (e) {
       e.preventDefault();
       e.stopPropagation();
       e.stopImmediatePropagation();
     }
-    
+
     const isClosed = leftPanel.classList.contains('closed');
     console.log('Toggle clicked. Current state:', isClosed ? 'closed' : 'open');
-    
+
     if (isClosed) {
-      // Expand
+
       console.log('Expanding sidebar');
       leftPanel.classList.remove('closed');
       leftPanel.setAttribute('aria-hidden', 'false');
       panelToggle.setAttribute('aria-expanded', 'true');
       panelToggle.innerHTML = '✕';
     } else {
-      // Collapse
+
       console.log('Collapsing sidebar');
       leftPanel.classList.add('closed');
       leftPanel.setAttribute('aria-hidden', 'true');
@@ -55,19 +48,17 @@ function initializeSidebarToggle() {
     }
   }
 
-  // Add multiple event listeners for better compatibility
+
   panelToggle.addEventListener('click', toggleSidebar, true);
   panelToggle.addEventListener('mousedown', (e) => {
     e.preventDefault();
   }, true);
 
-  // Setup sidebar button handlers
+
   setupSidebarButtons();
 }
 
-/**
- * Setup handlers for sidebar navigation buttons
- */
+
 function setupSidebarButtons() {
   document.querySelectorAll('.side-btn').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -88,12 +79,9 @@ function setupSidebarButtons() {
   });
 }
 
-/**
- * Show logout confirmation modal
- * Used by: admin/script.js, admin/doctors_script.js, admin/users_script.js, user/script.js
- */
+
 function showLogoutConfirmation() {
-  // Remove any existing logout modal first
+
   const existingModal = document.getElementById('logoutConfirmModal');
   if (existingModal) {
     existingModal.remove();
@@ -161,7 +149,7 @@ function showLogoutConfirmation() {
   logoutModal.appendChild(modalContent);
   document.body.appendChild(logoutModal);
 
-  // Close modal function
+
   function closeModal() {
     const modal = document.getElementById('logoutConfirmModal');
     if (modal && modal.parentNode) {
@@ -169,7 +157,7 @@ function showLogoutConfirmation() {
     }
   }
 
-  // Prevent clicks on the overlay background from closing the modal
+
   logoutModal.addEventListener('click', function(e) {
     if (e.target === logoutModal) {
       e.stopPropagation();
@@ -177,7 +165,7 @@ function showLogoutConfirmation() {
     }
   });
 
-  // Logout handler
+
   confirmBtn.onclick = function(e) {
     if (e) {
       e.preventDefault();
@@ -193,7 +181,7 @@ function showLogoutConfirmation() {
     return false;
   };
 
-  // Cancel handler
+
   cancelBtn.onclick = function(e) {
     if (e) {
       e.preventDefault();
@@ -204,10 +192,7 @@ function showLogoutConfirmation() {
   };
 }
 
-/**
- * Prevent browser back button navigation when logged out
- * Used by: admin/script.js, admin/doctors_script.js, admin/users_script.js, user/script.js
- */
+
 function preventBackNavigation() {
   window.history.pushState(null, null, window.location.href);
   window.addEventListener('popstate', function() {
@@ -215,17 +200,13 @@ function preventBackNavigation() {
   });
 }
 
-// ============================================================================
-// APPOINTMENT & TIME FUNCTIONS
-// ============================================================================
 
-/**
- * Parse time range string (e.g., "7-12" or "7am-12pm") to hours
- * Returns [startHour, endHour]
- * Used by: admin/script.js, user/script.js, utils/appointment.js
- */
+
+
+
+
 function parseTimeRange(timeRange) {
-  if (!timeRange) return [8, 17]; // Default 8 AM to 5 PM
+  if (!timeRange) return [8, 17];
 
   const cleanStr = timeRange.toLowerCase().replace(/\s+/g, '').replace(/am|pm/g, '');
   const parts = cleanStr.split('-').map(s => s.trim());
@@ -242,12 +223,7 @@ function parseTimeRange(timeRange) {
   return [8, 17];
 }
 
-/**
- * Generate 1-hour interval time slots within a time range
- * @param {string|array} availableTimes - Either a string like "7-12" or array like ["7-12", "13-17"]
- * @returns {array} Array of time slots in HH:00 format (e.g., ["07:00", "08:00", "09:00"])
- * Used by: admin/script.js, user/script.js, utils/appointment.js
- */
+
 function generateTimeSlots(availableTimes) {
   const slots = [];
 
@@ -260,7 +236,7 @@ function generateTimeSlots(availableTimes) {
   timeRanges.forEach(timeRange => {
     const [startHour, endHour] = parseTimeRange(timeRange);
 
-    // Generate slots with 1-hour intervals
+
     for (let hour = startHour; hour < endHour; hour++) {
       slots.push(`${hour.toString().padStart(2, '0')}:00`);
     }
@@ -269,13 +245,7 @@ function generateTimeSlots(availableTimes) {
   return slots;
 }
 
-/**
- * Get available dates for a doctor based on their available_dates (day names)
- * @param {array} availableDays - Array of day names (e.g., ["Monday", "Tuesday", "Wednesday"])
- * @param {number} daysInFuture - Number of days to generate (default 60)
- * @returns {array} Array of available dates in YYYY-MM-DD format
- * Used by: admin/script.js, user/script.js, utils/appointment.js
- */
+
 function getAvailableDatesForDoctor(availableDays, daysInFuture = 60) {
   if (!availableDays || availableDays.length === 0) {
     console.warn('No available days provided');
@@ -315,12 +285,7 @@ function getAvailableDatesForDoctor(availableDays, daysInFuture = 60) {
   return availableDates;
 }
 
-/**
- * Format time from 24-hour to 12-hour format
- * @param {string} time24 - Time in HH:MM format (24-hour)
- * @returns {string} Time in HH:MM AM/PM format
- * Used by: admin/script.js, user/script.js, utils/appointment.js
- */
+
 function formatTime(time24) {
   if (!time24) return '';
 
@@ -334,12 +299,7 @@ function formatTime(time24) {
   return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')} ${modifier}`;
 }
 
-/**
- * Convert 12-hour format to 24-hour format
- * @param {string} time12 - Time in HH:MM AM/PM format
- * @returns {string} Time in HH:MM format (24-hour)
- * Used by: user/script.js
- */
+
 function to24Hour(time12) {
   if (!time12.includes(' ')) return time12;
 
@@ -352,23 +312,17 @@ function to24Hour(time12) {
   return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
 }
 
-/**
- * Convert minutes to time string
- * Used by: admin/script.js
- */
+
 function timeToMinutes(timeStr) {
   const [hours, minutes] = timeStr.split(":").map(Number);
   return hours * 60 + minutes;
 }
 
-// ============================================================================
-// DROPDOWN & COLOR FUNCTIONS
-// ============================================================================
 
-/**
- * Update dropdown background color based on status
- * Used by: admin/doctors_script.js, admin/script.js
- */
+
+
+
+
 function updateDropdownColor(dropdown, status) {
   let bg = "";
 
@@ -410,14 +364,11 @@ function updateDropdownColor(dropdown, status) {
   return bg;
 }
 
-// ============================================================================
-// PAGINATION FUNCTIONS
-// ============================================================================
 
-/**
- * Update pagination UI elements
- * Used by: admin/doctors_script.js, admin/script.js, admin/users_script.js
- */
+
+
+
+
 function updatePaginationUI(currentPage, totalItems, itemsPerPage, startIndex, endIndex, totalPages) {
   document.getElementById("showingStart").textContent = totalItems > 0 ? startIndex + 1 : 0;
   document.getElementById("showingEnd").textContent = endIndex;
@@ -429,10 +380,7 @@ function updatePaginationUI(currentPage, totalItems, itemsPerPage, startIndex, e
   renderPageNumbers(currentPage, totalPages);
 }
 
-/**
- * Render page number buttons
- * Used by: admin/doctors_script.js, admin/script.js, admin/users_script.js
- */
+
 function renderPageNumbers(currentPage, totalPages) {
   const pageNumbersDiv = document.getElementById("pageNumbers");
   if (!pageNumbersDiv) return;
@@ -468,7 +416,7 @@ function renderPageNumbers(currentPage, totalPages) {
       }
       pageBtn.textContent = page;
       pageBtn.addEventListener('click', () => {
-        // This will be handled by the page-specific script
+
         window.currentPage = page;
         window.renderTable?.();
       });
@@ -477,22 +425,16 @@ function renderPageNumbers(currentPage, totalPages) {
   });
 }
 
-// ============================================================================
-// TEXT FORMATTING & VALIDATION FUNCTIONS
-// ============================================================================
 
-/**
- * Capitalize first letter of each word
- * Used by: admin/script.js
- */
+
+
+
+
 function capitalizeWords(text) {
   return text.replace(/\b\w/g, char => char.toUpperCase());
 }
 
-/**
- * Escape HTML special characters
- * Used by: user/script.js
- */
+
 function escapeHtml(str) {
   if (!str) return '';
   return str.replace(/[&<>"']/g, function(c) {
@@ -500,20 +442,14 @@ function escapeHtml(str) {
   });
 }
 
-/**
- * Escape HTML for toast messages
- * Used by: components/toast.js
- */
+
 function escapeHtmlForToast(text) {
   const div = document.createElement('div');
   div.textContent = text;
   return div.innerHTML;
 }
 
-/**
- * Close error box with animation
- * Used by: auth/login.js
- */
+
 function closeErrorBox() {
   const errorBox = document.getElementById('errorBox');
   if (errorBox) {
@@ -524,14 +460,11 @@ function closeErrorBox() {
   }
 }
 
-// ============================================================================
-// PASSWORD & AUTH FUNCTIONS
-// ============================================================================
 
-/**
- * Toggle password visibility
- * Used by: auth/login.js, auth/signup.js
- */
+
+
+
+
 function setupPasswordToggle(toggleButtonId, passwordInputId) {
   const toggle = document.getElementById(toggleButtonId);
   const pwd = document.getElementById(passwordInputId);
@@ -546,10 +479,7 @@ function setupPasswordToggle(toggleButtonId, passwordInputId) {
   });
 }
 
-/**
- * Setup signup form validation
- * Used by: auth/signup.js
- */
+
 function setupSignupFormValidation() {
   const signupForm = document.getElementById('signupForm');
   const pwd = document.getElementById('password');
@@ -559,14 +489,14 @@ function setupSignupFormValidation() {
   if (!signupForm) return;
 
   signupForm.addEventListener('submit', (e) => {
-    // Confirm password match
+
     if (pwd && cpwd && pwd.value !== cpwd.value) {
       e.preventDefault();
       alert('Passwords do not match.');
       return false;
     }
 
-    // Validate contact number (digits only, 7-15 characters)
+
     if (contactInput) {
       const contact = contactInput.value.trim();
       const digitsOnly = /^\d{7,15}$/.test(contact);
@@ -581,14 +511,11 @@ function setupSignupFormValidation() {
   });
 }
 
-// ============================================================================
-// CAROUSEL / SLIDER FUNCTIONS
-// ============================================================================
 
-/**
- * Setup carousel/slider functionality
- * Used by: auth/login.js
- */
+
+
+
+
 function setupCarousel(slidesSelector = '.slide', indicatorsSelector = '.indicator', intervalMs = 4000) {
   const slides = document.querySelectorAll(slidesSelector);
   const indicators = document.querySelectorAll(indicatorsSelector);
@@ -624,23 +551,17 @@ function setupCarousel(slidesSelector = '.slide', indicatorsSelector = '.indicat
   });
 }
 
-// ============================================================================
-// FILTER & SEARCH FUNCTIONS
-// ============================================================================
 
-/**
- * Handle filter button clicks for tables
- * Used by: admin/doctors_script.js, admin/users_script.js, user/script.js
- */
+
+
+
+
 function handleFilter(btn, filterButtons) {
   filterButtons.forEach(b => b.classList.remove("active"));
   btn.classList.add("active");
 }
 
-/**
- * Setup search and filter for appointment tables (user dashboard)
- * Used by: user/script.js
- */
+
 function setupTableSearchAndFilter(searchInputId, tableBodySelector, statusClass = 'status') {
   const searchInput = document.getElementById(searchInputId);
   const tableBody = document.querySelector(tableBodySelector);
@@ -658,35 +579,32 @@ function setupTableSearchAndFilter(searchInputId, tableBodySelector, statusClass
   });
 }
 
-// ============================================================================
-// INITIALIZE ALL SHARED FUNCTIONALITY
-// ============================================================================
 
-/**
- * Initialize all shared app functionality
- * Call this in DOMContentLoaded of pages that use shared features
- */
+
+
+
+
 function initializeApp() {
-  // Setup sidebar navigation
+
   initializeSidebarToggle();
 
-  // Setup logout prevention with back button
+
   preventBackNavigation();
 
-  // Setup password toggles if they exist
+
   setupPasswordToggle('togglePassword', 'password');
   setupPasswordToggle('toggleConfirm', 'confirmPassword');
 
-  // Setup carousel if it exists
+
   setupCarousel();
 
-  // Setup signup validation if it exists
+
   setupSignupFormValidation();
 }
 
-// Auto-initialize on DOM ready if needed
+
 document.addEventListener('DOMContentLoaded', function() {
-  // Only initialize if there are sidebar elements present
+
   if (document.getElementById('leftPanel')) {
     initializeApp();
   }

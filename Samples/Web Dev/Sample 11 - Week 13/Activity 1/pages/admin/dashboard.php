@@ -1,14 +1,14 @@
 <?php
-// Include comprehensive session validation
+
 require_once __DIR__ . '/../../includes/session-check.php';
 
-// Check if user is logged in and is an admin
+
 if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || strtolower($_SESSION['role']) !== 'admin') {
     header('Location: ../../auth/login.php');
     exit();
 }
 
-// Database connection
+
 $host = 'localhost';
 $username = 'root';
 $password = 'root';
@@ -20,10 +20,10 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Get admin name from session
+
 $adminFullName = isset($_SESSION['name']) ? $_SESSION['name'] : 'Admin';
 
-// Fetch appointment statistics
+
 $stats = [
     'total' => 0,
     'pending' => 0,
@@ -32,7 +32,7 @@ $stats = [
 ];
 
 $statsQuery = $conn->query("
-    SELECT 
+    SELECT
         COUNT(*) as total,
         SUM(CASE WHEN status = 'Pending' THEN 1 ELSE 0 END) as pending,
         SUM(CASE WHEN status = 'Confirmed' THEN 1 ELSE 0 END) as confirmed,
@@ -78,7 +78,7 @@ if ($statsQuery && $statsResult = $statsQuery->fetch_assoc()) {
     }
   }
 
-  /* Ensure modal scrolls when content expands */
+
   .modal-content {
     max-height: 90vh;
     overflow-y: auto;
@@ -93,7 +93,7 @@ if ($statsQuery && $statsResult = $statsQuery->fetch_assoc()) {
     gap: 0;
   }
 
-  /* Compact form field spacing */
+
   .modal-content label {
     margin-top: 12px !important;
     margin-bottom: 4px !important;
@@ -106,7 +106,7 @@ if ($statsQuery && $statsResult = $statsQuery->fetch_assoc()) {
     margin-bottom: 0 !important;
   }
 
-  /* Booking date picker inside modal - position relative to modal */
+
   .modal-content .booking-date-picker-wrapper {
     position: relative;
     overflow: visible !important;
@@ -123,10 +123,10 @@ if ($statsQuery && $statsResult = $statsQuery->fetch_assoc()) {
 </head>
 <body>
 
-<!-- App wrapper containing sidebar and main content -->
+
 <div class="app-wrapper">
 
-  <!-- Left floating panel (collapsed by default) -->
+
   <aside id="leftPanel" class="left-panel closed" aria-hidden="true">
   <div class="side-top">
     <div class="side-logo"><img src="../../assets/images/logo.png" alt="Tails & Trails Logo" class="logo-img"> <span>Tails & Trails</span></div>
@@ -233,13 +233,13 @@ if ($statsQuery && $statsResult = $statsQuery->fetch_assoc()) {
         <option value="registered">Registered User</option>
       </select>
 
-      <!-- Registered User Fields -->
+
       <div id="registeredFields" style="display: none;">
         <label for="adminUserId">User ID:</label>
         <input type="text" id="adminUserId" placeholder="e.g., USR0001">
       </div>
 
-      <!-- Guest Fields -->
+
       <div id="guestFields">
         <label for="adminGuestName">Guest Name:</label>
         <input type="text" id="adminGuestName">

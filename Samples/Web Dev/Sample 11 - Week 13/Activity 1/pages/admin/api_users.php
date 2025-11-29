@@ -2,13 +2,13 @@
 header('Content-Type: application/json');
 session_start();
 
-// Check if user is logged in and is an admin
+
 if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || strtolower($_SESSION['role']) !== 'admin') {
     echo json_encode(['success' => false, 'message' => 'Unauthorized']);
     exit();
 }
 
-// Database connection
+
 $host = 'localhost';
 $username = 'root';
 $password = 'root';
@@ -21,10 +21,10 @@ if ($conn->connect_error) {
     exit();
 }
 
-// Get request method
+
 $method = $_SERVER['REQUEST_METHOD'];
 
-// Fetch all users
+
 if ($method === 'GET' && isset($_GET['action']) && $_GET['action'] === 'getUsers') {
     $status_filter = isset($_GET['status']) ? trim($_GET['status']) : 'all';
     $search = isset($_GET['search']) ? trim($_GET['search']) : '';
@@ -36,8 +36,8 @@ if ($method === 'GET' && isset($_GET['action']) && $_GET['action'] === 'getUsers
     }
 
     if ($search !== '') {
-        $query .= " AND (CONCAT(fname, ' ', lname) LIKE '%" . $conn->real_escape_string($search) . "%' 
-                       OR email LIKE '%" . $conn->real_escape_string($search) . "%' 
+        $query .= " AND (CONCAT(fname, ' ', lname) LIKE '%" . $conn->real_escape_string($search) . "%'
+                       OR email LIKE '%" . $conn->real_escape_string($search) . "%'
                        OR contact LIKE '%" . $conn->real_escape_string($search) . "%')";
     }
 
@@ -62,7 +62,7 @@ if ($method === 'GET' && isset($_GET['action']) && $_GET['action'] === 'getUsers
     exit();
 }
 
-// Update user status
+
 if ($method === 'POST') {
     $action = isset($_POST['action']) ? $_POST['action'] : '';
 
@@ -75,7 +75,7 @@ if ($method === 'POST') {
             exit();
         }
 
-        // Validate status
+
         if (!in_array($status, ['active', 'inactive'])) {
             echo json_encode(['success' => false, 'message' => 'Invalid status']);
             exit();

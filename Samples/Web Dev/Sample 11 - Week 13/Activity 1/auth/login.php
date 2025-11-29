@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-// If user is already logged in, redirect them to their appropriate dashboard
+
 if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
     $role = isset($_SESSION['role']) ? strtolower($_SESSION['role']) : 'user';
     if ($role === 'admin') {
@@ -25,7 +25,7 @@ if ($conn->connect_error) {
 
 $error_message = '';
 
-// Handle POST (login attempt)
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = isset($_POST['email']) ? trim($_POST['email']) : '';
     $pass = isset($_POST['pass']) ? $_POST['pass'] : '';
@@ -42,30 +42,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $user = $result->fetch_assoc();
             $fullname = $user['fname'] . ' ' . $user['lname'];
 
-            // Check account status first
+
             if (isset($user['status']) && strtolower($user['status']) !== 'active') {
                 $error_message = 'Your account is currently inactive. Please contact the administrator for reactivation.';
             } else {
-                // Set session values (store first and last name separately and keep fullname for compatibility)
+
                 $_SESSION['fname'] = isset($user['fname']) ? $user['fname'] : '';
                 $_SESSION['lname'] = isset($user['lname']) ? $user['lname'] : '';
                 $_SESSION['name'] = $fullname;
-                // Support both new `user_id` string column or legacy `id` numeric column
+
                 $_SESSION['user_id'] = isset($user['user_id']) ? $user['user_id'] : (isset($user['id']) ? $user['id'] : null);
                 $_SESSION['role'] = isset($user['role']) ? $user['role'] : 'user';
 
-                // Redirect based on role. For now, admin will be redirected to the same dashboard as a placeholder.
+
                 $role = strtolower($_SESSION['role']);
                 if ($role === 'user') {
-                    // redirect to the user dashboard (pages/user/dashboard.php)
+
                     header("Location: ../pages/user/dashboard.php");
                     exit();
                 } elseif ($role === 'admin') {
-                    // Redirect to the admin dashboard (pages/admin/dashboard.php)
+
                     header("Location: ../pages/admin/dashboard.php");
                     exit();
                 } else {
-                    // Unknown role -> default to user dashboard
+
                     header("Location: ../pages/user/dashboard.php");
                     exit();
                 }
@@ -76,7 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// If not POST, show login form
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -91,17 +91,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body class="login-page">
   <div class="login-container">
-    <!-- Welcome Section with Carousel -->
+
     <div class="welcome-section">
-      <!-- Logo -->
+
       <div class="logo-section">
         <img src="../assets/images/logo.png" alt="Tails and Trails Logo" class="logo-img">
       </div>
 
-      <!-- Carousel/Slideshow with Background Image -->
+
       <div id="loginCarousel" class="carousel slide carousel-fade slideshow-image-container" data-bs-ride="carousel" data-bs-interval="4000">
         <div class="carousel-inner slideshow">
-          <!-- Slide with Image and Gradient Tint -->
+
           <div class="carousel-item slide-image active">
             <img src="../assets/images/slide.jpg" alt="Tails and Trails Service" class="slide-image-bg">
             <div class="slide-gradient-overlay"></div>
@@ -114,7 +114,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
           </div>
 
-          <!-- Slide 2 with Image -->
+
           <div class="carousel-item slide-image">
             <img src="../assets/images/slide.jpg" alt="Tails and Trails Service" class="slide-image-bg">
             <div class="slide-gradient-overlay"></div>
@@ -127,7 +127,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
           </div>
 
-          <!-- Slide 3 with Image -->
+
           <div class="carousel-item slide-image">
             <img src="../assets/images/slide.jpg" alt="Tails and Trails Service" class="slide-image-bg">
             <div class="slide-gradient-overlay"></div>
@@ -141,7 +141,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           </div>
         </div>
 
-        <!-- Carousel Indicators (Custom) -->
+
         <div class="slideshow-indicators">
           <button class="indicator active" data-bs-target="#loginCarousel" data-bs-slide-to="0" aria-label="Slide 1"></button>
           <button class="indicator" data-bs-target="#loginCarousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
@@ -150,7 +150,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       </div>
     </div>
 
-    <!-- Login Section -->
+
     <div class="login-section">
       <div class="login-form-wrapper">
         <div class="login-form-container">
@@ -173,44 +173,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           <?php endif; ?>
 
           <form id="loginForm" action="login.php" method="POST" class="needs-validation" novalidate>
-            <!-- Email Field -->
+
             <div class="form-group mb-3">
               <label for="username" class="form-label fw-600">Email Address</label>
               <div class="input-group">
                 <span class="input-group-text bg-light border-end-0">
                   <i class="bi bi-envelope-fill" style="color: var(--primary); font-size: 1.1rem;"></i>
                 </span>
-                <input 
-                  id="username" 
-                  name="email" 
-                  type="email" 
-                  class="form-control form-control-lg bg-light border-start-0" 
+                <input
+                  id="username"
+                  name="email"
+                  type="email"
+                  class="form-control form-control-lg bg-light border-start-0"
                   placeholder="your@email.com"
-                  required 
+                  required
                 />
                 <div class="invalid-feedback">Please enter a valid email address.</div>
                 </div>
             </div>
 
-            <!-- Password Field -->
+
             <div class="form-group mb-3">
               <label for="password" class="form-label fw-600">Password</label>
               <div class="input-group">
                 <span class="input-group-text bg-light border-end-0">
                   <i class="bi bi-lock-fill" style="color: var(--primary); font-size: 1.1rem;"></i>
                 </span>
-                <input 
-                  id="password" 
-                  name="pass" 
-                  type="password" 
-                  class="form-control form-control-lg bg-light border-start-0 border-end-0" 
+                <input
+                  id="password"
+                  name="pass"
+                  type="password"
+                  class="form-control form-control-lg bg-light border-start-0 border-end-0"
                   placeholder="Enter your password"
-                  required 
+                  required
                 />
-                <button 
-                  type="button" 
+                <button
+                  type="button"
                   id="togglePassword"
-                  class="btn btn-light border-start-0" 
+                  class="btn btn-light border-start-0"
                   aria-label="Toggle password visibility"
                 >
                   <i class="bi bi-eye-fill" style="color: var(--primary); font-size: 1.1rem;"></i>
@@ -219,24 +219,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
             </div>
 
-            <!-- Submit Button -->
+
             <button type="submit" name="submit" class="btn btn-primary btn-lg w-100 fw-600 mb-3">
               <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
             </button>
           </form>
 
-          <!-- Divider -->
+
           <div class="text-center mb-3">
             <small class="text-muted">Don't have an account?</small>
           </div>
 
-          <!-- Register Link -->
+
           <a href="register.php" class="btn btn-outline-primary btn-lg w-100 fw-600">
             <i class="bi bi-person-plus me-2"></i>Create Account
           </a>
         </div>
 
-        <!-- Footer -->
+
         <div class="text-center mt-4 pt-3 border-top">
           <small class="text-muted">© 2025 Tails and Trails. All rights reserved.</small>
         </div>
@@ -244,7 +244,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
   </div>
 
-  <!-- Script loading order (IMPORTANT: app.js MUST be first) -->
+
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="../assets/js/app.js"></script>
   <script src="../assets/js/auth/login.js"></script>

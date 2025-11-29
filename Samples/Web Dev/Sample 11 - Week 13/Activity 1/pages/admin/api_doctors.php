@@ -2,13 +2,13 @@
 header('Content-Type: application/json');
 session_start();
 
-// Check if user is logged in and is an admin
+
 if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || strtolower($_SESSION['role']) !== 'admin') {
     echo json_encode(['success' => false, 'message' => 'Unauthorized']);
     exit();
 }
 
-// Database connection
+
 $host = 'localhost';
 $username = 'root';
 $password = 'root';
@@ -21,10 +21,10 @@ if ($conn->connect_error) {
     exit();
 }
 
-// Get request method
+
 $method = $_SERVER['REQUEST_METHOD'];
 
-// Fetch all doctors
+
 if ($method === 'GET' && isset($_GET['action']) && $_GET['action'] === 'getDoctors') {
     $status_filter = isset($_GET['status']) ? trim($_GET['status']) : 'all';
     $search = isset($_GET['search']) ? trim($_GET['search']) : '';
@@ -36,8 +36,8 @@ if ($method === 'GET' && isset($_GET['action']) && $_GET['action'] === 'getDocto
     }
 
     if ($search !== '') {
-        $query .= " AND (name LIKE '%" . $conn->real_escape_string($search) . "%' 
-                       OR email LIKE '%" . $conn->real_escape_string($search) . "%' 
+        $query .= " AND (name LIKE '%" . $conn->real_escape_string($search) . "%'
+                       OR email LIKE '%" . $conn->real_escape_string($search) . "%'
                        OR contact LIKE '%" . $conn->real_escape_string($search) . "%')";
     }
 
@@ -53,7 +53,7 @@ if ($method === 'GET' && isset($_GET['action']) && $_GET['action'] === 'getDocto
 
     $doctors = [];
     while ($row = $result->fetch_assoc()) {
-        // Decode JSON fields
+
         $row['available_dates'] = $row['available_dates'] ? json_decode($row['available_dates'], true) : [];
         $row['available_times'] = $row['available_times'] ? json_decode($row['available_times'], true) : [];
         $doctors[] = $row;
@@ -64,7 +64,7 @@ if ($method === 'GET' && isset($_GET['action']) && $_GET['action'] === 'getDocto
     exit();
 }
 
-// Get available doctors (for appointment dropdown - filters by status and availability)
+
 if ($method === 'GET' && isset($_GET['action']) && $_GET['action'] === 'getAvailableDoctors') {
     $appt_date = isset($_GET['date']) ? trim($_GET['date']) : '';
 
@@ -83,14 +83,14 @@ if ($method === 'GET' && isset($_GET['action']) && $_GET['action'] === 'getAvail
         $available_dates = $row['available_dates'] ? json_decode($row['available_dates'], true) : [];
         $available_times = $row['available_times'] ? json_decode($row['available_times'], true) : [];
 
-        // If a specific date is provided, check if doctor is available on that day
+
         if ($appt_date) {
             $date_obj = new DateTime($appt_date);
-            $day_name = $date_obj->format('l'); // e.g., "Monday", "Tuesday"
+            $day_name = $date_obj->format('l');
 
-            // Check if doctor is available on this day
+
             if (!in_array($day_name, $available_dates)) {
-                continue; // Skip this doctor if not available on this day
+                continue;
             }
         }
 
@@ -106,7 +106,7 @@ if ($method === 'GET' && isset($_GET['action']) && $_GET['action'] === 'getAvail
     exit();
 }
 
-// Add new doctor
+
 if ($method === 'POST') {
     $action = isset($_POST['action']) ? $_POST['action'] : '';
 
@@ -118,16 +118,16 @@ if ($method === 'POST') {
         $available_dates = isset($_POST['available_dates']) ? trim($_POST['available_dates']) : '';
         $available_times = isset($_POST['available_times']) ? trim($_POST['available_times']) : '';
 
-        // Validate required fields
+
         if ($name === '' || $email === '' || $contact === '') {
             echo json_encode(['success' => false, 'message' => 'Missing required fields']);
             exit();
         }
 
-        // Generate vet_id
+
         $vet_id = generateVetId($conn);
 
-        // Convert comma-separated values to JSON arrays
+
         $dates_array = $available_dates ? array_map('trim', explode(',', $available_dates)) : [];
         $times_array = $available_times ? array_map('trim', explode(',', $available_times)) : [];
 
@@ -163,14 +163,14 @@ if ($method === 'POST') {
             exit();
         }
 
-        // Validate status
+
         $valid_statuses = ['On Duty', 'Off Duty', 'On Leave'];
         if (!in_array($status, $valid_statuses)) {
             echo json_encode(['success' => false, 'message' => 'Invalid status']);
             exit();
         }
 
-        // Convert comma-separated values to JSON arrays
+
         $dates_array = $available_dates ? array_map('trim', explode(',', $available_dates)) : [];
         $times_array = $available_times ? array_map('trim', explode(',', $available_times)) : [];
 
@@ -220,7 +220,7 @@ if ($method === 'POST') {
     exit();
 }
 
-// Helper function to generate unique vet_id
+
 function generateVetId($conn) {
     $query = "SELECT MAX(CAST(SUBSTRING(vet_id, 4) AS UNSIGNED)) as max_id FROM tbl_vets WHERE vet_id LIKE 'VET%'";
     $result = $conn->query($query);
