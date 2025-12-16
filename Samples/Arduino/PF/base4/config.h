@@ -39,12 +39,6 @@
 #define HX711_DT  16
 #define HX711_SCK 17
 
-// Server configuration
-// Change this to your computer's IP address when running the server
-const char* SERVER_IP = "192.168.1.100";  // Replace with your computer's local IP
-const int SERVER_PORT = 80;  // Default for XAMPP/WAMP
-const char* API_KEY = "your_secret_hardware_key_12345";  // Must match hardware_update.php
-
 // Timing constants
 const unsigned long debounceDelay = 50;
 const unsigned long semiLongPressDuration = 1000;  // 1 second for cursor movement
