@@ -287,11 +287,16 @@ body {
     height: 100%;
     overflow: auto;
     background: rgba(0, 0, 0, 0.7);
-    display: flex;
     justify-content: center;
     align-items: center;
     z-index: 2000;
     padding: 20px;
+}
+
+/* When modal is shown via style.display = 'flex' in JavaScript */
+.modal-base[style*="display: flex"],
+.modal-base[style*="display:flex"] {
+    display: flex;
 }
 
 .modal-content-container {
