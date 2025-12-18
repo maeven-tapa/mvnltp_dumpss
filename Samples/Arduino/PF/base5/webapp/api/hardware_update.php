@@ -68,6 +68,8 @@ $sql = "UPDATE device_settings SET setting_value = '$now' WHERE setting_key = 'l
 mysqli_query($conn, $sql);
 
 if (isset($input['dispensed'])) {
+    error_log("[HARDWARE_UPDATE] Feed event detected! Input data: " . json_encode($input));
+    
     $rounds = intval($input['dispensed']);
     // Use device timestamp if provided, otherwise use server time
     $date = isset($input['feed_date']) ? mysqli_real_escape_string($conn, $input['feed_date']) : date('Y-m-d');
@@ -75,24 +77,35 @@ if (isset($input['dispensed'])) {
     $type = isset($input['type']) ? mysqli_real_escape_string($conn, $input['type']) : 'Scheduled';
     $status = isset($input['status']) ? mysqli_real_escape_string($conn, $input['status']) : 'Success';
     
+    error_log("[HARDWARE_UPDATE] Parsed values - Rounds: $rounds, Date: $date, Time: $time, Type: $type, Status: $status");
+    
     $sql = "INSERT INTO history (feed_date, feed_time, rounds, type, status) 
             VALUES ('$date', '$time', $rounds, '$type', '$status')";
     
+    error_log("[HARDWARE_UPDATE] Executing SQL: " . $sql);
+    
     if (mysqli_query($conn, $sql)) {
+        $insertId = mysqli_insert_id($conn);
         $updates[] = 'feed_event';
-        error_log("[HARDWARE_UPDATE] Successfully recorded feed event: $rounds rounds, type: $type, status: $status");
+        error_log("[HARDWARE_UPDATE] Successfully recorded feed event with ID: $insertId - $rounds rounds, type: $type, status: $status");
         
         $alertMsg = "Device dispensed $rounds rounds - $type ($status)";
         $alertSql = "INSERT INTO alerts (alert_type, message, is_read) 
                      VALUES ('Info', '$alertMsg', 0)";
         if (!mysqli_query($conn, $alertSql)) {
             error_log("[HARDWARE_UPDATE] Failed to insert alert: " . mysqli_error($conn));
+        } else {
+            error_log("[HARDWARE_UPDATE] Alert created successfully");
         }
     } else {
-        error_log("[HARDWARE_UPDATE] Failed to insert feed event into history: " . mysqli_error($conn));
+        error_log("[HARDWARE_UPDATE] FAILED to insert feed event into history!");
+        error_log("[HARDWARE_UPDATE] MySQL Error: " . mysqli_error($conn));
+        error_log("[HARDWARE_UPDATE] MySQL Error Code: " . mysqli_errno($conn));
         error_log("[HARDWARE_UPDATE] SQL: " . $sql);
         $updates[] = 'feed_event_failed';
     }
+} else {
+    error_log("[HARDWARE_UPDATE] No 'dispensed' field in input data");
 }
 
 if (isset($input['alert']) && $input['alert'] === true) {
