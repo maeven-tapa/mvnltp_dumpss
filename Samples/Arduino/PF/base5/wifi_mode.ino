@@ -639,7 +639,7 @@ void checkServerCommands() {
   if (SERVER_PORT != 80) {
     url += ":" + String(SERVER_PORT);
   }
-  url += "/webapp/api/get_device_status.php";
+  url += "/webapp/api/get_commands.php";
   
   http.begin(url);
   http.addHeader("X-API-KEY", API_KEY);
@@ -648,13 +648,70 @@ void checkServerCommands() {
   
   if (httpResponseCode == 200) {
     String response = http.getString();
-    Serial.println("Server command check: " + response);
+    Serial.println("Server command received: " + response);
     
-    // Parse response for commands (you can expand this)
-    // Example: check for dispense command, schedule updates, etc.
+    // Parse JSON response
+    if (response.indexOf("\"has_command\":true") > 0) {
+      // Check for factory reset command
+      if (response.indexOf("\"type\":\"factory_reset\"") > 0) {
+        Serial.println("Factory reset command received!");
+        executeFactoryReset();
+      }
+      // Add more command types here as needed
+    }
   }
   
   http.end();
+}
+
+// Execute factory reset
+void executeFactoryReset() {
+  Serial.println("=======================================");
+  Serial.println("EXECUTING FACTORY RESET");
+  Serial.println("=======================================");
+  
+  // Show confirmation on display
+  tft.fillScreen(ST77XX_RED);
+  tft.setTextSize(2);
+  tft.setTextColor(ST77XX_WHITE);
+  tft.setCursor(40, 100);
+  tft.print("FACTORY RESET");
+  tft.setCursor(60, 130);
+  tft.print("IN PROGRESS...");
+  
+  // Buzz to indicate reset
+  for (int i = 0; i < 3; i++) {
+    digitalWrite(BUZZER, HIGH);
+    delay(200);
+    digitalWrite(BUZZER, LOW);
+    delay(200);
+  }
+  
+  // Clear all Preferences
+  preferences.begin("device-settings", false);
+  preferences.clear();
+  preferences.end();
+  
+  preferences.begin("wifi-config", false);
+  preferences.clear();
+  preferences.end();
+  
+  Serial.println("All preferences cleared");
+  
+  // Show completion message
+  tft.fillScreen(ST77XX_WHITE);
+  tft.setTextSize(2);
+  tft.setTextColor(ST77XX_BLACK);
+  tft.setCursor(50, 100);
+  tft.print("RESET COMPLETE");
+  tft.setTextSize(1);
+  tft.setCursor(40, 140);
+  tft.print("Restarting device...");
+  
+  delay(3000);
+  
+  Serial.println("Restarting ESP32...");
+  ESP.restart();
 }
 
 // Periodic server update function - call this in main loop

@@ -524,7 +524,7 @@ console.error('Error loading settings:', error);
 }
 };
 const handleFactoryReset = async () => {
-    const isConfirmed = confirm("⚠️ WARNING: Are you absolutely sure you want to perform a factory reset? This action is irreversible and all data will be lost.");
+    const isConfirmed = confirm("⚠️ WARNING: Are you absolutely sure you want to perform a factory reset? This action is irreversible and will:\\n\\n• Delete ALL schedules and history\\n• Reset device to factory settings\\n• Clear WiFi configuration\\n• Reset admin password to default\\n\\nTHIS CANNOT BE UNDONE!");
 
     if (!isConfirmed) return;
 
@@ -537,8 +537,9 @@ const handleFactoryReset = async () => {
         const data = await response.json();
 
         if (data.success) {
-            alert("Factory reset complete. Refreshing page...");
-            window.location.reload();
+            alert(data.message + "\\n\\nYou will be logged out. Please log in again with:\\nUsername: admin\\nPassword: admin123");
+            // Log out user
+            window.location.href = '../logout.php';
         } else {
             alert("Factory reset failed. Please try again.");
         }
