@@ -13,12 +13,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 include '../includes/db_config.php';
 
-$input = json_decode(file_get_contents('php://input'), true);
+// Log incoming data for debugging
+$rawInput = file_get_contents('php://input');
+error_log("[HARDWARE_UPDATE] Received request. Raw data: " . $rawInput);
+
+$input = json_decode($rawInput, true);
+error_log("[HARDWARE_UPDATE] Parsed input: " . json_encode($input));
 
 $apiKey = isset($_SERVER['HTTP_X_API_KEY']) ? $_SERVER['HTTP_X_API_KEY'] : '';
 $validApiKey = 'your_secret_hardware_key_12345'; // PA-CHANGE DAW PO
 
 if ($apiKey !== $validApiKey) {
+    error_log("[HARDWARE_UPDATE] Unauthorized request - invalid API key");
     http_response_code(401);
     echo json_encode(['success' => false, 'message' => 'Unauthorized']);
     exit;
@@ -71,13 +77,22 @@ if (isset($input['dispensed'])) {
     
     $sql = "INSERT INTO history (feed_date, feed_time, rounds, type, status) 
             VALUES ('$date', '$time', $rounds, '$type', '$status')";
-    mysqli_query($conn, $sql);
     
-    $alertMsg = "Device dispensed $rounds rounds - $type ($status)";
-    $alertSql = "INSERT INTO alerts (alert_type, message, is_read) 
-                 VALUES ('Info', '$alertMsg', 0)";
-    mysqli_query($conn, $alertSql);
-    $updates[] = 'feed_event';
+    if (mysqli_query($conn, $sql)) {
+        $updates[] = 'feed_event';
+        error_log("[HARDWARE_UPDATE] Successfully recorded feed event: $rounds rounds, type: $type, status: $status");
+        
+        $alertMsg = "Device dispensed $rounds rounds - $type ($status)";
+        $alertSql = "INSERT INTO alerts (alert_type, message, is_read) 
+                     VALUES ('Info', '$alertMsg', 0)";
+        if (!mysqli_query($conn, $alertSql)) {
+            error_log("[HARDWARE_UPDATE] Failed to insert alert: " . mysqli_error($conn));
+        }
+    } else {
+        error_log("[HARDWARE_UPDATE] Failed to insert feed event into history: " . mysqli_error($conn));
+        error_log("[HARDWARE_UPDATE] SQL: " . $sql);
+        $updates[] = 'feed_event_failed';
+    }
 }
 
 if (isset($input['alert']) && $input['alert'] === true) {
@@ -86,9 +101,18 @@ if (isset($input['alert']) && $input['alert'] === true) {
     
     $alertSql = "INSERT INTO alerts (alert_type, message, is_read) 
                  VALUES ('$alertType', '$alertMsg', 0)";
-    mysqli_query($conn, $alertSql);
-    $updates[] = 'alert';
+    
+    if (mysqli_query($conn, $alertSql)) {
+        $updates[] = 'alert';
+        error_log("[HARDWARE_UPDATE] Successfully recorded alert: $alertType - $alertMsg");
+    } else {
+        error_log("[HARDWARE_UPDATE] Failed to insert alert: " . mysqli_error($conn));
+        $updates[] = 'alert_failed';
+    }
 }
+
+// Log all updates for debugging
+error_log("[HARDWARE_UPDATE] Processing complete. Updates: " . implode(', ', $updates));
 
 echo json_encode([
     'success' => true, 

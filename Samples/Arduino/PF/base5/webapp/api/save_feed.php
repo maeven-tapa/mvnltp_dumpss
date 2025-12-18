@@ -17,11 +17,18 @@ if ($currentWeight < $weightDispensed) {
     $time = date('H:i:s');
     $sql = "INSERT INTO history (feed_date, feed_time, rounds, type, status) 
             VALUES ('$now', '$time', $rounds, '$type', 'Failed (Low Feed)')";
-    mysqli_query($conn, $sql);
+    
+    if (!mysqli_query($conn, $sql)) {
+        error_log("[SAVE_FEED] Failed to insert failed feed into history: " . mysqli_error($conn));
+    } else {
+        error_log("[SAVE_FEED] Recorded failed feed attempt: insufficient feed");
+    }
     
     $alertMsg = "Dispense failed: Insufficient feed for $rounds rounds.";
     $alertSql = "INSERT INTO alerts (alert_type, message, is_read) VALUES ('Error', '$alertMsg', 0)";
-    mysqli_query($conn, $alertSql);
+    if (!mysqli_query($conn, $alertSql)) {
+        error_log("[SAVE_FEED] Failed to insert error alert: " . mysqli_error($conn));
+    }
     
     echo json_encode([
         'success' => false, 
@@ -40,16 +47,25 @@ $now = date('Y-m-d');
 $time = date('H:i:s');
 $sql = "INSERT INTO history (feed_date, feed_time, rounds, type, status) 
         VALUES ('$now', '$time', $rounds, '$type', 'Success')";
-mysqli_query($conn, $sql);
+
+if (!mysqli_query($conn, $sql)) {
+    error_log("[SAVE_FEED] Failed to insert feed into history: " . mysqli_error($conn));
+} else {
+    error_log("[SAVE_FEED] Successfully recorded feed: $rounds rounds, type: $type");
+}
 
 $alertMsg = "Successfully dispensed $rounds rounds.";
 $alertSql = "INSERT INTO alerts (alert_type, message, is_read) VALUES ('Info', '$alertMsg', 0)";
-mysqli_query($conn, $alertSql);
+if (!mysqli_query($conn, $alertSql)) {
+    error_log("[SAVE_FEED] Failed to insert alert: " . mysqli_error($conn));
+}
 
 if ($newWeight < 100) {
     $warningMsg = "Feed supply critically low (<100g).";
     $warningSql = "INSERT INTO alerts (alert_type, message, is_read) VALUES ('Warning', '$warningMsg', 0)";
-    mysqli_query($conn, $warningSql);
+    if (!mysqli_query($conn, $warningSql)) {
+        error_log("[SAVE_FEED] Failed to insert warning alert: " . mysqli_error($conn));
+    }
 }
 
 echo json_encode([
