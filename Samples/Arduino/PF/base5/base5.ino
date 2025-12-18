@@ -23,6 +23,7 @@
 const char* FIRMWARE_VERSION = "1.0";
 
 #include "globals.h"
+#include "splash_image.h"
 
 // Initialize display object
 Adafruit_ST7789 tft = Adafruit_ST7789(TFT_CS, TFT_DC, TFT_MOSI, TFT_CLK, TFT_RST);
@@ -230,6 +231,77 @@ void loadSettings() {
   Serial.println("Settings loaded successfully");
 }
 
+// Boot splash screen with fun buzzer melody
+void showBootSplash() {
+  // Fill screen with white background
+  tft.fillScreen(ST77XX_WHITE);
+  
+  // Define colors
+  uint16_t brownColor = tft.color565(111, 78, 55);      // #6F4E37
+  
+  // Calculate position to center the image horizontally
+  int imageX = (320 - SPLASH_WIDTH) / 2;
+  int imageY = 20;  // Top margin
+  
+  // Draw the splash image from PROGMEM using fast bulk transfer
+  tft.drawRGBBitmap(imageX, imageY, splashImage, SPLASH_WIDTH, SPLASH_HEIGHT);
+  
+  // Play fun boot melody with rhythm
+  // Note frequencies (approximate)
+  int melody[] = {
+    523,  // C5
+    587,  // D5
+    659,  // E5
+    698,  // F5
+    784,  // G5
+    784,  // G5
+    698   // F5
+  };
+  
+  int durations[] = {
+    150,  // Short
+    150,  // Short
+    150,  // Short
+    100,  // Very short
+    200,  // Medium
+    200,  // Medium
+    300   // Long
+  };
+  
+  int pauses[] = {
+    50,   // Short pause
+    50,
+    50,
+    30,
+    100,
+    100,
+    0     // No pause after last note
+  };
+  
+  // Play the melody
+  for (int i = 0; i < 7; i++) {
+    tone(BUZZER, melody[i], durations[i]);
+    delay(durations[i]);
+    noTone(BUZZER);
+    delay(pauses[i]);
+  }
+  
+  // Hold splash screen for remaining time (total 3 seconds)
+  delay(1200);
+  
+  // Fade effect - quickly flash to indicate loading complete
+  tft.fillRect(75, 180, 170, 20, ST77XX_WHITE);
+  tft.setTextColor(brownColor);
+  tft.setTextSize(2);
+  tft.setCursor(105, 180);
+  tft.print("Ready!");
+  
+  // Short success beep
+  tone(BUZZER, 1000, 100);
+  delay(200);
+  noTone(BUZZER);
+}
+
 void setup() {
   Serial.begin(115200);
   delay(1000);
@@ -254,8 +326,6 @@ void setup() {
   // Initialize feed system
   pinMode(RELAY_PIN, OUTPUT);
   digitalWrite(RELAY_PIN, LOW);
-  feedServo.attach(SERVO_PIN);
-  feedServo.write(0);  // Initial position
   
   // Initialize HX711 Load Cell
   scale.begin(HX711_DT, HX711_SCK);
@@ -297,8 +367,12 @@ void setup() {
   tft.setRotation(1);  // Landscape mode (320x240)
   delay(100);
   
-  // Clear screen
-  tft.fillScreen(ST77XX_WHITE);
+  // Show boot splash screen with fun melody
+  showBootSplash();
+  
+  // Initialize servo after splash screen
+  feedServo.attach(SERVO_PIN);
+  feedServo.write(0);  // Initial position
   
   // Initialize RTC
   Rtc.Begin();
