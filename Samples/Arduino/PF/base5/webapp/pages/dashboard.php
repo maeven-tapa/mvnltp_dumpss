@@ -152,7 +152,6 @@ if(!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
                         <strong id="firmware-version">v1.0.0</strong>
                     </li>
                 </ul>
-                <button class="btn btn-secondary" id="view-settings-btn">View Settings</button>
             </div>
 
             <div class="card" id="alerts-card">
