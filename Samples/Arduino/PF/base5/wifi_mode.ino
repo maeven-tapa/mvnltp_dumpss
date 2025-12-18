@@ -736,10 +736,51 @@ void checkServerCommands() {
     
     // Parse JSON response
     if (response.indexOf("\"has_command\":true") > 0) {
+      Serial.println("======================================");
+      Serial.println("[COMMAND] Command received from server!");
+      Serial.println("======================================");
+      
       // Check for factory reset command
       if (response.indexOf("\"type\":\"factory_reset\"") > 0) {
-        Serial.println("Factory reset command received!");
+        Serial.println("[COMMAND] Type: Factory Reset");
         executeFactoryReset();
+      }
+      // Check for dispense command
+      else if (response.indexOf("\"type\":\"dispense\"") > 0) {
+        Serial.println("[COMMAND] Type: Dispense Food");
+        
+        // Extract rounds from command data
+        int dataStart = response.indexOf("\"data\":\"") + 8;
+        int dataEnd = response.indexOf("\"", dataStart);
+        String roundsStr = response.substring(dataStart, dataEnd);
+        int rounds = roundsStr.toInt();
+        
+        Serial.print("[COMMAND] Rounds to dispense: ");
+        Serial.println(rounds);
+        
+        if (rounds > 0 && rounds <= 10) {
+          // Show on display
+          currentMode = HOME_MODE;
+          saveCurrentMode();
+          showBowlIcon = true;
+          bowlIconStartTime = millis();
+          drawClockUI();
+          
+          // Execute the feeding
+          Serial.println("[COMMAND] Executing feed command...");
+          totalRounds = rounds;
+          executeFeedingSequence(rounds);
+          
+          Serial.println("[COMMAND] Feed command completed!");
+          Serial.println("======================================");
+          
+          // Update icon time after feeding
+          bowlIconStartTime = millis();
+        } else {
+          Serial.print("[COMMAND] ERROR: Invalid rounds value: ");
+          Serial.println(rounds);
+          Serial.println("======================================");
+        }
       }
       // Add more command types here as needed
     }

@@ -232,39 +232,83 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const dispenseFood = async (rounds) => {
         const actualRounds = rounds === -1 ? 1 : rounds;
-        const weightDispensed = actualRounds * ROUND_WEIGHT_G;
 
         // Show the command modal
-        showCommandModal('Sending Command to Device', `Dispensing ${actualRounds} round${actualRounds > 1 ? 's' : ''}...`);
+        showCommandModal('Sending Command to Device', `Sending ${actualRounds} round${actualRounds > 1 ? 's' : ''} command...`);
 
         try {
-            const response = await fetch('../api/save_feed.php', {
+            // Send command to device
+            const response = await fetch('../api/send_dispense_command.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    rounds: actualRounds,
-                    type: 'Manual',
-                    weightDispensed: weightDispensed
+                    rounds: actualRounds
                 })
             });
 
             const data = await response.json();
 
-            if (data.success) {
-                currentFeedWeight = data.currentWeight;
-                renderWeightStatus();
-                await loadHistory();
-                await loadAlerts();
-                updateCommandModal(true, 'Success!', data.message || 'Food dispensed successfully');
+            if (data.success && data.command_id) {
+                // Command sent, now wait for device to pick it up
+                showCommandModal('Waiting for Device', 'Device is processing command...');
+                
+                // Poll for command completion (check for up to 30 seconds)
+                let attempts = 0;
+                const maxAttempts = 30;
+                const checkInterval = 1000; // 1 second
+                
+                const checkCompletion = setInterval(async () => {
+                    attempts++;
+                    
+                    if (attempts >= maxAttempts) {
+                        clearInterval(checkCompletion);
+                        updateCommandModal(false, 'Timeout', 'Device did not respond. Please check connection.');
+                        await loadHistory();
+                        await loadAlerts();
+                        return;
+                    }
+                    
+                    // Check history for the new feed event
+                    const historyResponse = await fetch('../api/get_history.php');
+                    const historyData = await historyResponse.json();
+                    
+                    if (historyData.success && historyData.history.length > 0) {
+                        const latestFeed = historyData.history[0];
+                        const feedTime = new Date(latestFeed.feed_date + ' ' + latestFeed.feed_time);
+                        const now = new Date();
+                        const diffSeconds = (now - feedTime) / 1000;
+                        
+                        // If latest feed is within last 5 seconds, consider it completed
+                        if (diffSeconds < 5 && latestFeed.rounds == actualRounds && latestFeed.type === 'Manual') {
+                            clearInterval(checkCompletion);
+                            
+                            // Get updated weight
+                            const weightResponse = await fetch('../api/get_settings.php');
+                            const weightData = await weightResponse.json();
+                            if (weightData.success) {
+                                currentFeedWeight = parseInt(weightData.settings.current_weight);
+                                renderWeightStatus();
+                            }
+                            
+                            await loadHistory();
+                            await loadAlerts();
+                            
+                            if (latestFeed.status.includes('Success')) {
+                                updateCommandModal(true, 'Success!', `Dispensed ${actualRounds} rounds successfully!`);
+                            } else {
+                                updateCommandModal(false, 'Failed', latestFeed.status);
+                            }
+                        }
+                    }
+                }, checkInterval);
+                
                 return true;
             } else {
-                updateCommandModal(false, 'Failed', data.message || 'Failed to dispense food');
-                await loadHistory();
-                await loadAlerts();
+                updateCommandModal(false, 'Failed', data.message || 'Failed to send command to device');
                 return false;
             }
         } catch (error) {
-            updateCommandModal(false, 'Error', 'Error dispensing food. Please try again.');
+            updateCommandModal(false, 'Error', 'Error sending command. Please try again.');
             return false;
         }
     };
