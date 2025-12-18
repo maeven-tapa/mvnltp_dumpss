@@ -49,6 +49,7 @@ CREATE TABLE IF NOT EXISTS schedules (
     frequency VARCHAR(20) COMMENT 'once, repeat',
     custom_days VARCHAR(100) COMMENT 'Comma-separated day numbers',
     is_active TINYINT(1) DEFAULT 1,
+    is_manual TINYINT(1) DEFAULT 0 COMMENT '1 if created from Arduino device, 0 if from web app',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     INDEX idx_active (is_active),

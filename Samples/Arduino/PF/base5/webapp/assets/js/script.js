@@ -299,6 +299,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             const time12Hr = convertTo12Hr(sched.time);
             const row = document.createElement('tr');
+            
+            // Add manual-schedule class if it's from Arduino
+            if (sched.isManual === 1 || sched.isManual === '1') {
+                row.classList.add('manual-schedule');
+            }
 
             let actionsHtml = '';
             if (includeActions) {
@@ -312,8 +317,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                 `;
             }
 
+            const manualBadge = (sched.isManual === 1 || sched.isManual === '1') 
+                ? '<span class="manual-badge">MANUAL</span>' 
+                : '';
+            
             row.innerHTML = `
-                <td>${intervalText}</td>
+                <td>${intervalText}${manualBadge}</td>
                 <td>${time12Hr}</td>
                 <td>${portionSizeText}</td>
                 <td>${frequencyString}</td>

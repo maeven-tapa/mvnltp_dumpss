@@ -14,7 +14,8 @@ if ($result) {
             'time' => $row['start_time'],
             'rounds' => $row['rounds'],
             'frequency' => $row['frequency'],
-            'customDays' => $row['custom_days']
+            'customDays' => $row['custom_days'],
+            'isManual' => $row['is_manual'] ?? 0
         ];
     }
 }

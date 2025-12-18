@@ -478,6 +478,27 @@ body {
     background-color: #f0f0f0;
 }
 
+.data-table tbody tr.manual-schedule {
+    background-color: #fff5e6;
+    border-left: 4px solid var(--color-primary);
+}
+
+.data-table tbody tr.manual-schedule:hover {
+    background-color: #ffecd1;
+}
+
+.manual-badge {
+    display: inline-block;
+    background-color: var(--color-primary);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-left: 8px;
+    vertical-align: middle;
+}
+
 .alert-scroll-area,
 .full-list-scroll-area {
     max-height: 150px;

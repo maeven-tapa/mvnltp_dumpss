@@ -10,6 +10,7 @@ $time = mysqli_real_escape_string($conn, $input['time']);
 $rounds = intval($input['rounds']);
 $frequency = mysqli_real_escape_string($conn, $input['frequency']);
 $customDays = isset($input['customDays']) ? mysqli_real_escape_string($conn, $input['customDays']) : '';
+$isManual = isset($input['isManual']) ? intval($input['isManual']) : 0;
 
 if ($id > 0) {
     $sql = "UPDATE schedules SET 
@@ -20,8 +21,8 @@ if ($id > 0) {
             custom_days = '$customDays'
             WHERE id = $id";
 } else {
-    $sql = "INSERT INTO schedules (interval_type, start_time, rounds, frequency, custom_days, is_active) 
-            VALUES ('$interval', '$time', $rounds, '$frequency', '$customDays', 1)";
+    $sql = "INSERT INTO schedules (interval_type, start_time, rounds, frequency, custom_days, is_active, is_manual) 
+            VALUES ('$interval', '$time', $rounds, '$frequency', '$customDays', 1, $isManual)";
 }
 
 if (mysqli_query($conn, $sql)) {
