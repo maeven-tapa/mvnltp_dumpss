@@ -4,6 +4,9 @@
 
 #include "globals.h"
 
+// Forward declarations
+void sendCommandCompletion(String commandId, bool success, String message = "");
+
 // HTML for the WiFi configuration page
 const char WIFI_CONFIG_HTML[] PROGMEM = R"rawliteral(
 <!DOCTYPE html>
@@ -816,6 +819,36 @@ void checkServerCommands() {
           Serial.println("======================================");
         }
       }
+      // Check for recalibrate command
+      else if (response.indexOf("\"type\":\"recalibrate\"") > 0) {
+        Serial.println("[COMMAND] Type: Recalibrate Scale");
+        
+        // Extract command ID
+        int idStart = response.indexOf("\"id\":") + 5;
+        int idEnd = response.indexOf(",", idStart);
+        String commandId = response.substring(idStart, idEnd);
+        
+        // Perform recalibration (tare the scale)
+        Serial.println("[COMMAND] Performing recalibration...");
+        scale.tare();
+        
+        // Save tare offset to flash memory
+        preferences.begin("petfeeder", false);
+        preferences.putLong("tare_offset", scale.get_offset());
+        preferences.end();
+        
+        Serial.println("[COMMAND] Recalibration completed!");
+        
+        // Send command completion feedback to server
+        sendCommandCompletion(commandId, true, "Recalibration completed successfully");
+        
+        // Send status update to server
+        Serial.println("[COMMAND] Sending status update to server...");
+        sendStatusUpdate();
+        
+        Serial.println("[COMMAND] Command processing complete!");
+        Serial.println("======================================");
+      }
       // Add more command types here as needed
     }
   }
@@ -824,7 +857,7 @@ void checkServerCommands() {
 }
 
 // Send command completion feedback to server
-void sendCommandCompletion(String commandId, bool success, String message = "") {
+void sendCommandCompletion(String commandId, bool success, String message) {
   if (!wifiConnected || WiFi.status() != WL_CONNECTED) {
     return;
   }

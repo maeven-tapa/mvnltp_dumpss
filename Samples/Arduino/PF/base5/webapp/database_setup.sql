@@ -116,6 +116,8 @@ CREATE TABLE IF NOT EXISTS command_queue (
     status VARCHAR(20) DEFAULT 'pending' COMMENT 'pending, processing, completed, failed',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     executed_at TIMESTAMP NULL,
+    completed_at TIMESTAMP NULL,
+    response_message VARCHAR(255) NULL COMMENT 'Response message from device',
     INDEX idx_status (status),
     INDEX idx_created_at (created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;

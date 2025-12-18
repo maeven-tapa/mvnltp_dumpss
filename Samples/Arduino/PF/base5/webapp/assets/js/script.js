@@ -268,18 +268,15 @@ document.addEventListener('DOMContentLoaded', async () => {
                         return;
                     }
                     
-                    // Check history for the new feed event
-                    const historyResponse = await fetch('../api/get_history.php');
-                    const historyData = await historyResponse.json();
+                    // Check command status directly from command_queue table
+                    const statusResponse = await fetch(`../api/check_command_status.php?command_id=${data.command_id}`);
+                    const statusData = await statusResponse.json();
                     
-                    if (historyData.success && historyData.history.length > 0) {
-                        const latestFeed = historyData.history[0];
-                        const feedTime = new Date(latestFeed.feed_date + ' ' + latestFeed.feed_time);
-                        const now = new Date();
-                        const diffSeconds = (now - feedTime) / 1000;
+                    if (statusData.success && statusData.command) {
+                        const commandStatus = statusData.command.status;
                         
-                        // If latest feed is within last 5 seconds, consider it completed
-                        if (diffSeconds < 5 && latestFeed.rounds == actualRounds && latestFeed.type === 'Manual') {
+                        // Check if command is completed or failed
+                        if (commandStatus === 'completed' || commandStatus === 'failed') {
                             clearInterval(checkCompletion);
                             
                             // Get updated weight
@@ -293,10 +290,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                             await loadHistory();
                             await loadAlerts();
                             
-                            if (latestFeed.status.includes('Success')) {
-                                updateCommandModal(true, 'Success!', `Dispensed ${actualRounds} rounds successfully!`);
+                            if (commandStatus === 'completed') {
+                                const message = statusData.command.message || `Dispensed ${actualRounds} rounds successfully!`;
+                                updateCommandModal(true, 'Success!', message);
                             } else {
-                                updateCommandModal(false, 'Failed', latestFeed.status);
+                                const message = statusData.command.message || 'Command failed';
+                                updateCommandModal(false, 'Failed', message);
                             }
                         }
                     }
@@ -315,35 +314,90 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const simulateRecalibration = async () => {
         if (!DOM.recalibrateBtn) return;
+        
         DOM.recalibrateBtn.disabled = true;
         if (DOM.dispenseNowBtn) DOM.dispenseNowBtn.disabled = true;
         DOM.quickFeedButtons.forEach(btn => btn.disabled = true);
 
-        showFeedback('Recalibration in progress... Please wait.', false);
+        // Show command modal
+        showCommandModal('Sending Command to Device', 'Sending recalibration command...');
 
-        setTimeout(async () => {
-            try {
-                const response = await fetch('../api/recalibrate.php', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' }
-                });
+        try {
+            const response = await fetch('../api/recalibrate.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            });
 
-                const data = await response.json();
+            const data = await response.json();
 
-                if (data.success) {
-                    currentFeedWeight = data.currentWeight;
-                    renderWeightStatus();
-                    await loadHistory();
-                    await loadAlerts();
-                    showFeedback(`Recalibration Complete! Weight is now ${currentFeedWeight}g.`);
-                }
-
+            if (data.success && data.command_id) {
+                // Command sent, now wait for device to complete it
+                showCommandModal('Waiting for Device', 'Device is recalibrating...');
+                
+                // Poll for command completion
+                let attempts = 0;
+                const maxAttempts = 30;
+                const checkInterval = 1000;
+                
+                const checkCompletion = setInterval(async () => {
+                    attempts++;
+                    
+                    if (attempts >= maxAttempts) {
+                        clearInterval(checkCompletion);
+                        updateCommandModal(false, 'Timeout', 'Device did not respond. Please check connection.');
+                        DOM.recalibrateBtn.disabled = false;
+                        if (DOM.dispenseNowBtn) DOM.dispenseNowBtn.disabled = false;
+                        DOM.quickFeedButtons.forEach(btn => btn.disabled = false);
+                        return;
+                    }
+                    
+                    // Check command status
+                    const statusResponse = await fetch(`../api/check_command_status.php?command_id=${data.command_id}`);
+                    const statusData = await statusResponse.json();
+                    
+                    if (statusData.success && statusData.command) {
+                        const commandStatus = statusData.command.status;
+                        
+                        if (commandStatus === 'completed' || commandStatus === 'failed') {
+                            clearInterval(checkCompletion);
+                            
+                            // Get updated weight
+                            const weightResponse = await fetch('../api/get_settings.php');
+                            const weightData = await weightResponse.json();
+                            if (weightData.success) {
+                                currentFeedWeight = parseInt(weightData.settings.current_weight);
+                                renderWeightStatus();
+                            }
+                            
+                            await loadHistory();
+                            await loadAlerts();
+                            
+                            DOM.recalibrateBtn.disabled = false;
+                            if (DOM.dispenseNowBtn) DOM.dispenseNowBtn.disabled = false;
+                            DOM.quickFeedButtons.forEach(btn => btn.disabled = false);
+                            
+                            if (commandStatus === 'completed') {
+                                const message = statusData.command.message || 'Recalibration complete!';
+                                updateCommandModal(true, 'Success!', message);
+                            } else {
+                                const message = statusData.command.message || 'Recalibration failed';
+                                updateCommandModal(false, 'Failed', message);
+                            }
+                        }
+                    }
+                }, checkInterval);
+            } else {
+                updateCommandModal(false, 'Failed', data.message || 'Failed to send recalibration command');
                 DOM.recalibrateBtn.disabled = false;
-            } catch (error) {
-                showFeedback('Recalibration failed', true);
-                DOM.recalibrateBtn.disabled = false;
+                if (DOM.dispenseNowBtn) DOM.dispenseNowBtn.disabled = false;
+                DOM.quickFeedButtons.forEach(btn => btn.disabled = false);
             }
-        }, 2000);
+        } catch (error) {
+            updateCommandModal(false, 'Error', 'Error sending command. Please try again.');
+            DOM.recalibrateBtn.disabled = false;
+            if (DOM.dispenseNowBtn) DOM.dispenseNowBtn.disabled = false;
+            DOM.quickFeedButtons.forEach(btn => btn.disabled = false);
+        }
     };
 
     const loadSchedules = async () => {
@@ -625,6 +679,9 @@ const handleFactoryReset = async () => {
 
     if (!isConfirmed) return;
 
+    // Show command modal
+    showCommandModal('Sending Command to Device', 'Sending factory reset command...');
+
     try {
         const response = await fetch('../api/factory_reset.php', {
             method: 'POST',
@@ -633,15 +690,51 @@ const handleFactoryReset = async () => {
 
         const data = await response.json();
 
-        if (data.success) {
-            alert(data.message + "\\n\\nYou will be logged out. Please log in again with:\\nUsername: admin\\nPassword: admin123");
-            // Log out user
-            window.location.href = '../logout.php';
+        if (data.success && data.command_id) {
+            // Command sent, now wait for device to complete it
+            showCommandModal('Waiting for Device', 'Device is performing factory reset...');
+            
+            // Poll for command completion
+            let attempts = 0;
+            const maxAttempts = 30;
+            const checkInterval = 1000;
+            
+            const checkCompletion = setInterval(async () => {
+                attempts++;
+                
+                if (attempts >= maxAttempts) {
+                    clearInterval(checkCompletion);
+                    updateCommandModal(false, 'Timeout', 'Device did not respond. Please check connection.');
+                    return;
+                }
+                
+                // Check command status
+                const statusResponse = await fetch(`../api/check_command_status.php?command_id=${data.command_id}`);
+                const statusData = await statusResponse.json();
+                
+                if (statusData.success && statusData.command) {
+                    const commandStatus = statusData.command.status;
+                    
+                    if (commandStatus === 'completed' || commandStatus === 'failed') {
+                        clearInterval(checkCompletion);
+                        
+                        if (commandStatus === 'completed') {
+                            updateCommandModal(true, 'Success!', 'Factory reset complete! You will be logged out.', false);
+                            setTimeout(() => {
+                                window.location.href = '../logout.php';
+                            }, 2000);
+                        } else {
+                            const message = statusData.command.message || 'Factory reset failed';
+                            updateCommandModal(false, 'Failed', message);
+                        }
+                    }
+                }
+            }, checkInterval);
         } else {
-            alert("Factory reset failed. Please try again.");
+            updateCommandModal(false, 'Failed', data.message || 'Failed to send factory reset command');
         }
     } catch (error) {
-        alert(`Factory reset failed: ${error.message}`);
+        updateCommandModal(false, 'Error', 'Error sending command. Please try again.');
     }
 };
 

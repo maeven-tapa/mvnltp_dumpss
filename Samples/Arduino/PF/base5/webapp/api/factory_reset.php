@@ -23,10 +23,12 @@ mysqli_query($conn, "UPDATE users SET password = '$defaultPassword' WHERE userna
 
 // Send factory reset command to ESP32
 mysqli_query($conn, "INSERT INTO command_queue (command_type, command_data, status, created_at) VALUES ('factory_reset', '', 'pending', NOW())");
+$commandId = mysqli_insert_id($conn);
 
 echo json_encode([
     'success' => true, 
-    'message' => 'Factory reset complete. Admin password reset to: admin123. Device will reset when online.'
+    'command_id' => $commandId,
+    'message' => 'Factory reset command sent to device.'
 ]);
 
 mysqli_close($conn);
