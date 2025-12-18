@@ -118,7 +118,6 @@ INSERT INTO device_settings (setting_key, setting_value, description) VALUES
 ('firmware_version', '1.0.0', 'Current firmware version'),
 ('calibration_factor', '80.0', 'Load cell calibration factor'),
 ('dispense_duration', '1500', 'Servo activation duration in milliseconds'),
-('feed_portion_size', '50', 'Approximate portion size in grams per round'),
 ('low_food_threshold', '100', 'Alert threshold for low food in grams'),
 ('timezone', 'UTC', 'Device timezone'),
 ('auto_sync_time', '1', 'Auto-sync time from server (0=off, 1=on)')
@@ -128,10 +127,9 @@ ON DUPLICATE KEY UPDATE setting_value=setting_value;
 -- INSERT DEFAULT ADMIN USER
 -- Username: admin
 -- Password: 1234
--- Note: This is a bcrypt hash of '1234'
 -- ================================================================
 INSERT INTO users (username, password) VALUES
-('admin', '$2y$10$3euPcmQFCiblsZeEu5s7p.dbLfgZLfMbslE2L.gJpF3RwHCFBrmvS')
+('admin', '1234')
 ON DUPLICATE KEY UPDATE username=username;
 
 
