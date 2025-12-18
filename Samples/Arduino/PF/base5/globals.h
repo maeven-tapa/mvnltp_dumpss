@@ -170,6 +170,7 @@ extern int wifiRSSI;
 
 // Server communication variables
 extern unsigned long lastServerUpdate;
+extern unsigned long lastCommandCheck;
 extern bool serverConnected;
 
 #endif // GLOBALS_H

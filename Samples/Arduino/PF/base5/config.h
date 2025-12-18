@@ -49,6 +49,7 @@ const unsigned long normalReturnDelay = 2000;  // 2 seconds
 const unsigned long disturbedRecognitionDelay = 1000;  // 1 second
 const unsigned long disturbedBlinkInterval = 500;  // Blink every 500ms
 const unsigned long serverUpdateInterval = 30000;  // Send updates every 30 seconds
+const unsigned long commandCheckInterval = 3000;  // Check for commands every 3 seconds
 const unsigned long weightUpdateInterval = 200;  // Update weight every 200ms
 
 // Scaling mode constants

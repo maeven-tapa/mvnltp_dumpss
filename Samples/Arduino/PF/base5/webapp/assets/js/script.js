@@ -319,30 +319,78 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (DOM.dispenseNowBtn) DOM.dispenseNowBtn.disabled = true;
         DOM.quickFeedButtons.forEach(btn => btn.disabled = true);
 
-        showFeedback('Recalibration in progress... Please wait.', false);
+        showCommandModal('Sending Command to Device', 'Sending recalibrate command...');
 
-        setTimeout(async () => {
-            try {
-                const response = await fetch('../api/recalibrate.php', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' }
-                });
+        try {
+            const response = await fetch('../api/recalibrate.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            });
 
-                const data = await response.json();
+            const data = await response.json();
 
-                if (data.success) {
-                    currentFeedWeight = data.currentWeight;
-                    renderWeightStatus();
-                    await loadHistory();
-                    await loadAlerts();
-                    showFeedback(`Recalibration Complete! Weight is now ${currentFeedWeight}g.`);
-                }
-
+            if (data.success && data.command_id) {
+                showCommandModal('Waiting for Device', 'Device is recalibrating scale...');
+                
+                // Poll for completion (check for up to 20 seconds)
+                let attempts = 0;
+                const maxAttempts = 20;
+                const checkInterval = 1000;
+                
+                const checkCompletion = setInterval(async () => {
+                    attempts++;
+                    
+                    if (attempts >= maxAttempts) {
+                        clearInterval(checkCompletion);
+                        updateCommandModal(false, 'Timeout', 'Device did not respond. Please try again.');
+                        DOM.recalibrateBtn.disabled = false;
+                        if (DOM.dispenseNowBtn) DOM.dispenseNowBtn.disabled = false;
+                        DOM.quickFeedButtons.forEach(btn => btn.disabled = false);
+                        return;
+                    }
+                    
+                    // Check history for the recalibrate event
+                    const historyResponse = await fetch('../api/get_history.php');
+                    const historyData = await historyResponse.json();
+                    
+                    if (historyData.success && historyData.history.length > 0) {
+                        const latestEvent = historyData.history[0];
+                        const eventTime = new Date(latestEvent.feed_date + ' ' + latestEvent.feed_time);
+                        const now = new Date();
+                        const diffSeconds = (now - eventTime) / 1000;
+                        
+                        // Check if latest event is a recalibrate within last 5 seconds
+                        if (diffSeconds < 5 && latestEvent.type === 'Recalibrate') {
+                            clearInterval(checkCompletion);
+                            
+                            // Get updated weight
+                            const weightResponse = await fetch('../api/get_settings.php');
+                            const weightData = await weightResponse.json();
+                            if (weightData.success) {
+                                currentFeedWeight = parseInt(weightData.settings.current_weight);
+                                renderWeightStatus();
+                            }
+                            
+                            await loadHistory();
+                            await loadAlerts();
+                            
+                            updateCommandModal(true, 'Success!', 'Scale recalibrated successfully!');
+                            
+                            DOM.recalibrateBtn.disabled = false;
+                            if (DOM.dispenseNowBtn) DOM.dispenseNowBtn.disabled = false;
+                            DOM.quickFeedButtons.forEach(btn => btn.disabled = false);
+                        }
+                    }
+                }, checkInterval);
+            } else {
+                updateCommandModal(false, 'Failed', data.message || 'Failed to send recalibrate command');
                 DOM.recalibrateBtn.disabled = false;
-            } catch (error) {
-                showFeedback('Recalibration failed', true);
-                DOM.recalibrateBtn.disabled = false;
+                if (DOM.dispenseNowBtn) DOM.dispenseNowBtn.disabled = false;
+                DOM.quickFeedButtons.forEach(btn => btn.disabled = false);
             }
+        } catch (error) {
+            updateCommandModal(false, 'Error', 'Error sending command. Please try again.');
+            DOM.recalibrateBtn.disabled = false;
         }, 2000);
     };
 

@@ -482,10 +482,13 @@ void checkWiFiConnection() {
     Serial.print("RSSI: ");
     Serial.println(wifiRSSI);
     
-    // Update WiFi UI if in WiFi mode
+    // Update UI based on current mode
     if (currentMode == WIFI_MODE) {
       testServerConnection();  // Check server immediately
       drawWiFiUI();
+    } else if (currentMode == HOME_MODE) {
+      // Refresh home screen to show WiFi icon
+      drawClockUI();
     }
     return;
   }
@@ -714,6 +717,10 @@ void checkServerCommands() {
     return;
   }
   
+  Serial.print("[CHECK] Checking for commands from server (Mode: ");
+  Serial.print(currentMode);
+  Serial.println(")...");
+  
   // Get saved server IP or use default
   String serverIP = getSavedServerIP();
   
@@ -723,12 +730,17 @@ void checkServerCommands() {
   if (SERVER_PORT != 80) {
     url += ":" + String(SERVER_PORT);
   }
-  url += "/bnb/webapp/api/get_commands.php";
+  url += "/webapp/api/get_commands.php";
+  
+  Serial.print("[CHECK] URL: ");
+  Serial.println(url);
   
   http.begin(url);
   http.addHeader("X-API-KEY", API_KEY);
   
   int httpResponseCode = http.GET();
+  Serial.print("[CHECK] Response code: ");
+  Serial.println(httpResponseCode);
   
   if (httpResponseCode == 200) {
     String response = http.getString();
@@ -759,6 +771,11 @@ void checkServerCommands() {
         Serial.println(rounds);
         
         if (rounds > 0 && rounds <= 10) {
+          // Extract command ID
+          int idStart = response.indexOf("\"id\":") + 5;
+          int idEnd = response.indexOf(",", idStart);
+          String commandId = response.substring(idStart, idEnd);
+          
           // Show on display
           currentMode = HOME_MODE;
           saveCurrentMode();
@@ -772,6 +789,12 @@ void checkServerCommands() {
           executeFeedingSequence(rounds);
           
           Serial.println("[COMMAND] Feed command completed!");
+          
+          // Immediately send status update to server
+          Serial.println("[COMMAND] Sending completion status to server...");
+          sendStatusUpdate();
+          
+          Serial.println("[COMMAND] Command processing complete!");
           Serial.println("======================================");
           
           // Update icon time after feeding
@@ -781,6 +804,47 @@ void checkServerCommands() {
           Serial.println(rounds);
           Serial.println("======================================");
         }
+      }
+      // Check for recalibrate command
+      else if (response.indexOf("\"type\":\"recalibrate\"") > 0) {
+        Serial.println("[COMMAND] Type: Recalibrate/Tare Scale");
+        Serial.println("[COMMAND] Taring scale without changing UI...");
+        
+        // Perform tare operation directly
+        scale.tare();
+        
+        // Save tare offset to preferences
+        preferences.begin("device-settings", false);
+        preferences.putLong("tare_offset", scale.get_offset());
+        preferences.end();
+        
+        // Buzz to confirm
+        digitalWrite(BUZZER, HIGH);
+        delay(200);
+        digitalWrite(BUZZER, LOW);
+        
+        Serial.println("[COMMAND] Scale tared successfully!");
+        
+        // Get new weight reading
+        float newWeight = scale.get_units(5);
+        if (newWeight < 0) newWeight = 0;
+        
+        Serial.print("[COMMAND] New weight reading: ");
+        Serial.print(newWeight);
+        Serial.println("g");
+        
+        // Send recalibrate event to server
+        String jsonData = "{";
+        jsonData += "\"recalibrated\":true";
+        jsonData += ",\"weight\":" + String(newWeight, 2);
+        jsonData += "}";
+        sendDataToServer(API_HARDWARE_UPDATE, jsonData);
+        
+        // Note: feedDate would require TimeLib.h for year(), month(), day() functions
+        // String feedDate = "{\"date\":\"" + String(year()) + "-" + String(month()) + "-" + String(day()) + "\"}";
+        
+        Serial.println("[COMMAND] Recalibration complete!");
+        Serial.println("======================================");
       }
       // Add more command types here as needed
     }
@@ -845,10 +909,15 @@ void handleServerCommunication() {
   
   unsigned long currentTime = millis();
   
+  // Check for commands every 3 seconds (more responsive)
+  if (currentTime - lastCommandCheck >= commandCheckInterval) {
+    lastCommandCheck = currentTime;
+    checkServerCommands();
+  }
+  
   // Send status update every 30 seconds
   if (currentTime - lastServerUpdate >= serverUpdateInterval) {
     lastServerUpdate = currentTime;
     sendStatusUpdate();
-    checkServerCommands();
   }
 }

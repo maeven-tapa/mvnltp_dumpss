@@ -112,6 +112,7 @@ unsigned long lastHeartbeat = 0;
 bool serverConnected = false;
 float lastSentWeight = 0.0;
 unsigned long lastServerUpdate = 0;
+unsigned long lastCommandCheck = 0;
 
 // Scheduling mode state
 Schedule feedSchedule = {false, 0, 0, 0, 0};
