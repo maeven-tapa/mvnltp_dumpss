@@ -98,7 +98,10 @@ extern Preferences preferences;
 extern bool wifiConnected;
 extern String savedSSID;
 extern String savedPassword;
+extern String savedServerIP;
 extern int wifiRSSI;
+extern unsigned long wifiConnectionStartTime;
+extern bool wifiConnectionInProgress;
 
 // Server communication state
 extern unsigned long lastHeartbeat;

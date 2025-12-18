@@ -68,9 +68,9 @@ const int SERVER_PORT = 80;  // Default HTTP port for XAMPP/WAMP
 const char* API_KEY = "your_secret_hardware_key_12345";  // Must match hardware_update.php
 
 // API endpoints
-const char* API_HARDWARE_UPDATE = "/bnb/webapp/api/hardware_update.php";
-const char* API_GET_SCHEDULES = "/bnb/webapp/api/get_active_schedules.php";
-const char* API_DEVICE_STATUS = "/bnb/webapp/api/get_device_status.php";
+const char* API_HARDWARE_UPDATE = "/webapp/api/hardware_update.php";
+const char* API_GET_SCHEDULES = "/webapp/api/get_active_schedules.php";
+const char* API_DEVICE_STATUS = "/webapp/api/get_device_status.php";
 
 // Data sending intervals
 const unsigned long heartbeatInterval = 15000;  // Send heartbeat every 15 seconds

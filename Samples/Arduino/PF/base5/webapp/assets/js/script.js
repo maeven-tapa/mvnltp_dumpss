@@ -33,6 +33,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         allSchedulesModal: document.getElementById('all-schedules-modal'),
         allHistoryModal: document.getElementById('all-history-modal'),
         allAlertsModal: document.getElementById('all-alerts-modal'),
+        commandModal: document.getElementById('command-modal'),
+        commandModalIcon: document.getElementById('command-modal-icon'),
+        commandModalTitle: document.getElementById('command-modal-title'),
+        commandModalMessage: document.getElementById('command-modal-message'),
 
         closeAllSchedulesBtn: document.getElementById('close-all-schedules-btn'),
         closeAllHistoryBtn: document.getElementById('close-all-history-btn'),
@@ -69,7 +73,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const closeAllModals = () => {
         const modals = [
             DOM.scheduleModal, DOM.settingsModal, DOM.allSchedulesModal,
-            DOM.allHistoryModal, DOM.allAlertsModal
+            DOM.allHistoryModal, DOM.allAlertsModal, DOM.commandModal
         ];
         modals.forEach(modal => {
             if (modal) modal.style.display = 'none';
@@ -119,6 +123,43 @@ document.addEventListener('DOMContentLoaded', async () => {
             setTimeout(() => {
                 DOM.feedFeedback.style.display = 'none';
             }, 3000);
+        }
+    };
+
+    const showCommandModal = (title = 'Sending Command to Device', message = 'Please wait...') => {
+        if (DOM.commandModal) {
+            DOM.commandModalTitle.textContent = title;
+            DOM.commandModalMessage.textContent = message;
+            DOM.commandModalIcon.innerHTML = '<div class="spinner"></div>';
+            DOM.commandModalIcon.className = 'modal-icon';
+            DOM.commandModal.style.display = 'flex';
+        }
+    };
+
+    const updateCommandModal = (success, title, message, autoClose = true) => {
+        if (DOM.commandModal) {
+            DOM.commandModalTitle.textContent = title;
+            DOM.commandModalMessage.textContent = message;
+            
+            if (success) {
+                DOM.commandModalIcon.innerHTML = '✓';
+                DOM.commandModalIcon.className = 'modal-icon success';
+            } else {
+                DOM.commandModalIcon.innerHTML = '✕';
+                DOM.commandModalIcon.className = 'modal-icon error';
+            }
+
+            if (autoClose) {
+                setTimeout(() => {
+                    DOM.commandModal.style.display = 'none';
+                }, 2500);
+            }
+        }
+    };
+
+    const hideCommandModal = () => {
+        if (DOM.commandModal) {
+            DOM.commandModal.style.display = 'none';
         }
     };
 
@@ -193,6 +234,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         const actualRounds = rounds === -1 ? 1 : rounds;
         const weightDispensed = actualRounds * ROUND_WEIGHT_G;
 
+        // Show the command modal
+        showCommandModal('Sending Command to Device', `Dispensing ${actualRounds} round${actualRounds > 1 ? 's' : ''}...`);
+
         try {
             const response = await fetch('../api/save_feed.php', {
                 method: 'POST',
@@ -211,16 +255,16 @@ document.addEventListener('DOMContentLoaded', async () => {
                 renderWeightStatus();
                 await loadHistory();
                 await loadAlerts();
-                showFeedback(data.message);
+                updateCommandModal(true, 'Success!', data.message || 'Food dispensed successfully');
                 return true;
             } else {
-                showFeedback(data.message, true);
+                updateCommandModal(false, 'Failed', data.message || 'Failed to dispense food');
                 await loadHistory();
                 await loadAlerts();
                 return false;
             }
         } catch (error) {
-            showFeedback('Error dispensing food', true);
+            updateCommandModal(false, 'Error', 'Error dispensing food. Please try again.');
             return false;
         }
     };
@@ -782,6 +826,15 @@ if (DOM.settingsCancelBtn) DOM.settingsCancelBtn.addEventListener('click', close
 if (DOM.resetButton) DOM.resetButton.addEventListener('click', handleFactoryReset);
 if (DOM.applyAccountBtn) DOM.applyAccountBtn.addEventListener('click', saveAccountSettings);
 if (DOM.cancelAccountBtn) DOM.cancelAccountBtn.addEventListener('click', loadAccountSettings);
+
+// Close command modal when clicking outside
+if (DOM.commandModal) {
+    DOM.commandModal.addEventListener('click', (e) => {
+        if (e.target === DOM.commandModal) {
+            hideCommandModal();
+        }
+    });
+}
 });
 
 setInterval(async () => {

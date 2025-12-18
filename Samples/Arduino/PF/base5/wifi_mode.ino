@@ -247,6 +247,15 @@ const char WIFI_CONFIG_HTML[] PROGMEM = R"rawliteral(
 </html>
 )rawliteral";
 
+// Helper function to get saved server IP
+String getSavedServerIP() {
+  // Return the global savedServerIP variable (loaded in initWiFi)
+  if (savedServerIP.length() > 0) {
+    return savedServerIP;
+  }
+  return String(SERVER_IP);
+}
+
 // Initialize WiFi and load saved credentials
 void initWiFi() {
   preferences.begin("wifi-config", false);
@@ -254,16 +263,21 @@ void initWiFi() {
   // Load saved WiFi credentials and server IP
   savedSSID = preferences.getString("ssid", "");
   savedPassword = preferences.getString("password", "");
-  String savedServerIP = preferences.getString("serverip", "");
+  savedServerIP = preferences.getString("serverip", SERVER_IP);
+  
+  preferences.end();  // Close preferences after reading
   
   // Update global SERVER_IP if saved
   if (savedServerIP.length() > 0) {
-    // Can't directly modify const, but we'll use savedServerIP in functions
     Serial.print("Loaded Server IP: ");
     Serial.println(savedServerIP);
   }
   
   Serial.println("WiFi Initialization");
+  
+  // Set WiFi to auto-reconnect
+  WiFi.setAutoReconnect(true);
+  WiFi.persistent(true);  // Save WiFi credentials to flash
   
   if (savedSSID.length() > 0) {
     Serial.println("Found saved WiFi credentials");
@@ -278,7 +292,7 @@ void initWiFi() {
   }
 }
 
-// Connect to WiFi network
+// Connect to WiFi network (non-blocking version)
 void connectToWiFi(String ssid, String password) {
   Serial.print("Connecting to WiFi: ");
   Serial.println(ssid);
@@ -286,26 +300,12 @@ void connectToWiFi(String ssid, String password) {
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid.c_str(), password.c_str());
   
-  unsigned long startTime = millis();
-  while (WiFi.status() != WL_CONNECTED && millis() - startTime < wifiConnectTimeout) {
-    delay(500);
-    Serial.print(".");
-  }
+  // Start tracking connection attempt
+  wifiConnectionInProgress = true;
+  wifiConnectionStartTime = millis();
+  wifiConnected = false;
   
-  if (WiFi.status() == WL_CONNECTED) {
-    wifiConnected = true;
-    wifiRSSI = WiFi.RSSI();
-    Serial.println();
-    Serial.println("WiFi Connected!");
-    Serial.print("IP Address: ");
-    Serial.println(WiFi.localIP());
-    Serial.print("RSSI: ");
-    Serial.println(wifiRSSI);
-  } else {
-    wifiConnected = false;
-    Serial.println();
-    Serial.println("WiFi Connection Failed!");
-  }
+  Serial.println("WiFi connection initiated (non-blocking)");
 }
 
 // Start WiFi Access Point mode
@@ -339,12 +339,18 @@ void startAPMode() {
     Serial.println(serverip);
     
     // Save to preferences
+    preferences.begin("wifi-config", false);
     preferences.putString("ssid", ssid);
     preferences.putString("password", password);
     preferences.putString("serverip", serverip);
+    preferences.end();
     
     savedSSID = ssid;
     savedPassword = password;
+    savedServerIP = serverip;
+    
+    Serial.print("Saved Server IP: ");
+    Serial.println(savedServerIP);
     
     server.send(200, "text/plain", "WiFi and server settings saved! Attempting to connect...");
     
@@ -371,12 +377,15 @@ void startAPMode() {
 void resetWiFi() {
   Serial.println("Resetting WiFi credentials and server settings...");
   
+  preferences.begin("wifi-config", false);
   preferences.putString("ssid", "");
   preferences.putString("password", "");
   preferences.putString("serverip", "");
+  preferences.end();
   
   savedSSID = "";
   savedPassword = "";
+  savedServerIP = "";
   wifiConnected = false;
   
   // Disconnect from WiFi
@@ -403,27 +412,102 @@ void resetWiFi() {
 // Handle WiFi Mode updates
 void handleWiFiMode() {
   static unsigned long lastUpdate = 0;
+  static bool lastWifiStatus = false;
   static bool lastServerStatus = false;
+  static int lastRSSI = 0;
   
   // Update WiFi status every 2 seconds
   if (millis() - lastUpdate >= 2000) {
     lastUpdate = millis();
     
-    if (wifiConnected && WiFi.status() == WL_CONNECTED) {
+    bool currentWifiStatus = (wifiConnected && WiFi.status() == WL_CONNECTED);
+    
+    if (currentWifiStatus) {
       wifiRSSI = WiFi.RSSI();
       
-      // Check if server status changed
-      if (lastServerStatus != serverConnected) {
+      // Test server connection
+      testServerConnection();
+      
+      // Check if WiFi status, server status, or RSSI changed significantly
+      if (lastWifiStatus != currentWifiStatus || 
+          lastServerStatus != serverConnected ||
+          abs(lastRSSI - wifiRSSI) > 5) {  // Redraw if RSSI changed by more than 5 dBm
+        lastWifiStatus = currentWifiStatus;
         lastServerStatus = serverConnected;
-        drawWiFiUI();  // Redraw UI to show new server status
+        lastRSSI = wifiRSSI;
+        drawWiFiUI();  // Redraw UI to show updated status
       }
     } else if (wifiConnected && WiFi.status() != WL_CONNECTED) {
       // Connection lost
       wifiConnected = false;
       serverConnected = false;
+      lastWifiStatus = false;
+      lastServerStatus = false;
+      drawWiFiUI();
+      Serial.println("WiFi connection lost in WiFi Mode");
+    } else if (!wifiConnected && lastWifiStatus) {
+      // Status changed from connected to disconnected
+      lastWifiStatus = false;
       lastServerStatus = false;
       drawWiFiUI();
     }
+  }
+}
+
+// Check WiFi connection status (non-blocking) - call this in main loop
+void checkWiFiConnection() {
+  // Only check if a connection attempt is in progress
+  if (!wifiConnectionInProgress) {
+    // Check if we have saved credentials but are disconnected
+    if (savedSSID.length() > 0 && !wifiConnected && WiFi.status() != WL_CONNECTED) {
+      // Try to reconnect
+      static unsigned long lastReconnectAttempt = 0;
+      if (millis() - lastReconnectAttempt >= 30000) {  // Try every 30 seconds
+        lastReconnectAttempt = millis();
+        Serial.println("WiFi disconnected, attempting reconnection...");
+        connectToWiFi(savedSSID, savedPassword);
+      }
+    }
+    return;
+  }
+  
+  // Check if connection succeeded
+  if (WiFi.status() == WL_CONNECTED) {
+    wifiConnected = true;
+    wifiRSSI = WiFi.RSSI();
+    wifiConnectionInProgress = false;
+    Serial.println("\nWiFi Connected!");
+    Serial.print("IP Address: ");
+    Serial.println(WiFi.localIP());
+    Serial.print("RSSI: ");
+    Serial.println(wifiRSSI);
+    
+    // Update WiFi UI if in WiFi mode
+    if (currentMode == WIFI_MODE) {
+      testServerConnection();  // Check server immediately
+      drawWiFiUI();
+    }
+    return;
+  }
+  
+  // Check if connection timeout
+  if (millis() - wifiConnectionStartTime >= wifiConnectTimeout) {
+    wifiConnectionInProgress = false;
+    wifiConnected = false;
+    Serial.println("\nWiFi Connection Failed (timeout)!");
+    
+    // Update WiFi UI if in WiFi mode
+    if (currentMode == WIFI_MODE) {
+      drawWiFiUI();
+    }
+    return;
+  }
+  
+  // Periodic connection check - print dots while connecting
+  static unsigned long lastPrint = 0;
+  if (millis() - lastPrint >= 500) {
+    lastPrint = millis();
+    Serial.print(".");
   }
 }
 
@@ -493,7 +577,7 @@ void testServerConnection() {
   }
   
   // Get saved server IP or use default
-  String serverIP = preferences.getString("serverip", SERVER_IP);
+  String serverIP = getSavedServerIP();
   
   HTTPClient http;
   
@@ -502,7 +586,7 @@ void testServerConnection() {
   if (SERVER_PORT != 80) {
     url += ":" + String(SERVER_PORT);
   }
-  url += "/webapp/api/get_device_status.php";
+  url += API_DEVICE_STATUS;
   
   Serial.print("Testing server connection: ");
   Serial.println(url);
@@ -531,7 +615,7 @@ bool sendDataToServer(String endpoint, String jsonData) {
   }
   
   // Get saved server IP or use default
-  String serverIP = preferences.getString("serverip", SERVER_IP);
+  String serverIP = getSavedServerIP();
   
   HTTPClient http;
   
@@ -540,7 +624,7 @@ bool sendDataToServer(String endpoint, String jsonData) {
   if (SERVER_PORT != 80) {
     url += ":" + String(SERVER_PORT);
   }
-  url += "/webapp/" + endpoint;
+  url += endpoint;
   
   Serial.print("Sending to: ");
   Serial.println(url);
@@ -594,7 +678,7 @@ void sendStatusUpdate() {
   jsonData += ",\"firmware_version\":\"" + String(FIRMWARE_VERSION) + "\"";
   jsonData += "}";
   
-  sendDataToServer("api/hardware_update.php", jsonData);
+  sendDataToServer(API_HARDWARE_UPDATE, jsonData);
 }
 
 // Send feed event to server
@@ -608,7 +692,7 @@ void sendFeedEvent(int rounds, String feedType, String status) {
   jsonData += ",\"weight\":" + String(scale.get_units(5), 2);
   jsonData += "}";
   
-  sendDataToServer("api/hardware_update.php", jsonData);
+  sendDataToServer(API_HARDWARE_UPDATE, jsonData);
 }
 
 // Send alert to server
@@ -621,7 +705,7 @@ void sendAlert(String alertType, String message) {
   jsonData += ",\"message\":\"" + message + "\"";
   jsonData += "}";
   
-  sendDataToServer("api/hardware_update.php", jsonData);
+  sendDataToServer(API_HARDWARE_UPDATE, jsonData);
 }
 
 // Check for commands from server
@@ -631,7 +715,7 @@ void checkServerCommands() {
   }
   
   // Get saved server IP or use default
-  String serverIP = preferences.getString("serverip", SERVER_IP);
+  String serverIP = getSavedServerIP();
   
   HTTPClient http;
   
@@ -639,7 +723,7 @@ void checkServerCommands() {
   if (SERVER_PORT != 80) {
     url += ":" + String(SERVER_PORT);
   }
-  url += "/webapp/api/get_commands.php";
+  url += "/bnb/webapp/api/get_commands.php";
   
   http.begin(url);
   http.addHeader("X-API-KEY", API_KEY);

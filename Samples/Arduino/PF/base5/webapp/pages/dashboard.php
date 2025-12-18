@@ -427,6 +427,19 @@ if(!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
     </div>
 </div>
 
+<!-- Command Status Modal -->
+<div id="command-modal" class="modal-overlay">
+    <div class="modal-content-small">
+        <div class="modal-status-content">
+            <div id="command-modal-icon" class="modal-icon">
+                <div class="spinner"></div>
+            </div>
+            <h3 id="command-modal-title">Sending Command to Device</h3>
+            <p id="command-modal-message">Please wait...</p>
+        </div>
+    </div>
+</div>
+
 <footer class="footer">
     <div class="footer-content">
         <p class="footer-disclaimer">

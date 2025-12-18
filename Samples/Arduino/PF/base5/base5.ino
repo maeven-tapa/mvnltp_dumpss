@@ -94,7 +94,10 @@ Preferences preferences;
 bool wifiConnected = false;
 String savedSSID = "";
 String savedPassword = "";
+String savedServerIP = "";
 int wifiRSSI = 0;
+unsigned long wifiConnectionStartTime = 0;
+bool wifiConnectionInProgress = false;
 
 // Double press tracking for Button 1 (exit WiFi Mode)
 unsigned long lastBtn1WifiPressTime = 0;
@@ -419,6 +422,9 @@ void setup() {
 
 void loop() {
   static unsigned long lastUpdate = 0;
+  
+  // Check WiFi connection status (non-blocking) in all modes
+  checkWiFiConnection();
   
   // Update weight reading every 200ms (for all modes)
   if (millis() - lastWeightUpdate >= weightUpdateInterval) {
