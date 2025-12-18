@@ -690,11 +690,25 @@ void sendStatusUpdate() {
 void sendFeedEvent(int rounds, String feedType, String status) {
   if (!wifiConnected) return;
   
+  // Get current date and time
+  struct tm timeinfo;
+  if (!getLocalTime(&timeinfo)) {
+    Serial.println("Failed to obtain time for feed event");
+    return;
+  }
+  
+  char dateStr[11];
+  char timeStr[9];
+  strftime(dateStr, sizeof(dateStr), "%Y-%m-%d", &timeinfo);
+  strftime(timeStr, sizeof(timeStr), "%H:%M:%S", &timeinfo);
+  
   String jsonData = "{";
   jsonData += "\"dispensed\":" + String(rounds);
   jsonData += ",\"type\":\"" + feedType + "\"";
   jsonData += ",\"status\":\"" + status + "\"";
   jsonData += ",\"weight\":" + String(scale.get_units(5), 2);
+  jsonData += ",\"feed_date\":\"" + String(dateStr) + "\"";
+  jsonData += ",\"feed_time\":\"" + String(timeStr) + "\"";
   jsonData += "}";
   
   sendDataToServer(API_HARDWARE_UPDATE, jsonData);
@@ -772,14 +786,31 @@ void checkServerCommands() {
       else if (response.indexOf("\"type\":\"dispense\"") > 0) {
         Serial.println("[COMMAND] Type: Dispense Food");
         
-        // Extract rounds from command data
+        // Extract command data (now in JSON format)
         int dataStart = response.indexOf("\"data\":\"") + 8;
         int dataEnd = response.indexOf("\"", dataStart);
-        String roundsStr = response.substring(dataStart, dataEnd);
+        String dataStr = response.substring(dataStart, dataEnd);
+        
+        // Parse rounds from JSON data
+        int roundsStart = dataStr.indexOf("\"rounds\":") + 9;
+        int roundsEnd = dataStr.indexOf(",", roundsStart);
+        if (roundsEnd == -1) roundsEnd = dataStr.indexOf("}", roundsStart);
+        String roundsStr = dataStr.substring(roundsStart, roundsEnd);
         int rounds = roundsStr.toInt();
+        
+        // Parse feed type from JSON data
+        String feedType = "Quick";
+        int typeStart = dataStr.indexOf("\"feedType\":\"");
+        if (typeStart > 0) {
+          typeStart += 12;
+          int typeEnd = dataStr.indexOf("\"", typeStart);
+          feedType = dataStr.substring(typeStart, typeEnd);
+        }
         
         Serial.print("[COMMAND] Rounds to dispense: ");
         Serial.println(rounds);
+        Serial.print("[COMMAND] Feed type: ");
+        Serial.println(feedType);
         
         if (rounds > 0 && rounds <= 10) {
           // Extract command ID
@@ -797,7 +828,7 @@ void checkServerCommands() {
           // Execute the feeding
           Serial.println("[COMMAND] Executing feed command...");
           totalRounds = rounds;
-          executeFeedingSequence(rounds);
+          executeFeedingSequenceWithType(rounds, feedType);
           
           Serial.println("[COMMAND] Feed command completed!");
           

@@ -326,3 +326,109 @@ void executeFeedingSequence(int rounds) {
     sendFeedEvent(rounds, "Scheduled", status);
   }
 }
+
+// Execute feeding sequence with custom type (for web-initiated feeds)
+void executeFeedingSequenceWithType(int rounds, String feedType) {
+  Serial.print("Executing feed: ");
+  Serial.print(rounds);
+  Serial.print(" rounds (Type: ");
+  Serial.print(feedType);
+  Serial.println(")");
+  Serial.println("Hold BTN1 for 2 seconds to cancel");
+  
+  bool cancelled = false;
+  unsigned long btn1HoldStartTime = 0;
+  bool btn1Holding = false;
+  int i = 0;
+  
+  for (i = 0; i < rounds; i++) {
+    if (cancelled) break;
+    
+    Serial.print("Round ");
+    Serial.print(i + 1);
+    Serial.print("/");
+    Serial.println(rounds);
+    
+    // Activate servo and relay
+    feedServo.write(30);
+    digitalWrite(RELAY_PIN, HIGH);
+    
+    // Check for cancel during dispensing (1.5 seconds)
+    unsigned long startTime = millis();
+    while (millis() - startTime < 1500) {
+      bool btn1State = digitalRead(BTN1);
+      
+      if (btn1State == HIGH) {
+        if (!btn1Holding) {
+          btn1HoldStartTime = millis();
+          btn1Holding = true;
+        } else if (millis() - btn1HoldStartTime >= 2000) {
+          // Cancel triggered!
+          cancelled = true;
+          digitalWrite(BUZZER, HIGH);
+          delay(100);
+          digitalWrite(BUZZER, LOW);
+          delay(50);
+          digitalWrite(BUZZER, HIGH);
+          delay(100);
+          digitalWrite(BUZZER, LOW);
+          Serial.println("Feeding CANCELLED by user!");
+          break;
+        }
+      } else {
+        btn1Holding = false;
+      }
+      delay(10);
+    }
+    
+    // Deactivate
+    feedServo.write(0);
+    digitalWrite(RELAY_PIN, LOW);
+    
+    if (cancelled) break;
+    
+    // Wait between rounds (except after last round)
+    if (i < rounds - 1) {
+      // Check for cancel during wait period (1 second)
+      unsigned long waitStart = millis();
+      while (millis() - waitStart < 1000) {
+        bool btn1State = digitalRead(BTN1);
+        
+        if (btn1State == HIGH) {
+          if (!btn1Holding) {
+            btn1HoldStartTime = millis();
+            btn1Holding = true;
+          } else if (millis() - btn1HoldStartTime >= 2000) {
+            cancelled = true;
+            digitalWrite(BUZZER, HIGH);
+            delay(100);
+            digitalWrite(BUZZER, LOW);
+            delay(50);
+            digitalWrite(BUZZER, HIGH);
+            delay(100);
+            digitalWrite(BUZZER, LOW);
+            Serial.println("Feeding CANCELLED by user!");
+            break;
+          }
+        } else {
+          btn1Holding = false;
+        }
+        delay(10);
+      }
+    }
+  }
+  
+  if (cancelled) {
+    Serial.print("Feeding cancelled after ");
+    Serial.print(i);
+    Serial.println(" rounds");
+  } else {
+    Serial.println("Feeding complete!");
+  }
+  
+  // Send notification to server with status and custom type
+  if (wifiConnected) {
+    String status = cancelled ? "Cancelled" : "Success";
+    sendFeedEvent(rounds, feedType, status);
+  }
+}

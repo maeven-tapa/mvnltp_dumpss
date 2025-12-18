@@ -242,7 +242,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    rounds: actualRounds
+                    rounds: actualRounds,
+                    feedType: 'Quick'
                 })
             });
 

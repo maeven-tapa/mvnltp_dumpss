@@ -63,8 +63,9 @@ mysqli_query($conn, $sql);
 
 if (isset($input['dispensed'])) {
     $rounds = intval($input['dispensed']);
-    $date = date('Y-m-d');
-    $time = date('H:i:s');
+    // Use device timestamp if provided, otherwise use server time
+    $date = isset($input['feed_date']) ? mysqli_real_escape_string($conn, $input['feed_date']) : date('Y-m-d');
+    $time = isset($input['feed_time']) ? mysqli_real_escape_string($conn, $input['feed_time']) : date('H:i:s');
     $type = isset($input['type']) ? mysqli_real_escape_string($conn, $input['type']) : 'Scheduled';
     $status = isset($input['status']) ? mysqli_real_escape_string($conn, $input['status']) : 'Success';
     

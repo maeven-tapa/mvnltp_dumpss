@@ -4,9 +4,16 @@ include '../includes/db_config.php';
 
 $input = json_decode(file_get_contents('php://input'), true);
 $rounds = intval($input['rounds']);
+$feedType = isset($input['feedType']) ? mysqli_real_escape_string($conn, $input['feedType']) : 'Quick';
+
+// Store feed type in command_data as JSON
+$commandData = json_encode([
+    'rounds' => $rounds,
+    'feedType' => $feedType
+]);
 
 $sql = "INSERT INTO command_queue (command_type, command_data, status, created_at) 
-        VALUES ('dispense', '$rounds', 'pending', NOW())";
+        VALUES ('dispense', '$commandData', 'pending', NOW())";
 
 if (mysqli_query($conn, $sql)) {
     $commandId = mysqli_insert_id($conn);
