@@ -482,13 +482,10 @@ void checkWiFiConnection() {
     Serial.print("RSSI: ");
     Serial.println(wifiRSSI);
     
-    // Update UI based on current mode
+    // Update WiFi UI if in WiFi mode
     if (currentMode == WIFI_MODE) {
       testServerConnection();  // Check server immediately
       drawWiFiUI();
-    } else if (currentMode == HOME_MODE) {
-      // Refresh home screen to show WiFi icon
-      drawClockUI();
     }
     return;
   }
@@ -804,47 +801,6 @@ void checkServerCommands() {
           Serial.println(rounds);
           Serial.println("======================================");
         }
-      }
-      // Check for recalibrate command
-      else if (response.indexOf("\"type\":\"recalibrate\"") > 0) {
-        Serial.println("[COMMAND] Type: Recalibrate/Tare Scale");
-        Serial.println("[COMMAND] Taring scale without changing UI...");
-        
-        // Perform tare operation directly
-        scale.tare();
-        
-        // Save tare offset to preferences
-        preferences.begin("device-settings", false);
-        preferences.putLong("tare_offset", scale.get_offset());
-        preferences.end();
-        
-        // Buzz to confirm
-        digitalWrite(BUZZER, HIGH);
-        delay(200);
-        digitalWrite(BUZZER, LOW);
-        
-        Serial.println("[COMMAND] Scale tared successfully!");
-        
-        // Get new weight reading
-        float newWeight = scale.get_units(5);
-        if (newWeight < 0) newWeight = 0;
-        
-        Serial.print("[COMMAND] New weight reading: ");
-        Serial.print(newWeight);
-        Serial.println("g");
-        
-        // Send recalibrate event to server
-        String jsonData = "{";
-        jsonData += "\"recalibrated\":true";
-        jsonData += ",\"weight\":" + String(newWeight, 2);
-        jsonData += "}";
-        sendDataToServer(API_HARDWARE_UPDATE, jsonData);
-        
-        // Note: feedDate would require TimeLib.h for year(), month(), day() functions
-        // String feedDate = "{\"date\":\"" + String(year()) + "-" + String(month()) + "-" + String(day()) + "\"}";
-        
-        Serial.println("[COMMAND] Recalibration complete!");
-        Serial.println("======================================");
       }
       // Add more command types here as needed
     }
