@@ -786,25 +786,27 @@ void checkServerCommands() {
       else if (response.indexOf("\"type\":\"dispense\"") > 0) {
         Serial.println("[COMMAND] Type: Dispense Food");
         
-        // Extract command data (now in JSON format)
+        // Extract command data (format: "rounds:feedType")
         int dataStart = response.indexOf("\"data\":\"") + 8;
         int dataEnd = response.indexOf("\"", dataStart);
         String dataStr = response.substring(dataStart, dataEnd);
         
-        // Parse rounds from JSON data
-        int roundsStart = dataStr.indexOf("\"rounds\":") + 9;
-        int roundsEnd = dataStr.indexOf(",", roundsStart);
-        if (roundsEnd == -1) roundsEnd = dataStr.indexOf("}", roundsStart);
-        String roundsStr = dataStr.substring(roundsStart, roundsEnd);
-        int rounds = roundsStr.toInt();
+        Serial.print("[COMMAND] Raw data: ");
+        Serial.println(dataStr);
         
-        // Parse feed type from JSON data
+        // Parse rounds and feed type from "rounds:feedType" format
+        int colonIndex = dataStr.indexOf(':');
+        int rounds = 0;
         String feedType = "Quick";
-        int typeStart = dataStr.indexOf("\"feedType\":\"");
-        if (typeStart > 0) {
-          typeStart += 12;
-          int typeEnd = dataStr.indexOf("\"", typeStart);
-          feedType = dataStr.substring(typeStart, typeEnd);
+        
+        if (colonIndex > 0) {
+          // Format is "rounds:feedType"
+          String roundsStr = dataStr.substring(0, colonIndex);
+          rounds = roundsStr.toInt();
+          feedType = dataStr.substring(colonIndex + 1);
+        } else {
+          // Fallback: just rounds (old format)
+          rounds = dataStr.toInt();
         }
         
         Serial.print("[COMMAND] Rounds to dispense: ");

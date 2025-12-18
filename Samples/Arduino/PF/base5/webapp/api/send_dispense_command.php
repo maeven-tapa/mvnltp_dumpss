@@ -6,11 +6,8 @@ $input = json_decode(file_get_contents('php://input'), true);
 $rounds = intval($input['rounds']);
 $feedType = isset($input['feedType']) ? mysqli_real_escape_string($conn, $input['feedType']) : 'Quick';
 
-// Store feed type in command_data as JSON
-$commandData = json_encode([
-    'rounds' => $rounds,
-    'feedType' => $feedType
-]);
+// Store feed type in command_data as 'rounds:feedType' format
+$commandData = $rounds . ':' . $feedType;
 
 $sql = "INSERT INTO command_queue (command_type, command_data, status, created_at) 
         VALUES ('dispense', '$commandData', 'pending', NOW())";
