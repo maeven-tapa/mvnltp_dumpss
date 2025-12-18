@@ -15,8 +15,6 @@ CREATE TABLE IF NOT EXISTS users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
-    email VARCHAR(100),
-    full_name VARCHAR(100),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     last_login TIMESTAMP NULL,
     INDEX idx_username (username)
@@ -128,28 +126,14 @@ ON DUPLICATE KEY UPDATE setting_value=setting_value;
 
 -- ================================================================
 -- INSERT DEFAULT ADMIN USER
--- Password: admin123 (Please change after first login!)
--- Note: This is a bcrypt hash, you should generate a proper one
+-- Username: admin
+-- Password: 1234
+-- Note: This is a bcrypt hash of '1234'
 -- ================================================================
-INSERT INTO users (username, password, email, full_name) VALUES
-('admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin@petfeeder.local', 'Administrator')
+INSERT INTO users (username, password) VALUES
+('admin', '$2y$10$3euPcmQFCiblsZeEu5s7p.dbLfgZLfMbslE2L.gJpF3RwHCFBrmvS')
 ON DUPLICATE KEY UPDATE username=username;
 
--- ================================================================
--- INSERT SAMPLE SCHEDULES (Optional)
--- ================================================================
-INSERT INTO schedules (schedule_name, interval_type, start_time, rounds, frequency, is_active) VALUES
-('Morning Feed', 'daily', '07:00:00', 2, 'repeat', 1),
-('Evening Feed', 'daily', '18:00:00', 2, 'repeat', 1)
-ON DUPLICATE KEY UPDATE schedule_name=schedule_name;
-
--- ================================================================
--- INSERT SAMPLE HISTORY (Optional - for testing)
--- ================================================================
-INSERT INTO history (feed_date, feed_time, rounds, type, status) VALUES
-(CURDATE(), '07:00:00', 2, 'Scheduled', 'Success'),
-(CURDATE(), '18:00:00', 2, 'Scheduled', 'Success')
-ON DUPLICATE KEY UPDATE feed_date=feed_date;
 
 -- ================================================================
 -- CREATE VIEWS FOR EASY DATA ACCESS
