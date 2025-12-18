@@ -97,15 +97,13 @@ int btn1WifiPressCount = 0;
 // Long press tracking for Button 2 (WiFi reset)
 unsigned long btn2WifiPressStartTime = 0;
 bool btn2WifiLongPressTriggered = false;
+
 // Server communication state
 unsigned long lastHeartbeat = 0;
-unsigned long lastWeightUpdate = 0;
 bool serverConnected = false;
-float lastSentWeight = 0.0;// Server communication variables
+float lastSentWeight = 0.0;
 unsigned long lastServerUpdate = 0;
-bool serverConnected = false;// Server communication variables
-unsigned long lastServerUpdate = 0;
-bool serverConnected = false;
+
 // Scheduling mode state
 Schedule feedSchedule = {false, 0, 0, 0, 0};
 
