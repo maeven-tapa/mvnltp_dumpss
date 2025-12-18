@@ -106,6 +106,21 @@ CREATE TABLE IF NOT EXISTS device_logs (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- ================================================================
+-- COMMAND QUEUE TABLE
+-- Stores commands to be sent to the device
+-- ================================================================
+CREATE TABLE IF NOT EXISTS command_queue (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    command_type VARCHAR(50) NOT NULL COMMENT 'dispense, factory_reset, recalibrate, etc.',
+    command_data VARCHAR(255) NOT NULL COMMENT 'Command parameters',
+    status VARCHAR(20) DEFAULT 'pending' COMMENT 'pending, processing, completed, failed',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    executed_at TIMESTAMP NULL,
+    INDEX idx_status (status),
+    INDEX idx_created_at (created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- ================================================================
 -- INSERT DEFAULT DEVICE SETTINGS
 -- ================================================================
 INSERT INTO device_settings (setting_key, setting_value, description) VALUES
