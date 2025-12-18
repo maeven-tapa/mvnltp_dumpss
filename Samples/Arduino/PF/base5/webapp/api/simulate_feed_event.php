@@ -1,4 +1,5 @@
 <?php
+date_default_timezone_set('Asia/Manila');
 // Simulate Arduino sending feed event to hardware_update.php
 header('Content-Type: application/json');
 

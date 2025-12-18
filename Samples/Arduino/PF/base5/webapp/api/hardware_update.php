@@ -1,4 +1,7 @@
 <?php
+// Set timezone to Philippine Time
+date_default_timezone_set('Asia/Manila');
+
 // Allow requests from Arduino device
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, OPTIONS');

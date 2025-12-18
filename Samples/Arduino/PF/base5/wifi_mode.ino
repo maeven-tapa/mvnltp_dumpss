@@ -690,28 +690,40 @@ void sendStatusUpdate() {
 void sendFeedEvent(int rounds, String feedType, String status) {
   if (!wifiConnected) return;
   
-  // Get current date and time
-  struct tm timeinfo;
-  if (!getLocalTime(&timeinfo)) {
-    Serial.println("Failed to obtain time for feed event");
-    return;
-  }
-  
-  char dateStr[11];
-  char timeStr[9];
-  strftime(dateStr, sizeof(dateStr), "%Y-%m-%d", &timeinfo);
-  strftime(timeStr, sizeof(timeStr), "%H:%M:%S", &timeinfo);
+  Serial.println("[FEED_EVENT] Preparing to send feed event to server...");
   
   String jsonData = "{";
   jsonData += "\"dispensed\":" + String(rounds);
   jsonData += ",\"type\":\"" + feedType + "\"";
   jsonData += ",\"status\":\"" + status + "\"";
   jsonData += ",\"weight\":" + String(scale.get_units(5), 2);
-  jsonData += ",\"feed_date\":\"" + String(dateStr) + "\"";
-  jsonData += ",\"feed_time\":\"" + String(timeStr) + "\"";
+  
+  // Try to get current date and time from NTP
+  struct tm timeinfo;
+  if (getLocalTime(&timeinfo)) {
+    char dateStr[11];
+    char timeStr[9];
+    strftime(dateStr, sizeof(dateStr), "%Y-%m-%d", &timeinfo);
+    strftime(timeStr, sizeof(timeStr), "%H:%M:%S", &timeinfo);
+    jsonData += ",\"feed_date\":\"" + String(dateStr) + "\"";
+    jsonData += ",\"feed_time\":\"" + String(timeStr) + "\"";
+    Serial.println("[FEED_EVENT] Using NTP time");
+  } else {
+    // If NTP time fails, let server use its own timestamp
+    Serial.println("[FEED_EVENT] NTP time not available, server will use its own timestamp");
+  }
+  
   jsonData += "}";
   
-  sendDataToServer(API_HARDWARE_UPDATE, jsonData);
+  Serial.print("[FEED_EVENT] Sending data: ");
+  Serial.println(jsonData);
+  
+  bool result = sendDataToServer(API_HARDWARE_UPDATE, jsonData);
+  if (result) {
+    Serial.println("[FEED_EVENT] Feed event sent successfully!");
+  } else {
+    Serial.println("[FEED_EVENT] Failed to send feed event!");
+  }
 }
 
 // Send alert to server
