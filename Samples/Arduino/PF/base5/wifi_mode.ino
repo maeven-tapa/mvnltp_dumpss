@@ -482,10 +482,12 @@ void checkWiFiConnection() {
     Serial.print("RSSI: ");
     Serial.println(wifiRSSI);
     
-    // Update WiFi UI if in WiFi mode
+    // Update display based on current mode
     if (currentMode == WIFI_MODE) {
       testServerConnection();  // Check server immediately
       drawWiFiUI();
+    } else if (currentMode == HOME_MODE) {
+      drawClockUI();  // Refresh home display to show WiFi icon
     }
     return;
   }
@@ -752,6 +754,15 @@ void checkServerCommands() {
       // Check for factory reset command
       if (response.indexOf("\"type\":\"factory_reset\"") > 0) {
         Serial.println("[COMMAND] Type: Factory Reset");
+        
+        // Extract command ID
+        int idStart = response.indexOf("\"id\":") + 5;
+        int idEnd = response.indexOf(",", idStart);
+        String commandId = response.substring(idStart, idEnd);
+        
+        // Send completion feedback before reset
+        sendCommandCompletion(commandId, true, "Factory reset initiated");
+        
         executeFactoryReset();
       }
       // Check for dispense command
@@ -787,8 +798,11 @@ void checkServerCommands() {
           
           Serial.println("[COMMAND] Feed command completed!");
           
-          // Immediately send status update to server
-          Serial.println("[COMMAND] Sending completion status to server...");
+          // Send command completion feedback to server
+          sendCommandCompletion(commandId, true, "Dispensed " + String(rounds) + " rounds successfully");
+          
+          // Send status update to server
+          Serial.println("[COMMAND] Sending status update to server...");
           sendStatusUpdate();
           
           Serial.println("[COMMAND] Command processing complete!");
@@ -807,6 +821,59 @@ void checkServerCommands() {
   }
   
   http.end();
+}
+
+// Send command completion feedback to server
+void sendCommandCompletion(String commandId, bool success, String message = "") {
+  if (!wifiConnected || WiFi.status() != WL_CONNECTED) {
+    return;
+  }
+  
+  Serial.println("[FEEDBACK] Sending command completion to server...");
+  Serial.print("[FEEDBACK] Command ID: ");
+  Serial.println(commandId);
+  Serial.print("[FEEDBACK] Success: ");
+  Serial.println(success ? "true" : "false");
+  
+  String serverIP = getSavedServerIP();
+  HTTPClient http;
+  
+  String url = "http://" + serverIP;
+  if (SERVER_PORT != 80) {
+    url += ":" + String(SERVER_PORT);
+  }
+  url += "/webapp/api/command_complete.php";
+  
+  http.begin(url);
+  http.addHeader("Content-Type", "application/json");
+  http.addHeader("X-API-KEY", API_KEY);
+  
+  String jsonData = "{";
+  jsonData += "\"command_id\":" + commandId + ",";
+  jsonData += "\"success\":" + String(success ? "true" : "false");
+  if (message.length() > 0) {
+    jsonData += ",\"message\":\"" + message + "\"";
+  }
+  jsonData += "}";
+  
+  Serial.print("[FEEDBACK] Payload: ");
+  Serial.println(jsonData);
+  
+  int httpResponseCode = http.POST(jsonData);
+  
+  if (httpResponseCode > 0) {
+    String response = http.getString();
+    Serial.print("[FEEDBACK] Response code: ");
+    Serial.println(httpResponseCode);
+    Serial.print("[FEEDBACK] Response: ");
+    Serial.println(response);
+  } else {
+    Serial.print("[FEEDBACK] Error sending completion: ");
+    Serial.println(httpResponseCode);
+  }
+  
+  http.end();
+  Serial.println("[FEEDBACK] Command completion sent!");
 }
 
 // Execute factory reset
