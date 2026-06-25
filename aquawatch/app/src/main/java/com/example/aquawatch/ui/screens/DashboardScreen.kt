@@ -63,7 +63,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 @Composable
-fun DashboardScreen(onOpenAlerts: () -> Unit) {
+fun DashboardScreen(onOpenAlerts: () -> Unit, onOpenReports: () -> Unit) {
     val context = LocalContext.current
     val copy = appCopy(LocalAppLanguage.current)
     val monitoringArea = remember { context.getMonitoringArea() }
@@ -134,6 +134,8 @@ fun DashboardScreen(onOpenAlerts: () -> Unit) {
                     )
                     Spacer(Modifier.height(12.dp))
                     PrimaryActionButton(text = copy.viewAllAlerts, onClick = onOpenAlerts)
+                    Spacer(Modifier.height(10.dp))
+                    PrimaryActionButton(text = "Add Report", onClick = onOpenReports)
                 }
             }
         }

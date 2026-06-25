@@ -112,11 +112,13 @@ fun MainNavigationScreen(
         ) {
             composable(Routes.DASHBOARD) {
                 DashboardScreen(
-                    onOpenAlerts = { controller.navigate(Routes.ALERTS) }
+                    onOpenAlerts = { controller.navigate(Routes.ALERTS) },
+                    onOpenReports = { controller.navigate(Routes.REPORTS) }
                 )
             }
             composable(Routes.MAP) { MapScreen() }
             composable(Routes.ALERTS) { AlertsScreen() }
+            composable(Routes.REPORTS) { ReportsScreen() }
             composable(Routes.DEVICES) {
                 DevicesScreen(
                     devices = devices,
